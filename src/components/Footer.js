@@ -1,4 +1,4 @@
-import { faFacebookF, faLinkedin, faSquareGithub, faXTwitter } from '@fortawesome/free-brands-svg-icons';
+import { faFacebookF, faInstagram, faLinkedin, faXTwitter } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 export const Footer = () => {
   return (
@@ -94,7 +94,7 @@ export const Footer = () => {
                     href="/"
                     className="text-gray-400 hover:text-white transition-colors duration-200"
                   >
-                    <FontAwesomeIcon icon={faSquareGithub} />
+                    <FontAwesomeIcon icon={faInstagram} />
                   </a>
                 </div>
               </div>

@@ -1,5 +1,5 @@
+import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -22,7 +22,10 @@ export const Navbar = () => {
           </a>
         </div>
         <div className="md:hidden">
-          <button onClick={toggleMenu} className="text-white focus:outline-none">
+          <button
+            onClick={toggleMenu}
+            className="text-white focus:outline-none"
+          >
             <motion.span
               initial={{ rotate: 0, scale: 1 }}
               animate={{ rotate: isOpen ? 180 : 0, scale: isOpen ? 1.2 : 1 }}
@@ -37,7 +40,7 @@ export const Navbar = () => {
           {["Services", "About", "Projects", "Contact"].map((item) => (
             <a
               key={item}
-              className="relative hover:text-yellow-300 after:absolute after:left-0 after:bottom-[-3px] after:w-full after:h-[2px] after:bg-yellow-300 after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300"
+              className="relative hover:text-slate-800 after:absolute after:left-0 after:bottom-[-3px] after:w-full after:h-[2px] after:bg-slate-800 after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300"
               href={`/${item.toLowerCase()}`}
             >
               {item}

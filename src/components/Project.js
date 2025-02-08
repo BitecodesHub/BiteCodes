@@ -65,7 +65,7 @@ export const Projects = () => {
                     React
                   </span>
                   <span className="px-3 py-1 bg-green-100 rounded-full text-sm">
-                    Node.js
+                    Spring Boot
                   </span>
                   <span className="px-3 py-1 bg-purple-100 rounded-full text-sm">
                     MongoDB
@@ -118,10 +118,10 @@ export const Projects = () => {
                 </p>
                 <div className="flex flex-wrap gap-2 mb-4">
                   <span className="px-3 py-1 bg-blue-100 rounded-full text-sm">
-                    Angular
+                    React
                   </span>
                   <span className="px-3 py-1 bg-green-100 rounded-full text-sm">
-                    Django
+                    Spring Boot
                   </span>
                   <span className="px-3 py-1 bg-yellow-100 rounded-full text-sm">
                     AWS
@@ -145,13 +145,13 @@ export const Projects = () => {
                 </p>
                 <div className="flex flex-wrap gap-2 mb-4">
                   <span className="px-3 py-1 bg-blue-100 rounded-full text-sm">
-                    Next.js
+                    React
                   </span>
                   <span className="px-3 py-1 bg-purple-100 rounded-full text-sm">
-                    Socket.io
+                    Spring Boot
                   </span>
                   <span className="px-3 py-1 bg-green-100 rounded-full text-sm">
-                    Redis
+                    PostgreSQL
                   </span>
                 </div>
               </div>
@@ -189,4 +189,3 @@ export const Projects = () => {
     </div>
   );
 };
-
