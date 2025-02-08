@@ -1,8 +1,15 @@
 import React from "react";
+import { Helmet } from "react-helmet-async";
 
 export const MainPage = () => {
   return (
     <div id="webcrumbs">
+      <Helmet>
+        <title>BiteCodes - Top Software Outsourcing Company</title>
+        <meta name="description" content="BiteCodes provides world-class software development solutions." />
+        <meta property="og:title" content="BiteCodes - Software Outsourcing Experts" />
+        <meta property="og:image" content="/seo-image.png" />
+      </Helmet>
       <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
         <main className="max-w-7xl mx-auto px-4 py-16">
           <section className="text-center mb-20">
@@ -114,3 +121,4 @@ export const MainPage = () => {
     </div>
   );
 };
+export default MainPage;

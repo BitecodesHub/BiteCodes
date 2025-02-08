@@ -7,6 +7,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useState } from "react";
 
+
 export const Contact = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
 
@@ -215,3 +216,4 @@ export const Contact = () => {
     </div>
   );
 };
+export default Contact;

@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 
+
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -74,3 +75,4 @@ export const Navbar = () => {
     </nav>
   );
 };
+export default Navbar;
