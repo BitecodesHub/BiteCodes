@@ -50,28 +50,28 @@ export const Navbar = () => {
         </div>
       </div>
       <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="md:hidden bg-white shadow-md overflow-hidden"
+  {isOpen && (
+    <motion.div
+      initial={{ opacity: 0, height: 0 }}
+      animate={{ opacity: 1, height: "auto" }}
+      exit={{ opacity: 0, height: 0 }}
+      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      className="md:hidden bg-white shadow-md overflow-hidden"
+    >
+      <div className="flex flex-col space-y-3 px-7 py-4 items-center"> {/* Added items-center here */}
+        {["Services", "About", "Projects", "Contact"].map((item) => (
+          <a
+            key={item}
+            className="text-blue-600 text-lg font-bold hover:text-purple-600 transition-colors duration-300 text-center w-full" // Added text-center and w-full
+            href={`/${item.toLowerCase()}`}
           >
-            <div className="flex flex-col space-y-3 px-7 py-4">
-              {["Services", "About", "Projects", "Contact"].map((item) => (
-                <a
-                  key={item}
-                  className="text-blue-600 text-lg font-bold hover:text-purple-600 transition-colors duration-300"
-                  href={`/${item.toLowerCase()}`}
-                >
-                  {item}
-                </a>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            {item}
+          </a>
+        ))}
+      </div>
+    </motion.div>
+  )}
+</AnimatePresence>
     </nav>
   );
 };
