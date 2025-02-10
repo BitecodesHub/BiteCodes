@@ -11,7 +11,7 @@ export const Navbar = () => {
 
   return (
     <nav className="bg-gradient-to-r from-blue-500 to-purple-500 shadow-xl">
-      <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+      <div className="max-w-full mx-auto px-6 py-4 flex justify-between items-center">
         <div className="flex items-center space-x-2">
           <span className="material-symbols-outlined text-3xl text-white animate-spin">
             code

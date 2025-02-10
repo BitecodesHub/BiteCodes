@@ -11,6 +11,7 @@ const About = lazy(() => import("./components/About"));
 const Contact = lazy(() => import("./components/Contact"));
 const Services = lazy(() => import("./components/Services"));
 const Projects = lazy(() => import("./components/Project")); // Ensure correct case
+const PriceList = lazy(() => import("./components/PriceList")); // Ensure correct case
 
 function App() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -46,6 +47,7 @@ function App() {
               <Route path="/contact" element={<Contact />} />
               <Route path="/services" element={<Services />} />
               <Route path="/projects" element={<Projects />} />
+              <Route path="/pricelist" element={<PriceList />} />
             </Routes>
           </Suspense>
         </main>

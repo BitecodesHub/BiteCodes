@@ -11,7 +11,7 @@ export const MainPage = () => {
         <meta property="og:image" content="/seo-image.png" />
       </Helmet>
       <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
-        <main className="max-w-7xl mx-auto px-4 py-16">
+        <main className="max-w-full mx-auto px-4 py-16">
           <section className="text-center mb-20">
             <h2 className="text-5xl font-bold mb-6 animate-pulse">
               We Build Amazing Software
@@ -22,6 +22,11 @@ export const MainPage = () => {
             <a href="/services">
               <button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full transform hover:scale-105 transition-transform duration-200">
                 Get Started
+              </button>
+            </a>
+            <a href="/pricelist">
+            <button className="ms-5 bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full transform hover:scale-105 transition-transform duration-200">
+                Pricing
               </button>
             </a>
           </section>
