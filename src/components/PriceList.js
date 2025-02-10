@@ -10,24 +10,24 @@ export const PriceList = () => {
           Website Development Pricing
         </h1>
 
-        {/* Section Tabs - Scrollable in Mobile */}
-        <div className="flex gap-4 overflow-x-auto whitespace-nowrap justify-center mb-6 pb-2">
-          {["Development", "services", "maintenance"].map((section) => (
+        {/* Section Tabs - Always in One Line */}
+        <div className="flex justify-center space-x-6 mb-6">
+          {["Development", "Services", "Maintenance"].map((section) => (
             <button
               key={section}
-              className={`px-6 py-2 rounded-lg font-semibold transition-all duration-300 ${
+              className={`w-[150px] md:w-auto px-6 py-2 text-center rounded-lg font-semibold transition-all duration-300 ${
                 activeSection === section
                   ? "bg-blue-600 text-white shadow-lg"
                   : "bg-white shadow-md"
               }`}
               onClick={() => setActiveSection(section)}
             >
-              {section.charAt(0).toUpperCase() + section.slice(1)}
+              {section}
             </button>
           ))}
         </div>
 
-        {/* Pricing Sections - Mobile Optimized */}
+        {/* Pricing Sections - Responsive Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Website Development */}
           {activeSection === "Development" && (
@@ -51,7 +51,7 @@ export const PriceList = () => {
           )}
 
           {/* Services */}
-          {activeSection === "services" && (
+          {activeSection === "Services" && (
             <>
               <PriceCard
                 title="Web Services"
@@ -77,7 +77,7 @@ export const PriceList = () => {
           )}
 
           {/* Maintenance */}
-          {activeSection === "maintenance" && (
+          {activeSection === "Maintenance" && (
             <>
               <PriceCard
                 title="Maintenance"
