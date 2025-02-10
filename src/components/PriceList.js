@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 export const PriceList = () => {
-  const [activeSection, setActiveSection] = useState("website");
+  const [activeSection, setActiveSection] = useState("Development");
 
   return (
     <div id="webcrumbs">
