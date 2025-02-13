@@ -50,6 +50,34 @@ export const Projects = () => {
               </article>
             </a>
 
+            <a href="https://voistock.bitecodes.com">
+            <article className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+              <div className="h-48 bg-gradient-to-r from-pink-400 to-pink-600 relative">
+                <span className="material-symbols-outlined absolute inset-0 flex items-center justify-center text-white text-6xl">
+                receipt_long
+                </span>
+              </div>
+              <div className="p-6">
+                <h3 className="text-2xl font-bold mb-3">
+                Billing & Invoice Application
+                </h3>
+                <p className="text-gray-900 mb-4">
+                A powerful web app for effortless billing, invoicing, and stock management.
+                </p>
+                <div className="flex flex-wrap gap-2 mb-4">
+                  <span className="px-3 py-1 bg-blue-100 rounded-full text-sm">
+                    React
+                  </span>
+                  <span className="px-3 py-1 bg-purple-100 rounded-full text-sm">
+                    Spring Boot
+                  </span>
+                  <span className="px-3 py-1 bg-green-100 rounded-full text-sm">
+                    PostgreSQL
+                  </span>
+                </div>
+              </div>
+            </article>
+            </a>
             <article className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
               <div className="h-48 bg-gradient-to-r from-blue-400 to-blue-600 relative">
                 <span className="material-symbols-outlined absolute inset-0 flex items-center justify-center text-white text-6xl">
@@ -131,32 +159,7 @@ export const Projects = () => {
               </div>
             </article>
 
-            <article className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
-              <div className="h-48 bg-gradient-to-r from-pink-400 to-pink-600 relative">
-                <span className="material-symbols-outlined absolute inset-0 flex items-center justify-center text-white text-6xl">
-                  construction
-                </span>
-              </div>
-              <div className="p-6">
-                <h3 className="text-2xl font-bold mb-3">
-                Billing & Invoice Application
-                </h3>
-                <p className="text-gray-900 mb-4">
-                  Under Development.
-                </p>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  <span className="px-3 py-1 bg-blue-100 rounded-full text-sm">
-                    React
-                  </span>
-                  <span className="px-3 py-1 bg-purple-100 rounded-full text-sm">
-                    Spring Boot
-                  </span>
-                  <span className="px-3 py-1 bg-green-100 rounded-full text-sm">
-                    PostgreSQL
-                  </span>
-                </div>
-              </div>
-            </article>
+            
 
             <article className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
               <div className="h-48 bg-gradient-to-r from-indigo-400 to-indigo-600 relative">
