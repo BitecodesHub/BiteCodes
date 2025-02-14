@@ -6,17 +6,17 @@ export const PriceList = () => {
   return (
     <div id="webcrumbs">
       <div className="w-full bg-gradient-to-br from-slate-50 to-blue-50 py-6 px-4 md:px-8">
-        <h1 className="text-2xl md:text-4xl font-bold mb-6 text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
-          Website Development Pricing
+        <h1 className="text-2xl md:text-4xl font-bold mb-6 text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 py-5">
+          Pricing
         </h1>
 
         {/* Section Tabs - Auto-Adjusting Buttons */}
-        <div className="grid grid-cols-3 gap-3 md:gap-6 mb-6">
+        <div className="grid grid-cols-3 gap-3 md:gap-3 mb-5">
           {["Development", "Services", "Maintenance"].map((section) => (
            <button
            key={section}
            className={`px-4 py-2 text-center rounded-lg font-semibold transition-all duration-300 transform hover:scale-105
-                       flex items-center justify-center  // Added this line
+                       flex items-center justify-center
                        ${activeSection === section
                          ? "bg-blue-600 text-white shadow-lg"
                          : "bg-white shadow-md hover:bg-blue-50"
@@ -29,7 +29,7 @@ export const PriceList = () => {
         </div>
 
         {/* Pricing Sections - Responsive Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 my-10 gap-4 md:gap-6">
           {/* Website Development */}
           {activeSection === "Development" && (
             <>

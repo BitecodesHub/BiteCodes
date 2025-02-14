@@ -14,7 +14,7 @@ export const About = () => {
             </p>
           </section>
           <section className="grid md:grid-cols-2 gap-12 mb-20">
-            <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+            <div className="bg-white p-8 text-center rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
               <span className="material-symbols-outlined text-5xl text-blue-600">
                 history_edu
               </span>
@@ -25,7 +25,7 @@ export const About = () => {
               </p>
             </div>
 
-            <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+            <div className="bg-white p-8 text-center rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
               <span className="material-symbols-outlined text-5xl text-purple-600">
                 lightbulb
               </span>

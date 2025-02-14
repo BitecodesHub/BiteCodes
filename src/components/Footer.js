@@ -53,7 +53,9 @@ export const Footer = () => {
             <h4 className="text-lg font-semibold mb-4">Contact Us</h4>
             <ul className="space-y-2 text-gray-400">
               <li className="flex items-center justify-center">
-                <span className="material-symbols-outlined mr-2">location_on</span>
+                <span className="material-symbols-outlined mr-2">
+                  location_on
+                </span>
                 Ahmedabad
               </li>
               <li className="flex items-center justify-center">
@@ -69,16 +71,32 @@ export const Footer = () => {
           <div>
             <h4 className="text-lg font-semibold mb-4">Follow Us</h4>
             <div className="flex justify-center space-x-4">
-              <a href="/" className="text-gray-400 hover:text-white transition-colors duration-200">
+              <a
+                href="/"
+                className="text-gray-400 hover:text-white transition-colors duration-200"
+              >
                 <FontAwesomeIcon icon={faFacebookF} />
               </a>
-              <a href="/" className="text-gray-400 hover:text-white transition-colors duration-200">
+              <a
+                href="/"
+                className="text-gray-400 hover:text-white transition-colors duration-200"
+              >
                 <FontAwesomeIcon icon={faXTwitter} />
               </a>
-              <a href="/" className="text-gray-400 hover:text-white transition-colors duration-200">
+              <a
+                href="https://www.linkedin.com/in/bite-codes/"
+                rel="noreferrer"
+                target="_blank"
+                className="text-gray-400 hover:text-white transition-colors duration-200"
+              >
                 <FontAwesomeIcon icon={faLinkedin} />
               </a>
-              <a href="/" className="text-gray-400 hover:text-white transition-colors duration-200">
+              <a
+                href="https://www.instagram.com/bitecodes.co"
+                target="_blank"
+                rel="noreferrer"
+                className="text-gray-400 hover:text-white transition-colors duration-200"
+              >
                 <FontAwesomeIcon icon={faInstagram} />
               </a>
             </div>

@@ -55,7 +55,9 @@ export const Contact = () => {
                 </svg>
               </div>
               <h3 className="text-xl font-semibold mb-2">Success!</h3>
-              <p className="text-gray-600">Our team will reach out to you shortly!</p>
+              <p className="text-gray-600">
+                Our team will reach out to you shortly!
+              </p>
             </div>
           </div>
         )}
@@ -195,13 +197,17 @@ export const Contact = () => {
                       <FontAwesomeIcon icon={faXTwitter} />
                     </a>
                     <a
-                      href="/"
+                      href="https://www.linkedin.com/in/bite-codes/"
+                      rel="noreferrer"
+                      target="_blank"
                       className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors duration-200"
                     >
                       <FontAwesomeIcon icon={faLinkedin} />
                     </a>
                     <a
-                      href="/"
+                      href="https://www.instagram.com/bitecodes.co"
+                      rel="noreferrer"
+                      target="_blank"
                       className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors duration-200"
                     >
                       <FontAwesomeIcon icon={faInstagram} />

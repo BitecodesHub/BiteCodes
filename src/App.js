@@ -25,7 +25,7 @@ function App() {
     <>
       <Helmet>
         <title>BiteCodes - Software Experts</title>
-        <meta name="description" content="BiteCodes is a leading software outsourcing company specializing in web and app development." />
+        <meta name="description" content="BiteCodes is a leading software company specializing in web and app development." />
       </Helmet>
 
       <div className="flex flex-col min-h-screen">
