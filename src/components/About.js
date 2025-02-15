@@ -82,7 +82,7 @@ export const About = () => {
                 <h4 className="text-lg font-bold mt-4 mb-2">
                   Software Engineers
                 </h4>
-                <p className="text-gray-600">2+ Engineers</p>
+                <p className="text-gray-600">3+ Engineers</p>
               </div>
 
               <div className="p-6 text-center bg-gradient-to-b from-purple-50 to-white rounded-xl hover:shadow-lg transition-all duration-300">
@@ -90,7 +90,7 @@ export const About = () => {
                   brush
                 </span>
                 <h4 className="text-lg font-bold mt-4 mb-2">UI/UX Designers</h4>
-                <p className="text-gray-600">0 Creatives</p>
+                <p className="text-gray-600">1 Creatives</p>
               </div>
 
               <div className="p-6 text-center bg-gradient-to-b from-green-50 to-white rounded-xl hover:shadow-lg transition-all duration-300">
@@ -100,7 +100,7 @@ export const About = () => {
                 <h4 className="text-lg font-bold mt-4 mb-2">
                   Project Managers
                 </h4>
-                <p className="text-gray-600">2 Leaders</p>
+                <p className="text-gray-600">3 Leaders</p>
               </div>
 
               <div className="p-6 text-center bg-gradient-to-b from-orange-50 to-white rounded-xl hover:shadow-lg transition-all duration-300">
