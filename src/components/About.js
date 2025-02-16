@@ -126,7 +126,7 @@ export const About = () => {
                     </span>
                   </div>
                   <h4 className="text-2xl font-bold mb-2">Ismail Mansuri</h4>
-                  <p className="text-gray-600 mb-4">Founder & CEO</p>
+                  <p className="text-gray-600 mb-4">Founder</p>
                   <p className="text-gray-600 text-center leading-relaxed">
                     6+ Months of Experience in Software Development and Team
                     Leadership.
@@ -141,7 +141,7 @@ export const About = () => {
                     </span>
                   </div>
                   <h4 className="text-2xl font-bold mb-2">Karan Jaswani</h4>
-                  <p className="text-gray-600 mb-4">Co-founder & CTO</p>
+                  <p className="text-gray-600 mb-4">Co-founder</p>
                   <p className="text-gray-600 text-center leading-relaxed">
                     6+ Months of Experience in Software Development and Team
                     Leadership.
