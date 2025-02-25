@@ -118,32 +118,48 @@ const AI = () => {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-      className={`min-h-screen flex justify-center items-center p-5 transition-colors duration-300 ${isDarkMode ? "bg-gray-900" : "bg-gray-100"}`}>
-      <div className={`w-full max-w-2xl ${isDarkMode ? "bg-gray-800" : "bg-white"} rounded-2xl shadow-xl p-6 relative`}>
-        <header className="flex justify-between items-center mb-6">
-          <motion.h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">BiteCode AI</motion.h1>
-          <motion.button onClick={toggleTheme} className={`p-3 rounded-full ${isDarkMode ? "bg-gray-700 text-amber-300" : "bg-gray-200 text-blue-600"}`}>
+      className={`min-h-screen flex justify-center items-center p-3 sm:p-5 transition-colors duration-300 ${isDarkMode ? "bg-gray-900" : "bg-gray-100"}`}>
+      
+      <div className={`w-full max-w-2xl ${isDarkMode ? "bg-gray-800" : "bg-white"} rounded-2xl shadow-xl p-5 sm:p-6 relative`}>
+
+        {/* Header */}
+        <header className="flex justify-between items-center mb-4 sm:mb-6">
+          <motion.h1 className="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">BiteCode AI</motion.h1>
+          <motion.button onClick={toggleTheme} className={`p-2 sm:p-3 rounded-full transition ${isDarkMode ? "bg-gray-700 text-amber-300" : "bg-gray-200 text-blue-600"}`}>
             {isDarkMode ? "🌙" : "☀️"}
           </motion.button>
         </header>
 
-        <div ref={chatContainerRef} className={`h-[500px] overflow-y-auto p-4 rounded-xl mb-6 ${isDarkMode ? "bg-gray-900" : "bg-gray-100"}`}>
+        {/* Chat Container */}
+        <div ref={chatContainerRef} className={`h-[60vh] sm:h-[500px] overflow-y-auto p-3 sm:p-4 rounded-xl mb-4 sm:mb-6 ${isDarkMode ? "bg-gray-900" : "bg-gray-100"}`}>
           <AnimatePresence>
             {chatMessages.map((msg) => (
-              <motion.div key={msg.id} className={msg.className === "user-message" ? "text-right" : "text-left"}>
-                <div className={`inline-block max-w-[85%] p-4 rounded-2xl shadow-lg ${msg.className === "user-message" ? "bg-blue-500 text-white" : "bg-gray-200"}`}>{msg.text}</div>
+              <motion.div key={msg.id} className={`mb-2 flex ${msg.className === "user-message" ? "justify-end" : "justify-start"}`}>
+                <div className={`max-w-[80%] sm:max-w-[75%] md:max-w-[65%] p-3 sm:p-4 rounded-2xl shadow-md ${msg.className === "user-message" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-900"}`}>
+                  {msg.text}
+                </div>
               </motion.div>
             ))}
           </AnimatePresence>
-          {loading && <span className="text-gray-400">BiteCode is thinking...</span>}
+          {loading && <span className="text-gray-400 text-sm">BiteCode is thinking...</span>}
         </div>
 
-        <div className="flex gap-4">
-          <motion.input type="text" value={message} onChange={handleInputChange} className="flex-1 p-4 rounded-xl border" placeholder="Ask me anything about coding..." />
-          <motion.button onClick={toggleGenerate} className={`p-4 rounded-xl font-semibold shadow-lg ${loading ? "bg-red-500" : "bg-blue-600 text-white"}`}>
+        {/* Input Section */}
+        <div className="flex flex-wrap sm:flex-nowrap gap-2 sm:gap-4">
+          <motion.input 
+            type="text"
+            value={message}
+            onChange={handleInputChange}
+            className="flex-1 p-3 sm:p-4 rounded-xl border text-sm sm:text-base focus:ring focus:ring-blue-300"
+            placeholder="Ask me anything about coding..."
+          />
+          <motion.button 
+            onClick={toggleGenerate} 
+            className={`p-3 sm:p-4 rounded-xl font-semibold shadow-md transition text-sm sm:text-base ${loading ? "bg-red-500" : "bg-blue-600 text-white"}`}>
             {loading ? "⏹︎ Stop" : "🚀 Send"}
           </motion.button>
         </div>
+        
       </div>
     </motion.div>
   );
