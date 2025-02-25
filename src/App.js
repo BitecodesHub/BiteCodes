@@ -12,6 +12,7 @@ const Contact = lazy(() => import("./components/Contact"));
 const Services = lazy(() => import("./components/Services"));
 const Projects = lazy(() => import("./components/Project")); // Ensure correct case
 const PriceList = lazy(() => import("./components/PriceList")); // Ensure correct case
+const ArtificialIntelligence = lazy(() => import("./components/ai")); // Ensure correct case
 
 function App() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -43,6 +44,7 @@ function App() {
           >
             <Routes>
               <Route path="/" element={<MainPage />} />
+              <Route path="/ai" element={<ArtificialIntelligence />} />
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/services" element={<Services />} />
