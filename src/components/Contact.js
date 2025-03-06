@@ -168,7 +168,7 @@ export const Contact = () => {
                     </div>
                   </div>
 
-                  <div className="flex items-center space-x-4 group">
+                  {/* <div className="flex items-center space-x-4 group">
                     <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center group-hover:bg-green-200 transition-colors duration-200">
                       <span className="material-symbols-outlined text-green-600">
                         phone
@@ -178,7 +178,7 @@ export const Contact = () => {
                       <h4 className="font-medium">Phone</h4>
                       <p className="text-gray-600">+91 94287-67709</p>
                     </div>
-                  </div>
+                  </div> */}
                 </div>
 
                 <div className="pt-6">

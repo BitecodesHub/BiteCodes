@@ -113,44 +113,6 @@ export const About = () => {
             </div>
           </section>
 
-          <section className="mb-20">
-            <h3 className="text-3xl font-bold mb-20 text-center">
-              Our Founders
-            </h3>
-            <div className="grid md:grid-cols-2 gap-12">
-              <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
-                <div className="flex flex-col items-center">
-                  <div className="w-48 h-48 rounded-full overflow-hidden bg-gradient-to-r from-purple-100 to-purple-200 mb-6">
-                    <span className="material-symbols-outlined text-8xl text-purple-600 flex items-center justify-center h-full">
-                      person
-                    </span>
-                  </div>
-                  <h4 className="text-2xl font-bold mb-2">Ismail Mansuri</h4>
-                  <p className="text-gray-600 mb-4">Founder</p>
-                  <p className="text-gray-600 text-center leading-relaxed">
-                    6+ Months of Experience in Software Development and Team
-                    Leadership.
-                  </p>
-                </div>
-              </div>
-              <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
-                <div className="flex flex-col items-center">
-                  <div className="w-48 h-48 rounded-full overflow-hidden bg-gradient-to-r from-blue-100 to-blue-200 mb-6">
-                    <span className="material-symbols-outlined text-8xl text-blue-600 flex items-center justify-center h-full">
-                      person
-                    </span>
-                  </div>
-                  <h4 className="text-2xl font-bold mb-2">Karan Jaswani</h4>
-                  <p className="text-gray-600 mb-4">Co-founder</p>
-                  <p className="text-gray-600 text-center leading-relaxed">
-                    6+ Months of Experience in Software Development and Team
-                    Leadership.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </section>
-
           {/* Our Story and Mission sections - remain the same */}
           {/* <section className="grid md:grid-cols-2 gap-12 mb-20"> */}
           {/* ... Same story and mission code ... */}

@@ -62,10 +62,10 @@ export const Footer = () => {
                 <span className="material-symbols-outlined mr-2">mail</span>
                 bitecodes.global@gmail.com
               </li>
-              <li className="flex items-center justify-center">
+              {/* <li className="flex items-center justify-center">
                 <span className="material-symbols-outlined mr-2">phone</span>
                 +91 79906-72067
-              </li>
+              </li> */}
             </ul>
           </div>
           <div>

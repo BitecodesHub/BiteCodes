@@ -99,7 +99,7 @@ export const MainPage = () => {
           </section>
 
           {/* Success Stories */}
-          <section className="bg-white rounded-2xl p-8 shadow-lg mb-20">
+          {/* <section className="bg-white rounded-2xl p-8 shadow-lg mb-20">
             <h2 className="text-3xl font-bold mb-8 text-center">Our Success Stories</h2>
             <div className="grid md:grid-cols-2 gap-8">
               {[
@@ -107,13 +107,13 @@ export const MainPage = () => {
                 { icon: "groups", title: "2 Happy Clients", desc: "Building long-term relationships with trust." },
               ].map((story, index) => (
                 <div key={index} className="p-6 border text-center border-gray-200 rounded-xl hover:border-blue-500 transition-colors duration-300">
-                  <span className={`material-symbols-outlined text-5xl text-${story.icon === "rocket_launch" ? "teal" : "purple"}-600`}>{story.icon}</span>
+                  <span className={`material-symbols-outlined text-5xl text-${story.icon === "rocket_launch" ? "green" : "purple"}-600`}>{story.icon}</span>
                   <h3 className="text-xl font-bold mt-4 mb-2">{story.title}</h3>
                   <p>{story.desc}</p>
                 </div>
               ))}
             </div>
-          </section>
+          </section> */}
         </main>
       </div>
     </div>
