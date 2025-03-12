@@ -79,7 +79,7 @@ export const Projects = () => {
             </article>
             </a>
 
-            <a href="https://pet.bitecodes.com">
+            <a href="https://www.pet.bitecodes.com">
             <article className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
               <div className="h-48 bg-gradient-to-r from-green-400 to-green-600 relative">
               <span className="material-symbols-outlined absolute inset-0 flex items-center justify-center text-white text-6xl">
@@ -89,7 +89,7 @@ export const Projects = () => {
               </div>
               <div className="p-6">
                 <h3 className="text-2xl font-bold mb-3">
-                Paw Connect (Pet Social Media)
+                Linked Paws (Pet Social Media)
                 </h3>
                 <p className="text-gray-900 mb-4">
                 Social media platform connecting pet lovers with adoption services, veterinary clinics, and pet care resources.
