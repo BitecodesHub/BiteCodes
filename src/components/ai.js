@@ -68,7 +68,6 @@ const AI = () => {
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
-      let fullText = "";
       let tempText = "";
 
       while (true) {
@@ -76,6 +75,7 @@ const AI = () => {
         if (done || isStopped) break;
 
         const chunk = decoder.decode(value, { stream: true });
+        // eslint-disable-next-line no-loop-func
         chunk.split("\n").forEach((line) => {
           if (line.startsWith("data:")) {
             try {
@@ -89,6 +89,7 @@ const AI = () => {
           }
         });
 
+        // eslint-disable-next-line no-loop-func
         setChatMessages((prev) => {
           const updatedMessages = [...prev];
           updatedMessages[updatedMessages.length - 1].text = tempText;
