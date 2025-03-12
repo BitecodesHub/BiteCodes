@@ -78,6 +78,36 @@ export const Projects = () => {
               </div>
             </article>
             </a>
+
+            <a href="https://pet.bitecodes.com">
+            <article className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+              <div className="h-48 bg-gradient-to-r from-green-400 to-green-600 relative">
+              <span className="material-symbols-outlined absolute inset-0 flex items-center justify-center text-white text-6xl">
+                pets
+              </span>
+
+              </div>
+              <div className="p-6">
+                <h3 className="text-2xl font-bold mb-3">
+                Paw Connect (Pet Social Media)
+                </h3>
+                <p className="text-gray-900 mb-4">
+                Social media platform connecting pet lovers with adoption services, veterinary clinics, and pet care resources.
+                </p>
+                <div className="flex flex-wrap gap-2 mb-4">
+                  <span className="px-3 py-1 bg-blue-100 rounded-full text-sm">
+                    React Native
+                  </span>
+                  <span className="px-3 py-1 bg-orange-100 rounded-full text-sm">
+                    Firebase
+                  </span>
+                  <span className="px-3 py-1 bg-indigo-100 rounded-full text-sm">
+                    GraphQL
+                  </span>
+                </div>
+              </div>
+            </article>
+            </a>
             <article className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
               <div className="h-48 bg-gradient-to-r from-blue-400 to-blue-600 relative">
                 <span className="material-symbols-outlined absolute inset-0 flex items-center justify-center text-white text-6xl">
@@ -98,35 +128,6 @@ export const Projects = () => {
                   </span>
                   <span className="px-3 py-1 bg-purple-100 rounded-full text-sm">
                     MongoDB
-                  </span>
-                </div>
-              </div>
-            </article>
-
-           
-
-            <article className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
-              <div className="h-48 bg-gradient-to-r from-green-400 to-green-600 relative">
-                <span className="material-symbols-outlined absolute inset-0 flex items-center justify-center text-white text-6xl">
-                  construction
-                </span>
-              </div>
-              <div className="p-6">
-                <h3 className="text-2xl font-bold mb-3">
-                Pet Social Platform
-                </h3>
-                <p className="text-gray-900 mb-4">
-                  Under Development.
-                </p>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  <span className="px-3 py-1 bg-blue-100 rounded-full text-sm">
-                    React Native
-                  </span>
-                  <span className="px-3 py-1 bg-orange-100 rounded-full text-sm">
-                    Firebase
-                  </span>
-                  <span className="px-3 py-1 bg-indigo-100 rounded-full text-sm">
-                    GraphQL
                   </span>
                 </div>
               </div>
