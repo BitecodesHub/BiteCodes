@@ -8,7 +8,7 @@ export default function HomePage() {
   const [timeLeft, setTimeLeft] = useState({ days: 3, hours: 14, minutes: 22, seconds: 10 });
   const [theme, setTheme] = useState("light");
   const [isOfferVisible, setIsOfferVisible] = useState(false);
-
+  const [isSubmitted, setIsSubmitted] = useState(false);
   // Theme setup and detection
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
@@ -143,11 +143,27 @@ export default function HomePage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
-    // Add form submission logic here
-    setFormData({ name: "", email: "", company: "" });
+    const form = new FormData(e.target);
+    form.append("access_key", "87c6a13e-cb0a-4053-991b-c8c151167bff");
+
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        body: form,
+      });
+
+      if (response.ok) {
+        setIsSubmitted(true);
+        setFormData({ name: "", email: "", subject: "", message: "" });
+        setTimeout(() => setIsSubmitted(false), 2500);
+      } else {
+        console.error("Form submission failed:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Form submission error:", error);
+    }
   };
 
   return (
