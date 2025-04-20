@@ -333,3 +333,633 @@ export default function WebDevelopmentPage() {
     </div>
   );
 }
+// import { useState, useEffect } from "react";
+// import { motion, AnimatePresence } from "framer-motion";
+// import { Code, ArrowRight, CheckCircle, Clock, Users, Trophy, Moon, Sun } from "lucide-react";
+// import Navbar from "./Navbar";
+
+// export default function HomePage() {
+//   const [remainingSpots, setRemainingSpots] = useState(7);
+//   const [timeLeft, setTimeLeft] = useState({ days: 3, hours: 14, minutes: 22, seconds: 10 });
+//   const [theme, setTheme] = useState("light");
+//   const [isOfferVisible, setIsOfferVisible] = useState(false);
+//   const [isSubmitted, setIsSubmitted] = useState(false);
+
+//   // Theme setup and detection
+//   useEffect(() => {
+//     const savedTheme = localStorage.getItem("theme") || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+//     setTheme(savedTheme);
+//   }, []);
+
+//   // Apply theme class
+//   useEffect(() => {
+//     document.documentElement.classList.toggle("dark", theme === "dark");
+//     localStorage.setItem("theme", theme);
+//   }, [theme]);
+
+//   // Toggle theme
+//   const toggleTheme = () => setTheme((prev) => (prev === "light" ? "dark" : "light"));
+
+//   // Timer countdown
+//   useEffect(() => {
+//     const timer = setInterval(() => {
+//       setTimeLeft((prev) => {
+//         if (prev.days === 0 && prev.hours === 0 && prev.minutes === 0 && prev.seconds === 0) {
+//           clearInterval(timer);
+//           return prev;
+//         }
+//         let { days, hours, minutes, seconds } = prev;
+//         seconds--;
+//         if (seconds < 0) {
+//           seconds = 59;
+//           minutes--;
+//           if (minutes < 0) {
+//             minutes = 59;
+//             hours--;
+//             if (hours < 0) {
+//               hours = 23;
+//               days--;
+//             }
+//           }
+//         }
+//         return { days, hours, minutes, seconds };
+//       });
+//     }, 1000);
+//     return () => clearInterval(timer);
+//   }, []);
+
+//   // Show offer popup after 2 seconds
+//   useEffect(() => {
+//     const timer = setTimeout(() => setIsOfferVisible(true), 2000);
+//     return () => clearTimeout(timer);
+//   }, []);
+
+//   // Inject custom CSS styles
+//   useEffect(() => {
+//     const styleSheet = document.createElement("style");
+//     styleSheet.textContent = `
+//       .marquee {
+//         white-space: nowrap;
+//         overflow: hidden;
+//         position: relative;
+//       }
+//       .marquee-content {
+//         display: inline-block;
+//         animation: marquee 12s linear infinite;
+//       }
+//       @keyframes marquee {
+//         0% { transform: translateX(100%); }
+//         100% { transform: translateX(-100%); }
+//       }
+//       .offer-pulse {
+//         animation: offerPulse 1.5s ease-in-out infinite;
+//       }
+//       @keyframes offerPulse {
+//         0% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.8); }
+//         70% { box-shadow: 0 0 0 15px rgba(139, 92, 246, 0); }
+//         100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); }
+//       }
+//       .premium-text {
+//         background: linear-gradient(90deg, #4f46e5, #8b5cf6, #ec4899);
+//         background-size: 200% auto;
+//         -webkit-background-clip: text;
+//         -webkit-text-fill-color: transparent;
+//         animation: gradient 2.5s ease infinite;
+//       }
+//       @keyframes gradient {
+//         0% { background-position: 0% 50%; }
+//         50% { background-position: 100% 50%; }
+//         100% { background-position: 0% 50%; }
+//       }
+//       .floating {
+//         animation: floating 2.5s ease-in-out infinite;
+//       }
+//       @keyframes floating {
+//         0% { transform: translateY(0px); }
+//         50% { transform: translateY(-12px); }
+//         100% { transform: translateY(0px); }
+//       }
+//       .glow {
+//         animation: glow 1.8s ease-in-out infinite alternate;
+//       }
+//       @keyframes glow {
+//         from { box-shadow: 0 0 8px -8px rgba(139, 92, 246, 0.6); }
+//         to { box-shadow: 0 0 25px 8px rgba(139, 92, 246, 0.6); }
+//       }
+//       .shimmer {
+//         background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+//         background-size: 200% 100%;
+//         animation: shimmer 1.5s infinite;
+//       }
+//       @keyframes shimmer {
+//         0% { background-position: -200% 0; }
+//         100% { background-position: 200% 0; }
+//       }
+//       .bounce {
+//         animation: bounce 2s ease-in-out infinite;
+//       }
+//       @keyframes bounce {
+//         0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+//         40% { transform: translateY(-15px); }
+//         60% { transform: translateY(-8px); }
+//       }
+//       .scale-hover:hover {
+//         transform: scale(1.05);
+//         transition: transform 0.3s ease;
+//       }
+//     `;
+//     document.head.appendChild(styleSheet);
+//     return () => document.head.removeChild(styleSheet);
+//   }, []);
+
+//   // Services data
+//   const services = [
+//     {
+//       title: "Web Development",
+//       description: "Stunning, high-performance websites tailored to your brand.",
+//       icon: <Code className="text-indigo-500 dark:text-indigo-300" />,
+//     },
+//     {
+//       title: "Mobile Apps",
+//       description: "Seamless, user-friendly apps for iOS and Android.",
+//       icon: <Code className="text-purple-500 dark:text-purple-300" />,
+//     },
+//     {
+//       title: "UI/UX Design",
+//       description: "Intuitive designs that captivate and convert.",
+//       icon: <Code className="text-pink-500 dark:text-pink-300" />,
+//     },
+//   ];
+
+//   // Form state
+//   const [formData, setFormData] = useState({ name: "", email: "", company: "" });
+//   const handleInputChange = (e) => {
+//     setFormData({ ...formData, [e.target.name]: e.target.value });
+//   };
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+//     const form = new FormData(e.target);
+//     form.append("access_key", "87c6a13e-cb0a-4053-991b-c8c151167bff");
+
+//     try {
+//       const response = await fetch("https://api.web3forms.com/submit", {
+//         method: "POST",
+//         body: form,
+//       });
+
+//       if (response.ok) {
+//         setIsSubmitted(true);
+//         setFormData({ name: "", email: "", company: "" });
+//         setTimeout(() => setIsSubmitted(false), 2500);
+//       } else {
+//         console.error("Form submission failed:", response.statusText);
+//       }
+//     } catch (error) {
+//       console.error("Form submission error:", error);
+//     }
+//   };
+
+//   return (
+//     <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
+//       {/* Theme Toggle Button */}
+//       <motion.button
+//         onClick={toggleTheme}
+//         className="fixed right-4 top-4 z-50 p-3 rounded-full bg-white/90 dark:bg-gray-800/90 text-gray-800 dark:text-gray-100 shadow-lg hover:scale-110 transition-all duration-300 backdrop-blur-md glow"
+//         aria-label="Toggle theme"
+//         whileHover={{ rotate: 360 }}
+//         transition={{ duration: 0.5 }}
+//       >
+//         {theme === "light" ? <Moon size={20} /> : <Sun size={20} />}
+//       </motion.button>
+
+//       {/* Special Offer Popup */}
+//       <AnimatePresence>
+//         {isOfferVisible && (
+//           <motion.div
+//             initial={{ opacity: 0, y: 100 }}
+//             animate={{ opacity: 1, y: 0 }}
+//             exit={{ opacity: 0, y: 100 }}
+//             transition={{ type: "spring", stiffness: 100, damping: 15 }}
+//             className="fixed bottom-6 left-6 right-6 z-50 mx-auto max-w-sm sm:max-w-md"
+//           >
+//             <div className="bg-gradient-to-r from-indigo-600 to-violet-600 dark:from-indigo-700 dark:to-violet-700 rounded-2xl p-5 text-white shadow-2xl flex flex-col sm:flex-row items-center justify-between glow scale-hover">
+//               <div className="flex items-center space-x-4 mb-4 sm:mb-0">
+//                 <Clock size={24} className="text-white animate-pulse" />
+//                 <div>
+//                   <p className="font-bold text-base">Exclusive Offer!</p>
+//                   <p className="text-sm font-medium">Premium Website for ₹1,999</p>
+//                 </div>
+//               </div>
+//               <div className="flex space-x-3">
+//                 <motion.button
+//                   onClick={() => document.getElementById("claim-offer").scrollIntoView({ behavior: "smooth" })}
+//                   className="bg-white text-indigo-600 dark:text-indigo-700 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-100 transition-all duration-300"
+//                   whileHover={{ scale: 1.1 }}
+//                   whileTap={{ scale: 0.95 }}
+//                 >
+//                   Claim Now
+//                 </motion.button>
+//                 <motion.button
+//                   onClick={() => setIsOfferVisible(false)}
+//                   className="bg-white/20 px-3 py-2 rounded-lg text-sm hover:bg-white/30 transition-all duration-300"
+//                   whileHover={{ scale: 1.1 }}
+//                   whileTap={{ scale: 0.95 }}
+//                 >
+//                   ✕
+//                 </motion.button>
+//               </div>
+//             </div>
+//           </motion.div>
+//         )}
+//       </AnimatePresence>
+
+//       <Navbar theme={theme} toggleTheme={toggleTheme} />
+
+//       {/* Breaking News Banner */}
+//       <motion.div
+//         initial={{ y: -100, opacity: 0 }}
+//         animate={{ y: 0, opacity: 1 }}
+//         transition={{ duration: 0.8 }}
+//         className="bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-600 dark:from-indigo-800 dark:via-violet-800 dark:to-indigo-800 text-white pt-16 w-full overflow-hidden shadow-xl"
+//       >
+//         <div className="marquee py-3 relative">
+//           <div className="absolute inset-0 shimmer" />
+//           <div className="marquee-content text-base sm:text-lg font-semibold tracking-wide">
+//             🔥 PREMIUM WEB DEVELOPMENT: Professional Website for ₹1,999! 🔥 FLASH SALE: 90% OFF! 🔥 ONLY {remainingSpots} SPOTS LEFT! 🔥
+//           </div>
+//         </div>
+//       </motion.div>
+
+//       {/* Hero Section */}
+//       <section className="relative py-16 md:py-24 overflow-hidden">
+//         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+//           <motion.div
+//             initial={{ opacity: 0 }}
+//             animate={{ opacity: 1 }}
+//             transition={{ duration: 1 }}
+//             className="text-center max-w-4xl mx-auto"
+//           >
+//             <motion.div
+//               initial={{ opacity: 0, y: 30 }}
+//               animate={{ opacity: 1, y: 0 }}
+//               transition={{ duration: 0.8, delay: 0.2 }}
+//               className="inline-block mb-8 py-2 px-4 bg-indigo-100/90 dark:bg-indigo-900/70 rounded-full backdrop-blur-md scale-hover"
+//             >
+//               <span className="text-base font-semibold text-indigo-600 dark:text-indigo-300 whitespace-nowrap">
+//                 Premium Web Development ⚡ ₹1,999 Only
+//               </span>
+//             </motion.div>
+//             <motion.h1
+//               initial={{ opacity: 0, y: 30 }}
+//               animate={{ opacity: 1, y: 0 }}
+//               transition={{ duration: 0.8, delay: 0.4 }}
+//               className="text-5xl sm:text-6xl md:text-7xl font-extrabold leading-tight tracking-tight text-gray-900 dark:text-white"
+//             >
+//               <span className="premium-text">Transforming Ideas</span> into{" "}
+//               <span className="premium-text">Digital Excellence</span>
+//             </motion.h1>
+//             <motion.p
+//               initial={{ opacity: 0, y: 30 }}
+//               animate={{ opacity: 1, y: 0 }}
+//               transition={{ duration: 0.8, delay: 0.6 }}
+//               className="mt-6 text-lg sm:text-xl text-gray-600 dark:text-gray-300 leading-relaxed max-w-2xl mx-auto"
+//             >
+//               Elevate your business with cutting-edge websites and apps designed to captivate and convert. Limited-time offer—act now!
+//             </motion.p>
+//             <motion.div
+//               initial={{ opacity: 0, y: 30 }}
+//               animate={{ opacity: 1, y: 0 }}
+//               transition={{ duration: 0.8, delay: 0.8 }}
+//               className="mt-10 flex flex-wrap gap-4 justify-center"
+//             >
+//               <motion.a
+//                 href="#claim-offer"
+//                 className="px-8 py-4 bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-600 text-white font-semibold rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 flex items-center gap-2 group offer-pulse scale-hover"
+//                 whileHover={{ scale: 1.1 }}
+//                 whileTap={{ scale: 0.95 }}
+//               >
+//                 Get Started
+//                 <ArrowRight size={22} className="transition-transform duration-300 group-hover:translate-x-2" />
+//               </motion.a>
+//               <motion.a
+//                 href="#services"
+//                 className="px-8 py-4 bg-white/90 dark:bg-gray-800/90 text-gray-800 dark:text-gray-200 font-semibold rounded-full shadow-lg hover:shadow-xl backdrop-blur-md transition-all duration-300 border border-gray-100 dark:border-gray-700 scale-hover"
+//                 whileHover={{ scale: 1.1 }}
+//                 whileTap={{ scale: 0.95 }}
+//               >
+//                 Our Services
+//               </motion.a>
+//             </motion.div>
+//             <motion.div
+//               initial={{ opacity: 0, y: 30 }}
+//               animate={{ opacity: 1, y: 0 }}
+//               transition={{ duration: 0.8, delay: 1 }}
+//               className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-8"
+//             >
+//               {[
+//                 { icon: <Trophy size={28} className="text-indigo-600 dark:text-indigo-400" />, value: "99%", label: "Client Satisfaction" },
+//                 { icon: <Code size={28} className="text-violet-600 dark:text-violet-400" />, value: "10+", label: "Projects Delivered" },
+//                 { icon: <Users size={28} className="text-purple-600 dark:text-purple-400" />, value: "2+ Years", label: "Industry Experience" },
+//               ].map((stat, index) => (
+//                 <motion.div
+//                   key={index}
+//                   className="flex flex-col items-center"
+//                   initial={{ opacity: 0, scale: 0.8 }}
+//                   animate={{ opacity: 1, scale: 1 }}
+//                   transition={{ duration: 0.5, delay: 1 + index * 0.2 }}
+//                 >
+//                   <div className="flex items-center justify-center w-14 h-14 rounded-full bg-indigo-100/80 dark:bg-indigo-900/60 mb-4 shadow-md bounce">
+//                     {stat.icon}
+//                   </div>
+//                   <p className="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
+//                   <p className="text-sm text-gray-600 dark:text-gray-400">{stat.label}</p>
+//                 </motion.div>
+//               ))}
+//             </motion.div>
+//           </motion.div>
+//         </div>
+//       </section>
+
+//       {/* Limited Time Offer */}
+//       <section className="py-16 sm:py-20 bg-indigo-600 dark:bg-indigo-800 relative overflow-hidden">
+//         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+//           <div className="flex flex-col lg:flex-row gap-8">
+//             <motion.div
+//               initial={{ opacity: 0, x: -30 }}
+//               whileInView={{ opacity: 1, x: 0 }}
+//               transition={{ duration: 0.6 }}
+//               viewport={{ once: true }}
+//               className="lg:w-2/3 bg-white/10 backdrop-blur-lg rounded-3xl p-8 sm:p-10 border border-white/20 scale-hover"
+//             >
+//               <motion.div
+//                 className="flex items-center mb-6"
+//                 initial={{ opacity: 0, scale: 0.9 }}
+//                 whileInView={{ opacity: 1, scale: 1 }}
+//                 transition={{ duration: 0.5, delay: 0.2 }}
+//               >
+//                 <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight premium-text">
+//                   Premium Website Package: ₹1,999
+//                 </h2>
+//               </motion.div>
+//               <motion.p
+//                 className="text-indigo-100 text-base sm:text-lg mb-8 leading-relaxed"
+//                 initial={{ opacity: 0, y: 20 }}
+//                 whileInView={{ opacity: 1, y: 0 }}
+//                 transition={{ duration: 0.5, delay: 0.3 }}
+//               >
+//                 Get a professional, high-performance website at an unbeatable price. Only 20 spots available—secure yours now!
+//               </motion.p>
+//               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+//                 {[
+//                   "Custom Design",
+//                   "Mobile Responsive",
+//                   "SEO Optimization",
+//                   "1 Year Support",
+//                   "Domain Setup",
+//                   "SSL Certificate",
+//                   "Performance Optimization",
+//                   "Social Media Integration",
+//                 ].map((feature, index) => (
+//                   <motion.div
+//                     key={index}
+//                     className="flex items-center"
+//                     initial={{ opacity: 0, x: -20 }}
+//                     whileInView={{ opacity: 1, x: 0 }}
+//                     transition={{ duration: 0.4, delay: 0.4 + index * 0.1 }}
+//                     viewport={{ once: true }}
+//                   >
+//                     <CheckCircle size={24} className="text-green-300 mr-3" />
+//                     <span className="text-white text-base font-medium">{feature}</span>
+//                   </motion.div>
+//                 ))}
+//               </div>
+//               <motion.a
+//                 href="#claim-offer"
+//                 className="inline-flex items-center px-8 py-4 bg-white text-indigo-600 dark:bg-gray-900 dark:text-indigo-300 text-base font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 scale-hover"
+//                 whileHover={{ scale: 1.1 }}
+//                 whileTap={{ scale: 0.95 }}
+//               >
+//                 Claim Offer
+//                 <ArrowRight size={20} className="ml-3" />
+//               </motion.a>
+//             </motion.div>
+//             <motion.div
+//               initial={{ opacity: 0, x: 30 }}
+//               whileInView={{ opacity: 1, x: 0 }}
+//               transition={{ duration: 0.6 }}
+//               viewport={{ once: true }}
+//               className="lg:w-1/3 bg-white/10 backdrop-blur-lg rounded-3xl p-8 sm:p-10 flex flex-col justify-center border border-white/20 scale-hover"
+//             >
+//               <div className="text-center mb-8">
+//                 <motion.div
+//                   className="text-white text-base font-semibold mb-3"
+//                   initial={{ opacity: 0, y: 20 }}
+//                   whileInView={{ opacity: 1, y: 0 }}
+//                   transition={{ duration: 0.5 }}
+//                 >
+//                   Limited Spots
+//                 </motion.div>
+//                 <motion.div
+//                   className="text-4xl font-extrabold text-white mb-3 floating"
+//                   initial={{ opacity: 0, scale: 0.9 }}
+//                   whileInView={{ opacity: 1, scale: 1 }}
+//                   transition={{ duration: 0.5, delay: 0.2 }}
+//                 >
+//                   {remainingSpots} <span className="text-indigo-200 text-2xl">/ 20</span>
+//                 </motion.div>
+//                 <motion.div
+//                   className="w-full bg-white/30 h-4 rounded-full mt-4 overflow-hidden"
+//                   initial={{ opacity: 0 }}
+//                   whileInView={{ opacity: 1 }}
+//                   transition={{ duration: 0.5, delay: 0.4 }}
+//                 >
+//                   <motion.div
+//                     initial={{ width: 0 }}
+//                     animate={{ width: `${(remainingSpots / 20) * 100}%` }}
+//                     transition={{ duration: 1.2, ease: "easeOut" }}
+//                     className="bg-gradient-to-r from-white to-indigo-300 dark:from-white dark:to-indigo-400 h-4 rounded-full"
+//                   />
+//                 </motion.div>
+//               </div>
+//               <div>
+//                 <motion.div
+//                   className="text-white text-base font-semibold mb-6 flex items-center justify-center"
+//                   initial={{ opacity: 0, y: 20 }}
+//                   whileInView={{ opacity: 1, y: 0 }}
+//                   transition={{ duration: 0.5 }}
+//                 >
+//                   <Clock size={20} className="mr-2 animate-pulse" />
+//                   Offer Ends In:
+//                 </motion.div>
+//                 <div className="flex justify-center space-x-4 sm:space-x-6">
+//                   {["days", "hours", "minutes", "seconds"].map((unit, index) => (
+//                     <motion.div
+//                       key={index}
+//                       className="text-center"
+//                       initial={{ opacity: 0, scale: 0.8 }}
+//                       whileInView={{ opacity: 1, scale: 1 }}
+//                       transition={{ duration: 0.5, delay: 0.2 + index * 0.1 }}
+//                     >
+//                       <div className="bg-white/20 rounded-xl p-3 w-14 sm:w-16 border border-white/20 glow">
+//                         <div className="text-xl sm:text-2xl font-bold text-white">{timeLeft[unit]}</div>
+//                       </div>
+//                       <div className="text-sm text-indigo-100 mt-2 capitalize">{unit}</div>
+//                     </motion.div>
+//                   ))}
+//                 </div>
+//               </div>
+//             </motion.div>
+//           </div>
+//           {/* Claim Offer Form */}
+//           <motion.div
+//             id="claim-offer"
+//             initial={{ opacity: 0, y: 30 }}
+//             whileInView={{ opacity: 1, y: 0 }}
+//             transition={{ duration: 0.6 }}
+//             viewport={{ once: true }}
+//             className="mt-8 bg-white/10 backdrop-blur-lg rounded-3xl p-8 sm:p-10 border border-white/20"
+//           >
+//             <motion.h3
+//               className="text-2xl sm:text-3xl font-extrabold text-white mb-8 text-center premium-text"
+//               initial={{ opacity: 0, y: 20 }}
+//               whileInView={{ opacity: 1, y: 0 }}
+//               transition={{ duration: 0.5 }}
+//             >
+//               Claim Your Offer Now
+//             </motion.h3>
+//             <AnimatePresence>
+//               {isSubmitted ? (
+//                 <motion.div
+//                   initial={{ opacity: 0, scale: 0.9 }}
+//                   animate={{ opacity: 1, scale: 1 }}
+//                   exit={{ opacity: 0, scale: 0.9 }}
+//                   transition={{ duration: 0.5 }}
+//                   className="bg-green-500/20 border border-green-500/30 rounded-2xl p-8 text-center glow"
+//                 >
+//                   <CheckCircle size={56} className="mx-auto mb-6 text-green-400 bounce" />
+//                   <h4 className="text-2xl font-bold text-white mb-3">Thank You!</h4>
+//                   <p className="text-green-100 text-lg">Your request has been submitted. We'll contact you shortly!</p>
+//                 </motion.div>
+//               ) : (
+//                 <motion.form
+//                   onSubmit={handleSubmit}
+//                   className="space-y-6 max-w-lg mx-auto"
+//                   initial={{ opacity: 0 }}
+//                   whileInView={{ opacity: 1 }}
+//                   transition={{ duration: 0.5 }}
+//                 >
+//                   <div>
+//                     <label htmlFor="name" className="block text-sm font-medium text-indigo-100 mb-2">
+//                       Full Name
+//                     </label>
+//                     <motion.input
+//                       type="text"
+//                       id="name"
+//                       name="name"
+//                       value={formData.name}
+//                       onChange={handleInputChange}
+//                       required
+//                       className="block w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white text-base placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-300 scale-hover"
+//                       placeholder="Your Name"
+//                       whileFocus={{ scale: 1.02 }}
+//                     />
+//                   </div>
+//                   <div>
+//                     <label htmlFor="email" className="block text-sm font-medium text-indigo-100 mb-2">
+//                       Email Address
+//                     </label>
+//                     <motion.input
+//                       type="email"
+//                       id="email"
+//                       name="email"
+//                       value={formData.email}
+//                       onChange={handleInputChange}
+//                       required
+//                       className="block w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white text-base placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-300 scale-hover"
+//                       placeholder="Your Email"
+//                       whileFocus={{ scale: 1.02 }}
+//                     />
+//                   </div>
+//                   <div>
+//                     <label htmlFor="company" className="block text-sm font-medium text-indigo-100 mb-2">
+//                       Company Name
+//                     </label>
+//                     <motion.input
+//                       type="text"
+//                       id="company"
+//                       name="company"
+//                       value={formData.company}
+//                       onChange={handleInputChange}
+//                       className="block w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white text-base placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-300 scale-hover"
+//                       placeholder="Your Company"
+//                       whileFocus={{ scale: 1.02 }}
+//                     />
+//                   </div>
+//                   <motion.button
+//                     whileHover={{ scale: 1.05 }}
+//                     whileTap={{ scale: 0.95 }}
+//                     type="submit"
+//                     className="w-full px-8 py-4 bg-gradient-to-r from-indigo-500 via-violet-500 to-indigo-500 hover:from-indigo-400 hover:via-violet-400 hover:to-indigo-400 text-white text-base font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 glow"
+//                   >
+//                     Submit Claim
+//                   </motion.button>
+//                 </motion.form>
+//               )}
+//             </AnimatePresence>
+//           </motion.div>
+//         </div>
+//       </section>
+
+//       {/* Services Section */}
+//       <section id="services" className="py-16 sm:py-20 bg-white dark:bg-gray-900 relative overflow-hidden">
+//         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+//           <motion.div
+//             className="text-center mb-12"
+//             initial={{ opacity: 0, y: 30 }}
+//             whileInView={{ opacity: 1, y: 0 }}
+//             transition={{ duration: 0.6 }}
+//             viewport={{ once: true }}
+//           >
+//             <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-gray-100 tracking-tight">
+//               Our <span className="premium-text">Services</span>
+//             </h2>
+//             <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 max-w-xl mx-auto leading-relaxed mt-4">
+//               Comprehensive digital solutions to propel your business forward.
+//             </p>
+//           </motion.div>
+//           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+//             {services.map((service, index) => (
+//               <motion.div
+//                 key={index}
+//                 initial={{ opacity: 0, y: 30 }}
+//                 whileInView={{ opacity: 1, y: 0 }}
+//                 transition={{ duration: 0.6, delay: index * 0.2 }}
+//                 viewport={{ once: true }}
+//                 whileHover={{ y: -8, boxShadow: "0 15px 30px -5px rgba(0, 0, 0, 0.15)" }}
+//                 className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 dark:border-gray-700 p-8 group scale-hover"
+//               >
+//                 <motion.div
+//                   className="w-14 h-14 flex items-center justify-center rounded-xl bg-indigo-100/80 dark:bg-indigo-900/60 mb-6 group-hover:scale-110 transition-transform duration-300 bounce"
+//                   whileHover={{ rotate: 10 }}
+//                 >
+//                   {service.icon}
+//                 </motion.div>
+//                 <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3">{service.title}</h3>
+//                 <p className="text-base text-gray-600 dark:text-gray-400 leading-relaxed">{service.description}</p>
+//                 <motion.a
+//                   href={`/services#${service.title.toLowerCase().replace(" ", "-")}`}
+//                   className="inline-flex items-center text-violet-600 dark:text-violet-400 text-base font-semibold hover:text-violet-700 dark:hover:text-violet-300 transition-colors duration-300 mt-6 group-hover:translate-x-2 transition-transform"
+//                   whileHover={{ scale: 1.05 }}
+//                 >
+//                   Learn More
+//                   <ArrowRight size={16} className="ml-2" />
+//                 </motion.a>
+//               </motion.div>
+//             ))}
+//           </div>
+//         </div>
+//       </section>
+//     </div>
+//   );
+// }

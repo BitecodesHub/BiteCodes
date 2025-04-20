@@ -14,3 +14,15 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 } */
+
+.section-bg-grid {
+  background: linear-gradient(to bottom right, rgba(79, 70, 229, 0.1), rgba(139, 92, 246, 0.1));
+}
+
+.section-bg-circuit {
+  background: linear-gradient(to bottom right, rgba(79, 70, 229, 0.05), rgba(139, 92, 246, 0.05));
+}
+
+.section-bg-dots {
+  background: linear-gradient(to bottom right, rgba(107, 114, 128, 0.05), rgba(79, 70, 229, 0.05));
+}
