@@ -4,6 +4,8 @@ import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
 import "./css/App.css";
 import { Helmet } from "react-helmet-async";
+import AppDevelopmentPage from "./components/AppDevelopmentPage";
+import APIDevelopmentPage from "./components/APIDevelopmentPage";
 
 // Lazy Load Components (Ensure they have default exports)
 const MainPage = lazy(() => import("./components/MainPage"));
@@ -53,6 +55,8 @@ function App() {
               <Route path="/projects" element={<Projects />} />
               <Route path="/pricelist" element={<PriceList />} />
               <Route path="/web-development" element={<WebDevelopmentPage />} />
+              <Route path="/app-development" element={<AppDevelopmentPage />} />
+              <Route path="/api-development" element={<APIDevelopmentPage />} />
             </Routes>
           </Suspense>
         </main>

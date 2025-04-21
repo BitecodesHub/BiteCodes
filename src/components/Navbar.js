@@ -9,7 +9,7 @@ const NavbarItem = ({ href, label, hasDropdown = false, dropdownItems = [] }) =>
     <div className="relative group">
       <a
         href={href}
-        className="flex items-center gap-1 font-medium px-4 py-2 rounded-lg transition-all duration-300 hover:bg-white/10 dark:hover:bg-black/20"
+        className="flex items-center gap-1 font-medium px-6 py-2 rounded-lg transition-all duration-300 hover:bg-white/10 dark:hover:bg-black/20"
         onClick={hasDropdown ? (e) => {
           e.preventDefault();
           setIsDropdownOpen(!isDropdownOpen);
@@ -38,7 +38,7 @@ const NavbarItem = ({ href, label, hasDropdown = false, dropdownItems = [] }) =>
                 <a 
                   key={idx}
                   href={item.href}
-                  className="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-white/30 dark:hover:bg-gray-800/50 transition-colors duration-200"
+                  className="block px-4 py-2 text-gray-200 dark:text-gray-200 hover:bg-white/30 dark:hover:bg-gray-800/50 transition-colors duration-200"
                 >
                   {item.label}
                 </a>
@@ -90,7 +90,7 @@ export const Navbar = () =>{
     { href: "/services", label: "Services", hasDropdown: true, dropdownItems: [
       { href: "/web-development", label: "Web Development" },
       { href: "/app-development", label: "App Development" },
-      { href: "/consulting", label: "Consulting" }
+      { href: "/api-development", label: "API Development" }
     ]},
     { href: "/about", label: "About" },
     { href: "/projects", label: "Projects" },
@@ -104,7 +104,7 @@ export const Navbar = () =>{
           ? "bg-white/80 dark:bg-gray-900/80 shadow-lg" 
           : "bg-white/40 dark:bg-gray-900/40"
         } backdrop-blur-md transition-all duration-500`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 md:px-2 sm:px-6 lg:px-4 py-3">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex items-center space-x-2">
@@ -166,9 +166,9 @@ export const Navbar = () =>{
                   className="p-2 rounded-lg hover:bg-white/20 dark:hover:bg-gray-800/50 transition-colors duration-200"
                 >
                   {isOpen ? (
-                    <X size={24} className="text-gray-800 dark:text-gray-200" />
+                    <X size={24} className="text-gray-200 dark:text-gray-200" />
                   ) : (
-                    <Menu size={24} className="text-gray-800 dark:text-gray-200" />
+                    <Menu size={24} className="text-gray-200 dark:text-gray-200" />
                   )}
                 </button>
               </div>
@@ -191,7 +191,7 @@ export const Navbar = () =>{
                   <div key={idx}>
                     <a
                       href={item.href}
-                      className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-white/30 dark:hover:bg-gray-800/50 transition-colors duration-200"
+                      className="block px-3 py-2 rounded-md text-base font-medium text-gray-200 dark:text-gray-200 hover:bg-white/30 dark:hover:bg-gray-800/50 transition-colors duration-200"
                     >
                       {item.label}
                     </a>
@@ -201,7 +201,7 @@ export const Navbar = () =>{
                           <a
                             key={subIdx}
                             href={subItem.href}
-                            className="block px-3 py-1 rounded-md text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-white/30 dark:hover:bg-gray-800/50 transition-colors duration-200"
+                            className="block px-3 py-1 rounded-md text-sm font-medium text-gray-200 dark:text-gray-200 hover:bg-white/30 dark:hover:bg-gray-800/50 transition-colors duration-200"
                           >
                             {subItem.label}
                           </a>

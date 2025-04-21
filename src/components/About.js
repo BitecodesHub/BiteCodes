@@ -37,7 +37,7 @@ export default function AboutPage() {
       name: "Karan Jaswani",
       role: "Founder & CEO",
       image: "/api/placeholder/150/150",
-      social: { linkedin: "https://www.linkedin.com/in/bite-codes/", twitter: "/" },
+      social: { linkedin: "https://www.linkedin.com/in/karan-jaswani", twitter: "/" },
     },
     {
       name: "Ismail Mansuri",
@@ -106,11 +106,11 @@ export default function AboutPage() {
   const headlineLetters = headline.split("");
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
+    <div className="min-h-screen py-6 bg-white dark:bg-gray-900 transition-colors duration-300">
       {/* Theme Toggle Button */}
       <button
         onClick={toggleTheme}
-        className="fixed right-4 bottom-4 z-50 p-3 rounded-full bg-indigo-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 shadow-lg hover:scale-110 transition-all duration-300"
+        className="fixed right-4 bottom-4 z-50 p-3 rounded-full bg-indigo-100 dark:bg-gray-800 text-gray-200 dark:text-gray-200 shadow-lg hover:scale-110 transition-all duration-300"
         aria-label="Toggle theme"
       >
         {theme === "light" ? <Moon size={20} /> : <Sun size={20} />}

@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  class: "dark",
   content: [
     "./src/**/*.{js,jsx,ts,tsx}", // ✅ Ensures all React files are scanned
     "./public/index.html", // ✅ Ensures Tailwind works in index.html
