@@ -1,0 +1,103 @@
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+
+const Header = () => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
+
+  return (
+    <header className="fixed top-0 left-0 right-0 z-50 py-5 px-4 md:px-8">
+      <div className="container flex items-center justify-between relative">
+        {/* Logo */}
+        <Link to="/" className="inline-block">
+          <div className="flex items-center">
+            <svg width="36" height="36" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
+              <rect width="128" height="128" rx="24" fill="#1C1C23" />
+              <path d="M38.4 41.6C38.4 34.4 44.2 28.8 51.2 28.8H76.8C83.8 28.8 89.6 34.4 89.6 41.6V86.4C89.6 93.6 83.8 99.2 76.8 99.2H51.2C44.2 99.2 38.4 93.6 38.4 86.4V41.6Z" fill="#30D5B7" />
+              <path d="M54.4 57.6L73.6 44.8" stroke="#1C1C23" strokeWidth="6" strokeLinecap="round" />
+              <path d="M54.4 70.4L73.6 83.2" stroke="#1C1C23" strokeWidth="6" strokeLinecap="round" />
+              <path d="M54.4 83.2L73.6 70.4" stroke="#1C1C23" strokeWidth="6" strokeLinecap="round" />
+              <path d="M54.4 44.8L73.6 57.6" stroke="#1C1C23" strokeWidth="6" strokeLinecap="round" />
+            </svg>
+            <span className="text-2xl font-medium tracking-wide text-neutral">
+              bitecodes
+            </span>
+          </div>
+        </Link>
+
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex items-center space-x-10">
+          <Link to="/products" className="text-neutral/80 hover:text-primary transition-colors text-sm uppercase tracking-widest">
+            P r o d u c t s
+          </Link>
+          <Link to="/solutions" className="text-neutral/80 hover:text-primary transition-colors text-sm uppercase tracking-widest">
+            S o l u t i o n s
+          </Link>
+          <Link to="/insights" className="text-neutral/80 hover:text-primary transition-colors text-sm uppercase tracking-widest">
+            I n s i g h t s
+          </Link>
+          <Link to="/contact" className="text-neutral/80 hover:text-primary transition-colors text-sm uppercase tracking-widest">
+            C o n t a c t
+          </Link>
+        </nav>
+
+        {/* Contact Button */}
+        <Link
+          to="/contact"
+          className="hidden md:inline-flex items-center justify-center rounded-full bg-black/20 border border-neutral/10 px-6 py-2 text-sm text-neutral hover:bg-black/30 transition-colors"
+        >
+          Get in touch
+        </Link>
+
+        {/* Mobile Menu Toggle */}
+        <button
+          className="md:hidden text-neutral/80 hover:text-primary"
+          onClick={toggleMobileMenu}
+          aria-label="Toggle menu"
+        >
+          {mobileMenuOpen ? (
+            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          ) : (
+            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none">
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          )}
+        </button>
+
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden absolute top-16 left-0 right-0 bg-background border border-neutral/10 rounded-lg py-4 px-6 space-y-4">
+            <Link to="/products" className="block text-neutral/80 hover:text-primary transition-colors text-sm uppercase tracking-widest">
+              P r o d u c t s
+            </Link>
+            <Link to="/solutions" className="block text-neutral/80 hover:text-primary transition-colors text-sm uppercase tracking-widest">
+              S o l u t i o n s
+            </Link>
+            <Link to="/insights" className="block text-neutral/80 hover:text-primary transition-colors text-sm uppercase tracking-widest">
+              I n s i g h t s
+            </Link>
+            <Link to="/contact" className="block text-neutral/80 hover:text-primary transition-colors text-sm uppercase tracking-widest">
+              C o n t a c t
+            </Link>
+            <Link
+              to="/contact"
+              className="inline-flex items-center justify-center rounded-full bg-black/20 border border-neutral/10 px-6 py-2 text-sm text-neutral hover:bg-black/30 transition-colors"
+            >
+              Get in touch
+            </Link>
+          </div>
+        )}
+      </div>
+    </header>
+  );
+};
+
+export default Header;
