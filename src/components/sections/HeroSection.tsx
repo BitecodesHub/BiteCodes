@@ -6,9 +6,9 @@ const HeroSection = () => {
       <div className="container relative z-10">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-5xl md:text-7xl font-bold mb-8 leading-tight">
-            digital innovation
+            Digital Innovation
             <br />
-            through code
+            Through Code
           </h1>
           <p className="text-xl md:text-2xl text-neutral/80 mb-10 max-w-2xl mx-auto">
             We craft powerful digital products and solutions for forward-thinking companies
@@ -21,8 +21,8 @@ const HeroSection = () => {
 
       {/* Background elements */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full z-0">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/10 rounded-full filter blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-secondary/10 rounded-full filter blur-3xl" />
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/10 rounded-full filter blur-3xl animate-pulse-float" />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-secondary/10 rounded-full filter blur-3xl animate-pulse-float-delayed" />
       </div>
 
       {/* Scroll indicator */}

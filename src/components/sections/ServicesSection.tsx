@@ -187,7 +187,7 @@ const ServicesSection = () => {
       <div className="container">
         <div className="max-w-3xl mx-auto text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-semibold mb-6">
-            technology solutions
+            Technology Solutions
           </h2>
           <p className="text-lg md:text-xl text-neutral/80">
             We leverage cutting-edge technologies to build innovative solutions for forward-thinking businesses

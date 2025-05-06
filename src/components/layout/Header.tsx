@@ -9,7 +9,7 @@ const Header = () => {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 py-5 px-4 md:px-8">
+    <header className="fixed top-0 left-0 right-0 z-50 py-5 px-4 md:px-8 bg-primary/3">
       <div className="container flex items-center justify-between relative">
         {/* Logo */}
         <Link to="/" className="inline-block">
@@ -23,7 +23,7 @@ const Header = () => {
               <path d="M54.4 44.8L73.6 57.6" stroke="#1C1C23" strokeWidth="6" strokeLinecap="round" />
             </svg>
             <span className="text-2xl font-medium tracking-wide text-neutral">
-              bitecodes
+              Bitecodes
             </span>
           </div>
         </Link>
@@ -36,9 +36,9 @@ const Header = () => {
           <Link to="/solutions" className="text-neutral/80 hover:text-primary transition-colors text-sm uppercase tracking-widest">
             S o l u t i o n s
           </Link>
-          <Link to="/insights" className="text-neutral/80 hover:text-primary transition-colors text-sm uppercase tracking-widest">
+          {/* <Link to="/insights" className="text-neutral/80 hover:text-primary transition-colors text-sm uppercase tracking-widest">
             I n s i g h t s
-          </Link>
+          </Link> */}
           <Link to="/contact" className="text-neutral/80 hover:text-primary transition-colors text-sm uppercase tracking-widest">
             C o n t a c t
           </Link>

@@ -103,9 +103,9 @@ const ContactSection = () => {
     <section className="py-20">
       <div className="container">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-          <div>
+          <div className='px-4'>
             <h2 className="text-4xl md:text-5xl font-semibold mb-6">
-              get in touch
+              Get In Touch
             </h2>
             <p className="text-xl text-neutral/80 mb-10">
               Together, we'll make your organization thrive through premium, personalized digital products.

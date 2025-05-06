@@ -76,7 +76,7 @@ const ProductsSection = () => {
       <div className="container">
         <div className="max-w-3xl mx-auto text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-semibold mb-6">
-            our innovative products
+            Our Innovative Products
           </h2>
           <p className="text-lg md:text-xl text-neutral/80">
             Explore our suite of digital products designed to transform your business and drive results
@@ -85,19 +85,19 @@ const ProductsSection = () => {
 
         {/* Filter tabs - can be made functional in future */}
         <div className="flex justify-center gap-6 mb-12">
-          <button className="px-4 py-2 text-primary border-b-2 border-primary">
+          <button className="px-2 py-2 text-primary border-b-2 border-primary">
             All
           </button>
-          <button className="px-4 py-2 text-neutral/60 hover:text-neutral transition-colors">
+          <button className="px-2 py-2 text-neutral/60 hover:text-neutral transition-colors">
             Web
           </button>
-          <button className="px-4 py-2 text-neutral/60 hover:text-neutral transition-colors">
+          <button className="px-2 py-2 text-neutral/60 hover:text-neutral transition-colors">
             Mobile
           </button>
-          <button className="px-4 py-2 text-neutral/60 hover:text-neutral transition-colors">
+          <button className="px-2 py-2 text-neutral/60 hover:text-neutral transition-colors">
             Cloud
           </button>
-          <button className="px-4 py-2 text-neutral/60 hover:text-neutral transition-colors">
+          <button className="px-2 py-2 text-neutral/60 hover:text-neutral transition-colors">
             AI
           </button>
         </div>

@@ -29,7 +29,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16">
           <div>
             <h2 className="text-4xl md:text-5xl font-semibold mb-6">
-              let's make great products together
+              Let's make great products together
             </h2>
             <Link
               to="/contact"
@@ -49,10 +49,10 @@ const Footer = () => {
                 <path d="M54.4 83.2L73.6 70.4" stroke="#1C1C23" strokeWidth="6" strokeLinecap="round" />
                 <path d="M54.4 44.8L73.6 57.6" stroke="#1C1C23" strokeWidth="6" strokeLinecap="round" />
               </svg>
-              <span className="ml-2 text-neutral/80 font-medium">stay up to date</span>
+              <span className="ml-2 text-neutral/80 font-medium">Stay up to date</span>
             </div>
 
-            <h3 className="text-xl font-medium mb-4">get our newsletter</h3>
+            <h3 className="text-xl font-medium mb-4">Get our newsletter</h3>
 
             {submitted ? (
               <p className="text-primary">Thanks for signing up.</p>
@@ -82,19 +82,18 @@ const Footer = () => {
 
         <div className="border-t border-neutral/10 pt-10 grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
-            <h4 className="text-neutral/80 font-medium mb-4">get in touch</h4>
-            <a href="mailto:hello@bitecodes.com" className="block text-neutral hover:text-primary mb-1">hello@bitecodes.com</a>
-            <a href="tel:+1234567890" className="block text-neutral hover:text-primary mb-4">+1 (234) 567-890</a>
+            <h4 className="text-neutral/80 font-medium mb-4">Get In Touch</h4>
+            <a href="mailto:hello@bitecodes.com" className="block text-neutral hover:text-primary mb-1">bitecodes.global@gmail.com</a>
+            <a href="tel:+1234567890" className="block text-neutral hover:text-primary mb-4">+91 94287 67709</a>
             <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" className="block text-neutral hover:text-primary">
-              123 Tech Street<br />
-              Silicon Valley, CA 94043
+              Ahmedabad<br />
             </a>
           </div>
 
           <div className="space-y-2">
-            <Link to="/privacy-policy" className="block text-neutral/80 hover:text-primary">Privacy policy</Link>
+            <Link to="/privacy-policy" className="block text-neutral/80 hover:text-primary">Privacy Policy</Link>
             <Link to="/terms-and-conditions" className="block text-neutral/80 hover:text-primary">Terms and conditions</Link>
-            <p className="text-neutral/60">EIN: 98-7654321</p>
+            <p className="text-neutral/60">IN</p>
           </div>
 
           <div>

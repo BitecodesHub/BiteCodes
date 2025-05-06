@@ -7,7 +7,7 @@ const SolutionsPage: React.FC = () => {
       <div className="container mb-16">
         <div className="max-w-3xl mx-auto text-center">
           <h1 className="text-5xl md:text-6xl font-bold mb-8">
-            what we do
+            What We Do
           </h1>
           <p className="text-xl text-neutral/80">
             We craft immersive digital products and experiences for forward-thinking companies

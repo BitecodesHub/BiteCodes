@@ -39,24 +39,18 @@ const TestimonialsSection = () => {
     {
       id: 'testimonial-1',
       quote: "BiteCodes transformed our business with their innovative digital commerce platform. Sales increased by 40% within the first quarter of implementation.",
-      author: "Sarah Johnson",
-      position: "Chief Digital Officer",
-      company: "Retail Innovations Inc."
+      author: "Rishab",
+      position: "CEO",
+      company: "Rivala"
     },
     {
       id: 'testimonial-2',
-      quote: "The analytics solution provided by BiteCodes gave us unprecedented insights into our customer behavior, allowing us to make data-driven decisions that positively impacted our bottom line.",
-      author: "Michael Chen",
-      position: "VP of Marketing",
-      company: "Global Enterprises Ltd."
-    },
-    {
-      id: 'testimonial-3',
-      quote: "Working with BiteCodes was a game-changer for our startup. Their cloud integration middleware connected all our systems seamlessly, reducing operational costs by 30%.",
-      author: "David Rodriguez",
-      position: "CTO",
-      company: "TechStart Solutions"
+      quote: "BiteCodes helped us reach more clients with their great efforts in designing our business website.",
+      author: "Mariya",
+      position: "Digital Marketer",
+      company: "ClickAlchemy"
     }
+
   ];
 
   const [activeIndex, setActiveIndex] = useState(0);
@@ -78,7 +72,7 @@ const TestimonialsSection = () => {
       <div className="container">
         <div className="max-w-3xl mx-auto text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-semibold mb-6">
-            client testimonials
+            Client Testimonials
           </h2>
           <p className="text-lg md:text-xl text-neutral/80">
             Hear what our clients have to say about working with BiteCodes
@@ -86,7 +80,7 @@ const TestimonialsSection = () => {
         </div>
 
         {/* For larger screens - show all testimonials */}
-        <div className="hidden md:grid grid-cols-3 gap-8">
+        <div className="hidden md:grid grid-cols-2 gap-8">
           {testimonials.map((testimonial) => (
             <Testimonial
               key={testimonial.id}
