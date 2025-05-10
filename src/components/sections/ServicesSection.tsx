@@ -23,7 +23,7 @@ const ServiceCard = ({ icon, title, description, link }: ServiceCardProps) => {
         to={link}
         className="text-primary inline-flex items-center group-hover:underline"
       >
-        Learn more
+        Get In Touch
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="20"
@@ -65,7 +65,7 @@ const ServicesSection = () => {
       ),
       title: 'Web Development',
       description: 'Custom web applications built with modern frameworks and technologies for optimal performance and user experience.',
-      link: '/solutions/web-development'
+      link: '/contact'
     },
     {
       id: 'mobile-applications',
@@ -87,7 +87,7 @@ const ServicesSection = () => {
       ),
       title: 'Mobile Applications',
       description: 'Native and cross-platform mobile apps that deliver exceptional user experiences on iOS and Android devices.',
-      link: '/solutions/mobile-applications'
+      link: '/contact'
     },
     {
       id: 'api-development',
@@ -109,7 +109,7 @@ const ServicesSection = () => {
       ),
       title: 'API Development',
       description: 'Robust and scalable APIs that connect systems, services, and applications for seamless data exchange.',
-      link: '/solutions/api-development'
+      link: '/contact'
     },
     {
       id: 'cloud-solutions',
@@ -133,7 +133,7 @@ const ServicesSection = () => {
       ),
       title: 'Cloud Solutions',
       description: 'Scalable and secure cloud-based architectures and migrations for businesses of all sizes.',
-      link: '/solutions/cloud-solutions'
+      link: '/contact'
     },
     {
       id: 'ai-integration',
@@ -156,7 +156,7 @@ const ServicesSection = () => {
       ),
       title: 'AI Integration',
       description: 'Advanced artificial intelligence and machine learning solutions to transform your business processes and insights.',
-      link: '/solutions/ai-integration'
+      link: '/contact'
     },
     {
       id: 'data-analytics',
@@ -178,7 +178,7 @@ const ServicesSection = () => {
       ),
       title: 'Data Analytics',
       description: 'Powerful data analysis tools and visualizations to help you extract meaningful insights from your business data.',
-      link: '/solutions/data-analytics'
+      link: '/contact'
     }
   ];
 
@@ -207,7 +207,7 @@ const ServicesSection = () => {
         </div>
 
         <div className="text-center mt-16">
-          <Link to="/solutions" className="btn btn-primary">
+          <Link to="/contact" className="btn btn-primary">
             Explore all solutions
           </Link>
         </div>
