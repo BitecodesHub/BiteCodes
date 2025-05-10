@@ -4,10 +4,12 @@ import HomePage from './pages/HomePage';
 import ProductsPage from './pages/ProductsPage';
 import SolutionsPage from './pages/SolutionsPage';
 import ContactPage from './pages/ContactPage';
+import ScrollToTop from './components/ScrollToTop';
 
 function App() {
   return (
     <Router>
+        <ScrollToTop/>
       <Layout>
         <Routes>
           <Route path="/" element={<HomePage />} />

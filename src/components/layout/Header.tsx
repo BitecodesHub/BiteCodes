@@ -81,9 +81,6 @@ const Header = () => {
             <Link to="/solutions" className="block text-neutral/80 hover:text-primary transition-colors text-sm uppercase tracking-widest">
               S o l u t i o n s
             </Link>
-            <Link to="/insights" className="block text-neutral/80 hover:text-primary transition-colors text-sm uppercase tracking-widest">
-              I n s i g h t s
-            </Link>
             <Link to="/contact" className="block text-neutral/80 hover:text-primary transition-colors text-sm uppercase tracking-widest">
               C o n t a c t
             </Link>
