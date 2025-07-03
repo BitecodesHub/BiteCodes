@@ -4,14 +4,13 @@ import { notFound } from 'next/navigation'
 import { MapPin, BookOpen, Award, Globe, ArrowLeft, Play } from 'lucide-react'
 import { universities, University } from '@/data/universities'
 
-interface UniversityPageProps {
-  params: {
-    universitySlug: string
-  }
-}
-
-export async function generateMetadata({ params }: UniversityPageProps): Promise<Metadata> {
-  const university = universities.find((uni) => uni.slug === params.universitySlug)
+export async function generateMetadata({ 
+  params 
+}: {
+  params: Promise<{ universitySlug: string }>
+}): Promise<Metadata> {
+  const { universitySlug } = await params
+  const university = universities.find((uni) => uni.slug === universitySlug)
 
   if (!university) {
     return {
@@ -33,8 +32,13 @@ export async function generateMetadata({ params }: UniversityPageProps): Promise
   }
 }
 
-export default function UniversityPage({ params }: UniversityPageProps) {
-  const university = universities.find((uni) => uni.slug === params.universitySlug)
+export default async function UniversityPage({ 
+  params 
+}: {
+  params: Promise<{ universitySlug: string }>
+}) {
+  const { universitySlug } = await params
+  const university = universities.find((uni) => uni.slug === universitySlug)
 
   if (!university) {
     notFound()

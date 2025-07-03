@@ -3,25 +3,27 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 import { Calendar, Clock, Users, BookOpen, FileText, Target, Award, IndianRupee, GraduationCap } from 'lucide-react'
 
+// Define the Props interface for Next.js 15 dynamic routes
 interface Props {
-  params: {
-    examSlug: string
-  }
+  params: Promise<{
+    examSlug: string;
+  }>;
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  // In a real app, you'd fetch the exam data here
-  const examSlug = params.examSlug
+export async function generateMetadata(
+  { params }: Props
+): Promise<Metadata> {
+  const { examSlug } = await params;
   
   return {
     title: `${examSlug.toUpperCase()} - Complete Information & Preparation Guide`,
     description: `Comprehensive guide for ${examSlug.toUpperCase()} entrance exam including syllabus, exam pattern, important dates, and preparation strategies.`,
     keywords: [examSlug, 'entrance exam', 'syllabus', 'exam pattern', 'preparation', 'eligibility'],
-  }
+  };
 }
 
-export default function ExamDetailPage({ params }: Props) {
-  const { examSlug } = params
+export default async function ExamDetailPage({ params }: Props) {
+  const { examSlug } = await params;
   
   // Mock data - replace with actual data fetching
   const examData = {
@@ -64,16 +66,16 @@ export default function ExamDetailPage({ params }: Props) {
     syllabus: {
       physics: ['Mechanics', 'Thermodynamics', 'Waves & Optics', 'Electricity & Magnetism', 'Modern Physics'],
       chemistry: ['Physical Chemistry', 'Organic Chemistry', 'Inorganic Chemistry'],
-      mathematics: ['Algebra', 'Coordinate Geometry', 'Calculus', 'Trigonometry', 'Statistics & Probability']
+      mathematics: ['Algebra', 'Coordinate Geometry', 'Calculus', 'Trigonometry', 'Statistics & Probability'],
     },
     preparationTips: [
       'Start with NCERT books for strong fundamentals',
       'Practice previous year question papers regularly',
       'Take mock tests to improve speed and accuracy',
       'Focus on weak areas and revise regularly',
-      'Stay updated with exam pattern changes'
-    ]
-  }
+      'Stay updated with exam pattern changes',
+    ],
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -371,5 +373,5 @@ export default function ExamDetailPage({ params }: Props) {
         </div>
       </div>
     </div>
-  )
+  );
 }

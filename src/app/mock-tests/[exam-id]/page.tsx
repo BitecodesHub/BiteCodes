@@ -116,13 +116,14 @@ const mockTests = [
 ]
 
 interface MockTestPageProps {
-  params: {
+  params: Promise<{
     'exam-id': string
-  }
+  }>
 }
 
 export async function generateMetadata({ params }: MockTestPageProps): Promise<Metadata> {
-  const test = mockTests.find((test) => test.id === params['exam-id'])
+  const { 'exam-id': examId } = await params
+  const test = mockTests.find((test) => test.id === examId)
   
   if (!test) {
     return {
@@ -138,8 +139,9 @@ export async function generateMetadata({ params }: MockTestPageProps): Promise<M
   }
 }
 
-export default function MockTestPage({ params }: MockTestPageProps) {
-  const test = mockTests.find((test) => test.id === params['exam-id'])
+export default async function MockTestPage({ params }: MockTestPageProps) {
+  const { 'exam-id': examId } = await params
+  const test = mockTests.find((test) => test.id === examId)
 
   if (!test) {
     notFound()
