@@ -24,8 +24,8 @@ interface EntranceExam {
 }
 
 async function fetchExams(): Promise<EntranceExam[]> {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
-// const res = await fetch(`${apiUrl}/api/exams`, { next: { revalidate: 3600 } });
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://backend.bitecodes.com';
+  console.log(apiUrl)
 const res = await fetch(`${apiUrl}/api/exams`, {
   cache: 'no-store' // Disable caching
 });

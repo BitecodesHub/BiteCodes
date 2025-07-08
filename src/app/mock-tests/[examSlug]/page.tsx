@@ -464,7 +464,7 @@ export default function MockTestPage() {
       try {
         setLoading(true);
         setError(null);
-        const res = await axiosInstance.get(`/exams/course/${examSlug}/random`);
+        const res = await axiosInstance.get(`/api/exams/course/${examSlug}/random`);
         const validQuestions = res.data
           .map((q: any) => ({
             id: q.id.toString(),
@@ -723,7 +723,7 @@ export default function MockTestPage() {
       </div>
     );
   }
-  
+
   // Review state
   if (result && showReview) {
     return (
