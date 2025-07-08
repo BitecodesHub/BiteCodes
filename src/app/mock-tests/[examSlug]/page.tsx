@@ -48,6 +48,11 @@ interface ExamAttemptResponse {
   }[];
 }
 
+// Helper function to check if error is an axios error
+const isAxiosError = (error: unknown): error is { response?: { status?: number } } => {
+  return typeof error === 'object' && error !== null && 'response' in error;
+};
+
 // Reusable Components
 const TimerDisplay = ({ timeLeft }: { timeLeft: number }) => {
   const isCritical = timeLeft < 300; // Less than 5 minutes
@@ -66,14 +71,17 @@ const TimerDisplay = ({ timeLeft }: { timeLeft: number }) => {
 const DifficultyBadge = ({ difficulty }: { difficulty?: string }) => {
   if (!difficulty) return null;
   
-  const colors = {
+  const colors: { [key: string]: string } = {
     easy: 'bg-green-100 text-green-800',
     medium: 'bg-yellow-100 text-yellow-800',
     hard: 'bg-red-100 text-red-800'
   };
   
+  // Add type safety check
+  const colorClass = colors[difficulty.toLowerCase()] || 'bg-gray-100 text-gray-800';
+  
   return (
-    <span className={`ml-3 px-2 py-1 rounded-full text-xs font-medium ${colors[difficulty]}`}>
+    <span className={`ml-3 px-2 py-1 rounded-full text-xs font-medium ${colorClass}`}>
       {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
     </span>
   );
@@ -372,7 +380,7 @@ export default function MockTestPage() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const userId = 1;
-  const API_BASE_URL = 'http://localhost:8080/api';
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
   const authToken = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
   const axiosInstance = axios.create({
@@ -493,16 +501,21 @@ export default function MockTestPage() {
           setTimeLeft(timeLeft || 1800);
         }
       } catch (err) {
-        const errorMessage =
-          err.response?.status === 401
-            ? 'Unauthorized: Please log in to access the exam.'
-            : err.response?.status === 404
-            ? `Exam "${examSlug}" not found. Please check the exam slug.`
-            : err.response?.status === 500
-            ? 'Server error. Please try again later.'
-            : err instanceof Error
-            ? err.message
-            : 'Failed to load questions';
+        let errorMessage = 'Failed to load questions';
+        
+        if (isAxiosError(err)) {
+          const status = err.response?.status;
+          if (status === 401) {
+            errorMessage = 'Unauthorized: Please log in to access the exam.';
+          } else if (status === 404) {
+            errorMessage = `Exam "${examSlug}" not found. Please check the exam slug.`;
+          } else if (status === 500) {
+            errorMessage = 'Server error. Please try again later.';
+          }
+        } else if (err instanceof Error) {
+          errorMessage = err.message;
+        }
+        
         setError(errorMessage);
       } finally {
         setLoading(false);
@@ -602,14 +615,19 @@ export default function MockTestPage() {
         audio.play().catch(e => console.log('Audio play failed:', e));
       }
     } catch (err) {
-      const errorMessage =
-        err.response?.status === 401
-          ? 'Unauthorized: Please log in to submit the exam.'
-          : err.response?.status === 400
-          ? 'Invalid submission data. Please check your answers and try again.'
-          : err.response?.status === 500
-          ? 'Server error. Please try again later.'
-          : 'Failed to submit exam. Please try again.';
+      let errorMessage = 'Failed to submit exam. Please try again.';
+      
+      if (isAxiosError(err)) {
+        const status = err.response?.status;
+        if (status === 401) {
+          errorMessage = 'Unauthorized: Please log in to submit the exam.';
+        } else if (status === 400) {
+          errorMessage = 'Invalid submission data. Please check your answers and try again.';
+        } else if (status === 500) {
+          errorMessage = 'Server error. Please try again later.';
+        }
+      }
+      
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -705,7 +723,7 @@ export default function MockTestPage() {
       </div>
     );
   }
-
+  
   // Review state
   if (result && showReview) {
     return (

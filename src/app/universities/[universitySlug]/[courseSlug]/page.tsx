@@ -9,7 +9,8 @@ export async function generateMetadata({
   params: Promise<{ universitySlug: string; courseSlug: string }>
 }): Promise<Metadata> {
   const { universitySlug, courseSlug } = await params
-  const response = await fetch(`http://localhost:8080/api/universities/${universitySlug}/${courseSlug}`, {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+  const response = await fetch(`${apiUrl}/api/universities/${universitySlug}/${courseSlug}`, {
     cache: 'no-store',
   })
   if (!response.ok) {
@@ -46,7 +47,8 @@ export default async function CoursePage({
   params: Promise<{ universitySlug: string; courseSlug: string }>
 }) {
   const { universitySlug, courseSlug } = await params
-  const response = await fetch(`http://localhost:8080/api/universities/${universitySlug}/${courseSlug}`, {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+  const response = await fetch(`${apiUrl}/api/universities/${universitySlug}/${courseSlug}`, {
     cache: 'no-store',
   })
   if (!response.ok) {

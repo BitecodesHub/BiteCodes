@@ -28,7 +28,8 @@ interface University {
 }
 
 export default async function UniversitiesPage() {
-  const response = await fetch('http://localhost:8080/api/universities', { cache: 'no-store' })
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+  const response = await fetch(`${apiUrl}/api/universities`, { cache: 'no-store' })
   const universities: University[] = await response.json()
 
   return (
