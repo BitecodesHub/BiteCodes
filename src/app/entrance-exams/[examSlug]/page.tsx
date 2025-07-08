@@ -249,7 +249,7 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ exa
                 View Syllabus
               </Link>
               <Link
-                href={`/entrance-exams/${examSlug}/mock-test`}
+                href={`/mock-tests/${examSlug}`}
                 className="bg-blue-500 text-white px-6 py-3 rounded-xl font-medium hover:bg-blue-400 transition-colors shadow-md flex items-center gap-2"
               >
                 <Target className="w-5 h-5" />
