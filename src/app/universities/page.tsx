@@ -1,7 +1,6 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { BookOpen, MapPin, Award, Play } from 'lucide-react'
-import { universities, University } from '@/data/universities'
 
 export const metadata: Metadata = {
   title: 'Universities - Top Institutes for Higher Education',
@@ -15,8 +14,23 @@ export const metadata: Metadata = {
   },
 }
 
-export default function UniversitiesPage() {
-  // Note: Replace static data with API calls if fetching dynamically
+interface University {
+  slug: string
+  name: string
+  description: string
+  location: string
+  ranking: number
+  established: number
+  website: string
+  admissionLink: string
+  examsAccepted: string[]
+  courses: { slug: string; name: string }[]
+}
+
+export default async function UniversitiesPage() {
+  const response = await fetch('http://localhost:8080/api/universities', { cache: 'no-store' })
+  const universities: University[] = await response.json()
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
@@ -34,8 +48,10 @@ export default function UniversitiesPage() {
                 <div className="text-2xl font-bold">{universities.length}</div>
                 <div className="text-sm text-green-100">Universities</div>
               </div>
-              <div className="bg-white/20backdrop-blur-sm rounded-lg px-6 py-3">
-                <div className="text-2xl font-bold">{universities.reduce((acc, uni) => acc + uni.programs.length, 0)}</div>
+              <div className="bg-white/20 backdrop-blur-sm rounded-lg px-6 py-3">
+                <div className="text-2xl font-bold">
+                  {universities.reduce((acc, uni) => acc + uni.courses.length, 0)}
+                </div>
                 <div className="text-sm text-green-100">Programs</div>
               </div>
             </div>
@@ -48,7 +64,7 @@ export default function UniversitiesPage() {
         <div className="mb-12">
           <h2 className="text-3xl font-bold text-gray-800 mb-8">Featured Universities</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {universities.map((university: University) => (
+            {universities.map((university) => (
               <Link
                 key={university.slug}
                 href={`/universities/${university.slug}`}

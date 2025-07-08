@@ -2,22 +2,23 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { MapPin, BookOpen, Award, Globe, ArrowLeft, Play } from 'lucide-react'
-import { universities, University } from '@/data/universities'
 
-export async function generateMetadata({ 
-  params 
+export async function generateMetadata({
+  params,
 }: {
   params: Promise<{ universitySlug: string }>
 }): Promise<Metadata> {
   const { universitySlug } = await params
-  const university = universities.find((uni) => uni.slug === universitySlug)
-
-  if (!university) {
+  const response = await fetch(`http://localhost:8080/api/universities/${universitySlug}`, {
+    cache: 'no-store',
+  })
+  if (!response.ok) {
     return {
       title: 'University Not Found',
       description: 'The requested university could not be found.',
     }
   }
+  const university = await response.json()
 
   return {
     title: `${university.name} - Admission Details`,
@@ -32,17 +33,32 @@ export async function generateMetadata({
   }
 }
 
-export default async function UniversityPage({ 
-  params 
+interface University {
+  slug: string
+  name: string
+  description: string
+  location: string
+  ranking: number
+  established: number
+  website: string
+  admissionLink: string
+  examsAccepted: string[]
+  courses: { slug: string; name: string }[]
+}
+
+export default async function UniversityPage({
+  params,
 }: {
   params: Promise<{ universitySlug: string }>
 }) {
   const { universitySlug } = await params
-  const university = universities.find((uni) => uni.slug === universitySlug)
-
-  if (!university) {
+  const response = await fetch(`http://localhost:8080/api/universities/${universitySlug}`, {
+    cache: 'no-store',
+  })
+  if (!response.ok) {
     notFound()
   }
+  const university: University = await response.json()
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -112,13 +128,14 @@ export default async function UniversityPage({
             <div>
               <h2 className="text-2xl font-bold text-gray-800 mb-6">Programs Offered</h2>
               <div className="flex flex-wrap gap-2">
-                {university.programs.map((program) => (
-                  <span
-                    key={program}
-                    className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm font-semibold"
+                {university.courses.map((course) => (
+                  <Link
+                    key={course.slug}
+                    href={`/universities/${university.slug}/${course.slug}`}
+                    className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm font-semibold hover:bg-blue-200"
                   >
-                    {program}
-                  </span>
+                    {course.name}
+                  </Link>
                 ))}
               </div>
             </div>
@@ -142,7 +159,7 @@ export default async function UniversityPage({
           <h2 className="text-2xl font-bold text-gray-800 mb-6">About {university.name}</h2>
           <p className="text-gray-600">
             {university.name} is a leading institution in {university.location}, established in {university.established}. 
-            It is ranked #{university.ranking} in India and offers programs such as {university.programs.join(', ')}. 
+            It is ranked #{university.ranking} in India and offers programs such as {university.courses.map(c => c.name).join(', ')}. 
             Admission is through {university.examsAccepted.join(', ')} exams. Prepare for these exams with our mock tests to secure your spot.
           </p>
         </div>

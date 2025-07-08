@@ -25,7 +25,7 @@ const mockTests = [
     type: 'Full Length',
     price: 'Free',
     featured: true,
-    testDate: '2024-01-20',
+    testDate: '2025-01-20',
     language: ['English', 'Hindi'],
   },
   {
@@ -43,7 +43,7 @@ const mockTests = [
     type: 'Full Length',
     price: 'Free',
     featured: true,
-    testDate: '2024-01-25',
+    testDate: '2025-01-25',
     language: ['English', 'Hindi'],
   },
   {
@@ -61,7 +61,7 @@ const mockTests = [
     type: 'Full Length',
     price: 'Free',
     featured: true,
-    testDate: '2024-01-22',
+    testDate: '2025-01-22',
     language: ['English', 'Hindi'],
   },
   {
@@ -79,7 +79,7 @@ const mockTests = [
     type: 'Full Length',
     price: '₹99',
     featured: false,
-    testDate: '2024-01-30',
+    testDate: '2025-01-30',
     language: ['English'],
   },
   {
@@ -97,7 +97,7 @@ const mockTests = [
     type: 'Full Length',
     price: '₹49',
     featured: false,
-    testDate: '2024-02-01',
+    testDate: '2025-02-01',
     language: ['English'],
   },
   {
@@ -115,7 +115,7 @@ const mockTests = [
     type: 'Sectional',
     price: 'Free',
     featured: false,
-    testDate: '2024-01-28',
+    testDate: '2025-01-28',
     language: ['English', 'Hindi'],
   },
 ]
@@ -132,7 +132,7 @@ export default function MockTestsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              Mock Tests 2024
+              Mock Tests 2025
             </h1>
             <p className="text-xl text-green-100 max-w-3xl mx-auto">
               Practice with comprehensive mock tests for all major entrance exams. 

@@ -108,7 +108,7 @@ export default function Footer() {
 
         <div className="border-t border-gray-800 mt-8 pt-8 text-center">
           <p className="text-gray-400 text-sm">
-            © 2024 Bitecodes Academy. All rights reserved. Made with ❤️ for students.
+            © 2025 Bitecodes Academy. All rights reserved. Made with ❤️ for students.
           </p>
         </div>
       </div>
