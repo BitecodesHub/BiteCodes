@@ -597,7 +597,7 @@ export default function MockTestPage() {
         formattedAnswers[parseInt(questionId)] = ['A', 'B', 'C', 'D'][answer.selectedOption];
       });
 
-      const res = await axiosInstance.post('/exams/submit', {
+      const res = await axiosInstance.post('/api/exams/submit', {
         userId,
         courseName: examSlug,
         answers: formattedAnswers,
