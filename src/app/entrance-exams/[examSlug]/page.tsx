@@ -596,7 +596,7 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ exa
               </h3>
               <div className="space-y-4">
                 <Link
-                  href={`/entrance-exams/${examSlug}/mock-tests`}
+                  href={`/mock-tests/${examSlug}`}
                   prefetch={false}
                   className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 text-white px-4 py-3 rounded-xl font-bold hover:opacity-90 transition-opacity flex items-center justify-center shadow-md"
                   aria-label={`Take mock test for ${examData.name}`}
