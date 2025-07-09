@@ -454,12 +454,13 @@ export default function StudyMaterialClient({ syllabusTopics }: StudyMaterialCli
                   </div>
 
                   {topic.materials && topic.materials.length > 0 ? (
-                    <div className={`${expandedTopic === i ? 'max-h-none' : 'max-h-96 overflow-hidden'} transition-all duration-300`}>
-                      <div className={`grid ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'} gap-4`}>
-                        {topic.materials.map((material, j) => (
-                          <div key={j} className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg p-5 hover:shadow-md transition-all duration-300 border border-gray-200">
-                            <div className="flex items-start justify-between mb-3">
-                              <div className="flex flex-wrap items-center gap-2">
+                    <div className={`${expandedTopic === i ? 'max-h-none' : 'max-h-96 overflow-hidden'} transition-all duration-300 mb-8`}>
+                        <div className={`grid ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'} gap-4`}>
+                            {topic.materials.map((material, j) => (
+                            <div key={j} className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg p-5 hover:shadow-md transition-all duration-300 border border-gray-200">
+                                <div className="flex items-start justify-between mb-3">
+                                <div className="flex flex-wrap items-center gap-2">
+
                                 {getCategoryIcon(material.category)}
                                 <Badge variant={material.category === 'PRACTICE_PAPER' ? 'secondary' : 'default'}>
                                   {getCategoryLabel(material.category)}
