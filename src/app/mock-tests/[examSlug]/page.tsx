@@ -79,7 +79,7 @@ const QuestionNavigation = ({
   }
 
   return (
-    <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 gap-2 mb-8 p-4 bg-gray-50 rounded-xl border border-gray-200">
+    <div className="grid grid-cols-5 gap-2 p-4 bg-gray-50 rounded-xl border border-gray-200">
       {sections[currentSection].questions.map((q, idx) => {
         const isAnswered = answers[q.id]?.selectedOption !== undefined;
         const isCurrent = idx === currentIndex;
@@ -89,9 +89,9 @@ const QuestionNavigation = ({
           <button
             key={q.id}
             onClick={() => onSelect(currentSection, idx)}
-            className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-medium transition-all transform hover:scale-110 shadow-md ${
+            className={`relative flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium transition-all transform hover:scale-110 shadow-md ${
               isCurrent 
-                ? 'ring-4 ring-blue-500 scale-110 bg-blue-200 text-blue-800' 
+                ? 'ring-2 ring-blue-500 scale-110 bg-blue-200 text-blue-800' 
                 : isMarked 
                   ? 'bg-orange-200 text-orange-800 border-2 border-orange-400' 
                   : isAnswered 
@@ -100,7 +100,7 @@ const QuestionNavigation = ({
             }`}
           >
             {idx + 1}
-            {isMarked && <Flag className="absolute -top-1 -right-1 w-4 h-4 text-orange-500" />}
+            {isMarked && <Flag className="absolute -top-0.5 -right-0.5 w-3 h-3 text-orange-500" />}
           </button>
         );
       })}
@@ -983,24 +983,24 @@ export default function MockTestPage() {
                     onSelect={handleQuestionSelect}
                   />
                   
-                  <div className="flex flex-col space-y-3 mb-6">
-                    <div className="flex items-center">
-                      <div className="w-4 h-4 rounded-full bg-blue-100 mr-2"></div>
-                      <span className="text-sm">Answered</span>
-                    </div>
-                    <div className="flex items-center">
-                      <div className="w-4 h-4 rounded-full bg-gray-100 border border-gray-300 mr-2"></div>
-                      <span className="text-sm">Unanswered</span>
-                    </div>
-                    <div className="flex items-center">
-                      <div className="w-4 h-4 rounded-full bg-orange-100 border-2 border-orange-400 mr-2"></div>
-                      <span className="text-sm">Marked</span>
-                    </div>
-                    <div className="flex items-center">
-                      <div className="w-4 h-4 rounded-full bg-white ring-4 ring-blue-500 mr-2"></div>
-                      <span className="text-sm">Current</span>
-                    </div>
+                <div className="flex flex-col space-y-3 mb-6">
+                  <div className="flex items-center">
+                    <div className="w-4 h-4 rounded-full bg-blue-100 mr-2"></div>
+                    <span className="text-sm text-black">Answered</span>
                   </div>
+                  <div className="flex items-center">
+                    <div className="w-4 h-4 rounded-full bg-gray-100 border border-black-800 mr-2"></div>
+                    <span className="text-sm text-black">Unanswered</span>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="w-4 h-4 rounded-full bg-orange-100 border-2 border-orange-400 mr-2"></div>
+                    <span className="text-sm text-black">Marked</span>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="w-4 h-4 rounded-full bg-white ring-4 ring-blue-500 mr-2"></div>
+                    <span className="text-sm text-black">Current</span>
+                  </div>
+                </div>
                   
                   <button
                     onClick={() => {
