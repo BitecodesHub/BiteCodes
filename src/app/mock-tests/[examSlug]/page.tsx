@@ -1,59 +1,23 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Clock, CheckCircle, XCircle, RotateCcw, AlertCircle, Loader2, 
   Flag, BookOpen, BarChart, Fullscreen, Volume2, VolumeX,
-  Bookmark, ChevronLeft, ChevronRight, HelpCircle, Award
+  ChevronLeft, ChevronRight, HelpCircle, Award
 } from 'lucide-react';
 import axios from 'axios';
 import { useParams, useRouter } from 'next/navigation';
 import Confetti from 'react-confetti';
 import { toast, Toaster } from 'react-hot-toast';
-
-// Types aligned with backend
-interface ExamQuestion {
-  id: string;
-  questionText: string;
-  options: string[];
-  correctAnswer: number;
-  courseId: string;
-  explanation?: string;
-  difficulty?: 'easy' | 'medium' | 'hard';
-}
-
-interface Answer {
-  questionId: string;
-  selectedOption: number;
-  isMarked?: boolean;
-}
-
-interface ExamAttemptResponse {
-  id: number;
-  userId: number;
-  courseName: string;
-  score: number;
-  passed: boolean;
-  attemptedAt: string;
-  timeTaken: number;
-  correctAnswers: number;
-  incorrectAnswers: number;
-  skipped: number;
-  detailedResults: {
-    questionId: string;
-    correct: boolean;
-    userAnswer: number;
-    correctAnswer: number;
-    explanation?: string;
-  }[];
-}
+import { ExamQuestion, Answer, ExamAttemptResponse, ExamSection } from './types';
 
 // Helper function to check if error is an axios error
-const isAxiosError = (error: unknown): error is { response?: { status?: number } } => {
+const isAxiosError = (error: unknown): error is { response?: { status?: number; data?: any } } => {
   return typeof error === 'object' && error !== null && 'response' in error;
 };
 
-// Reusable Components
+// Reusable Components (unchanged, included for completeness)
 const TimerDisplay = ({ timeLeft }: { timeLeft: number }) => {
   const isCritical = timeLeft < 300; // Less than 5 minutes
   return (
@@ -77,7 +41,6 @@ const DifficultyBadge = ({ difficulty }: { difficulty?: string }) => {
     hard: 'bg-red-100 text-red-800'
   };
   
-  // Add type safety check
   const colorClass = colors[difficulty.toLowerCase()] || 'bg-gray-100 text-gray-800';
   
   return (
@@ -91,51 +54,59 @@ const ProgressBar = ({ answeredCount, totalQuestions }: { answeredCount: number;
   <div className="bg-gray-200 rounded-full h-3 overflow-hidden">
     <div
       className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-500 ease-in-out"
-      style={{ width: `${(answeredCount / totalQuestions) * 100}%` }}
+      style={{ width: `${totalQuestions > 0 ? (answeredCount / totalQuestions) * 100 : 0}%` }}
     />
   </div>
 );
 
 const QuestionNavigation = ({ 
-  questions, 
-  currentIndex, 
+  sections,
+  currentSection,
+  currentIndex,
   answers,
   markedQuestions,
   onSelect 
 }: { 
-  questions: ExamQuestion[];
+  sections: ExamSection[];
+  currentSection: number;
   currentIndex: number;
   answers: Record<string, Answer>;
   markedQuestions: Set<string>;
-  onSelect: (index: number) => void;
-}) => (
-  <div className="grid grid-cols-5 sm:grid-cols-10 gap-2 mb-8">
-    {questions.map((q, idx) => {
-      const isAnswered = answers[q.id]?.selectedOption !== undefined;
-      const isCurrent = idx === currentIndex;
-      const isMarked = markedQuestions.has(q.id);
-      
-      return (
-        <button
-          key={q.id}
-          onClick={() => onSelect(idx)}
-          className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-medium transition-all transform hover:scale-110 ${
-            isCurrent 
-              ? 'ring-4 ring-blue-500 scale-110' 
-              : isMarked 
-                ? 'bg-orange-100 text-orange-700 border-2 border-orange-400' 
-                : isAnswered 
-                  ? 'bg-blue-100 text-blue-700' 
-                  : 'bg-gray-100 text-gray-700'
-          }`}
-        >
-          {idx + 1}
-          {isMarked && <Flag className="absolute -top-1 -right-1 w-4 h-4 text-orange-500" />}
-        </button>
-      );
-    })}
-  </div>
-);
+  onSelect: (sectionIndex: number, questionIndex: number) => void;
+}) => {
+  if (!sections[currentSection]?.questions?.length) {
+    return <div className="text-gray-600 text-center">No questions available</div>;
+  }
+
+  return (
+    <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 gap-2 mb-8 p-4 bg-gray-50 rounded-xl border border-gray-200">
+      {sections[currentSection].questions.map((q, idx) => {
+        const isAnswered = answers[q.id]?.selectedOption !== undefined;
+        const isCurrent = idx === currentIndex;
+        const isMarked = markedQuestions.has(q.id);
+        
+        return (
+          <button
+            key={q.id}
+            onClick={() => onSelect(currentSection, idx)}
+            className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-medium transition-all transform hover:scale-110 shadow-md ${
+              isCurrent 
+                ? 'ring-4 ring-blue-500 scale-110 bg-blue-200 text-blue-800' 
+                : isMarked 
+                  ? 'bg-orange-200 text-orange-800 border-2 border-orange-400' 
+                  : isAnswered 
+                    ? 'bg-blue-100 text-blue-800' 
+                    : 'bg-gray-100 text-gray-800'
+            }`}
+          >
+            {idx + 1}
+            {isMarked && <Flag className="absolute -top-1 -right-1 w-4 h-4 text-orange-500" />}
+          </button>
+        );
+      })}
+    </div>
+  );
+};
 
 const ResultCard = ({ 
   result, 
@@ -175,7 +146,7 @@ const ResultCard = ({
       </div>
 
       <div className="grid md:grid-cols-2 gap-6 mb-8">
-        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 shadow-sm border border-blue-100">
+        <div className="bg-gradient-to-br from-blue-200 to-indigo-50 rounded-xl p-6 shadow-sm border border-blue-100">
           <h3 className="font-semibold text-xl text-gray-800 mb-4 flex items-center">
             <BarChart className="mr-2 w-6 h-6 text-blue-600" />
             Performance Summary
@@ -183,7 +154,7 @@ const ResultCard = ({
           <div className="space-y-3 text-gray-700">
             <div className="flex justify-between">
               <span><strong>Score:</strong></span>
-              <span className="font-bold text-2xl text-blue-600">{result.score}%</span>
+              <span className="font-bold text-2xl text-blue-600">{result.score.toFixed(1)}% ({result.correctAnswers}/{result.totalQuestions})</span>
             </div>
             <div className="flex justify-between">
               <span><strong>Correct Answers:</strong></span>
@@ -199,7 +170,7 @@ const ResultCard = ({
             </div>
             <div className="flex justify-between">
               <span><strong>Time Taken:</strong></span>
-              <span>{formatTime(1800 - result.timeTaken)} / 30:00</span>
+              <span>{formatTime(result.timeTaken)} / 30:00</span>
             </div>
           </div>
         </div>
@@ -364,7 +335,8 @@ export default function MockTestPage() {
   const params = useParams();
   const router = useRouter();
   const examSlug = (params?.examSlug as string) || 'cmat';
-  const [questions, setQuestions] = useState<ExamQuestion[]>([]);
+  const [sections, setSections] = useState<ExamSection[]>([]);
+  const [currentSection, setCurrentSection] = useState(0);
   const [answers, setAnswers] = useState<Record<string, Answer>>({});
   const [markedQuestions, setMarkedQuestions] = useState<Set<string>>(new Set());
   const [result, setResult] = useState<ExamAttemptResponse | null>(null);
@@ -419,7 +391,6 @@ export default function MockTestPage() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (showReview || loading || result) return;
       
-      // Navigation
       if (e.key === 'ArrowRight') {
         e.preventDefault();
         handleNextQuestion();
@@ -428,20 +399,18 @@ export default function MockTestPage() {
         handlePrevQuestion();
       }
       
-      // Answer selection (1-4)
       if (e.key >= '1' && e.key <= '4') {
         e.preventDefault();
         const optionIndex = parseInt(e.key) - 1;
-        const currentQuestion = questions[currentQuestionIndex];
+        const currentQuestion = sections[currentSection]?.questions[currentQuestionIndex];
         if (currentQuestion && optionIndex < currentQuestion.options.length) {
           handleOptionChange(currentQuestion.id, optionIndex);
         }
       }
       
-      // Mark question (M)
       if (e.key === 'm' || e.key === 'M') {
         e.preventDefault();
-        const currentQuestion = questions[currentQuestionIndex];
+        const currentQuestion = sections[currentSection]?.questions[currentQuestionIndex];
         if (currentQuestion) {
           toggleMarkQuestion(currentQuestion.id);
         }
@@ -450,7 +419,7 @@ export default function MockTestPage() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentQuestionIndex, questions, showReview, loading, result]);
+  }, [currentSection, currentQuestionIndex, sections, showReview, loading, result]);
 
   // Fetch questions
   useEffect(() => {
@@ -464,41 +433,58 @@ export default function MockTestPage() {
       try {
         setLoading(true);
         setError(null);
-        const res = await axiosInstance.get(`/api/exams/course/${examSlug}/random`);
-        const validQuestions = res.data
-          .map((q: any) => ({
-            id: q.id.toString(),
-            questionText: q.questionText,
-            options: [q.optionA, q.optionB, q.optionC, q.optionD].filter(Boolean),
-            correctAnswer: ['A', 'B', 'C', 'D'].indexOf(q.correctOption),
-            courseId: q.courseName,
-            difficulty: q.difficulty,
-            explanation: q.explanation
-          }))
-          .filter(
-            (q: ExamQuestion) =>
-              q &&
-              q.id &&
-              q.questionText &&
-              Array.isArray(q.options) &&
-              q.options.length === 4 &&
-              q.correctAnswer >= 0
-          );
+        const res = await axiosInstance.get(`/api/questions/course/${examSlug}/random`);
+        
+        if (!res.data || !Array.isArray(res.data)) {
+          throw new Error('Invalid API response format');
+        }
 
-        if (validQuestions.length === 0) {
+        const sectionsData: ExamSection[] = res.data.map((section: any) => ({
+          sectionName: section.sectionName || 'Unnamed Section',
+          questions: Array.isArray(section.questions) ? section.questions
+            .map((q: any) => ({
+              id: q.id?.toString(),
+              questionText: q.questionText,
+              options: [q.optionA, q.optionB, q.optionC, q.optionD].filter(Boolean),
+              correctAnswer: ['A', 'B', 'C', 'D'].indexOf(q.correctOption),
+              courseId: q.courseName,
+              difficulty: q.difficulty,
+              explanation: q.explanation
+            }))
+            .filter(
+              (q: ExamQuestion) =>
+                q &&
+                q.id &&
+                q.questionText &&
+                Array.isArray(q.options) &&
+                q.options.length === 4 &&
+                q.correctAnswer >= 0
+            ) : []
+        })).filter((section: ExamSection) => section.questions.length > 0);
+
+        if (sectionsData.length === 0 || sectionsData.every(section => section.questions.length === 0)) {
           throw new Error('No valid questions found');
         }
 
-        setQuestions(validQuestions);
+        const totalQuestions = sectionsData.reduce((acc, section) => acc + section.questions.length, 0);
+        if (totalQuestions !== 100) {
+          throw new Error(`Expected 100 questions, but received ${totalQuestions}`);
+        }
+
+        setSections(sectionsData);
         setExamStarted(true);
         
-        // Try to load saved progress
         const savedProgress = localStorage.getItem(`examProgress-${examSlug}`);
         if (savedProgress) {
-          const { answers, marked, timeLeft } = JSON.parse(savedProgress);
+          const { answers, marked, timeLeft, currentSection, currentQuestionIndex } = JSON.parse(savedProgress);
           setAnswers(answers || {});
           setMarkedQuestions(new Set(marked || []));
           setTimeLeft(timeLeft || 1800);
+          setCurrentSection(Math.min(currentSection || 0, sectionsData.length - 1));
+          setCurrentQuestionIndex(Math.min(
+            currentQuestionIndex || 0, 
+            sectionsData[Math.min(currentSection || 0, sectionsData.length - 1)]?.questions.length - 1 || 0
+          ));
         }
       } catch (err) {
         let errorMessage = 'Failed to load questions';
@@ -527,20 +513,22 @@ export default function MockTestPage() {
 
   // Auto-save progress
   useEffect(() => {
-    if (examStarted && questions.length > 0) {
+    if (examStarted && sections.length > 0) {
       const saveProgress = () => {
         localStorage.setItem(`examProgress-${examSlug}`, JSON.stringify({
           answers,
           marked: Array.from(markedQuestions),
           timeLeft,
+          currentSection,
+          currentQuestionIndex,
           timestamp: Date.now()
         }));
       };
       
-      const saveInterval = setInterval(saveProgress, 30000); // Save every 30 seconds
+      const saveInterval = setInterval(saveProgress, 30000);
       return () => clearInterval(saveInterval);
     }
-  }, [examStarted, questions, answers, markedQuestions, timeLeft, examSlug]);
+  }, [examStarted, sections, answers, markedQuestions, timeLeft, examSlug, currentSection, currentQuestionIndex]);
 
   const handleOptionChange = (questionId: string, optionIndex: number) => {
     setAnswers((prev) => ({ 
@@ -552,7 +540,6 @@ export default function MockTestPage() {
     }));
     
     if (soundEnabled) {
-      // Play subtle sound effect
       const audio = new Audio('/sounds/select.mp3');
       audio.volume = 0.3;
       audio.play().catch(e => console.log('Audio play failed:', e));
@@ -572,18 +559,31 @@ export default function MockTestPage() {
   };
 
   const handlePrevQuestion = () => {
-    setCurrentQuestionIndex(prev => Math.max(0, prev - 1));
+    if (!sections[currentSection]) return;
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(prev => prev - 1);
+    } else if (currentSection > 0) {
+      setCurrentSection(prev => prev - 1);
+      setCurrentQuestionIndex(sections[currentSection - 1].questions.length - 1);
+    }
   };
 
   const handleNextQuestion = () => {
-    setCurrentQuestionIndex(prev => Math.min(questions.length - 1, prev + 1));
+    if (!sections[currentSection]) return;
+    if (currentQuestionIndex < sections[currentSection].questions.length - 1) {
+      setCurrentQuestionIndex(prev => prev + 1);
+    } else if (currentSection < sections.length - 1) {
+      setCurrentSection(prev => prev + 1);
+      setCurrentQuestionIndex(0);
+    }
   };
 
   const handleSubmit = async () => {
     if (submitting) return;
     
-    // Confirm if unanswered questions exist
-    const unanswered = questions.filter(q => answers[q.id]?.selectedOption === undefined).length;
+    const totalQuestions = sections.reduce((acc, section) => acc + (section.questions?.length || 0), 0);
+    const unanswered = sections.reduce((acc, section) => 
+      acc + (section.questions?.filter(q => answers[q.id]?.selectedOption === undefined).length || 0), 0);
     if (unanswered > 0 && !window.confirm(`You have ${unanswered} unanswered questions. Are you sure you want to submit?`)) {
       return;
     }
@@ -597,20 +597,29 @@ export default function MockTestPage() {
         formattedAnswers[parseInt(questionId)] = ['A', 'B', 'C', 'D'][answer.selectedOption];
       });
 
+      // Collect all question IDs from sections
+      const questionIds = sections.flatMap(section => 
+        section.questions.map(q => q.id)
+      );
+
       const res = await axiosInstance.post('/api/exams/submit', {
         userId,
         courseName: examSlug,
         answers: formattedAnswers,
-        timeTaken: 1800 - timeLeft
+        timeTaken: 1800 - timeLeft,
+        questionIds
       });
 
+      // Validate response
+      const responseTotal = res.data.correctAnswers + res.data.incorrectAnswers + res.data.skipped;
+      if (responseTotal !== res.data.totalQuestions || res.data.totalQuestions !== totalQuestions) {
+        throw new Error(`Total questions mismatch: expected ${totalQuestions}, received ${responseTotal} (backend total: ${res.data.totalQuestions})`);
+      }
+
       setResult(res.data);
-      
-      // Clear saved progress
       localStorage.removeItem(`examProgress-${examSlug}`);
       
       if (res.data.passed && soundEnabled) {
-        // Play success sound
         const audio = new Audio('/sounds/success.mp3');
         audio.play().catch(e => console.log('Audio play failed:', e));
       }
@@ -622,10 +631,12 @@ export default function MockTestPage() {
         if (status === 401) {
           errorMessage = 'Unauthorized: Please log in to submit the exam.';
         } else if (status === 400) {
-          errorMessage = 'Invalid submission data. Please check your answers and try again.';
+          errorMessage = err.response?.data || 'Invalid submission data. Please check your answers and try again.';
         } else if (status === 500) {
           errorMessage = 'Server error. Please try again later.';
         }
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
       }
       
       setError(errorMessage);
@@ -643,6 +654,7 @@ export default function MockTestPage() {
     setMarkedQuestions(new Set());
     setTimeLeft(1800);
     setExamStarted(false);
+    setCurrentSection(0);
     setCurrentQuestionIndex(0);
     setShowReview(false);
     setError(null);
@@ -657,8 +669,11 @@ export default function MockTestPage() {
     setSoundEnabled(!soundEnabled);
   };
 
-  const handleQuestionSelect = (index: number) => {
-    setCurrentQuestionIndex(index);
+  const handleQuestionSelect = (sectionIndex: number, questionIndex: number) => {
+    if (sectionIndex >= 0 && sectionIndex < sections.length && sections[sectionIndex]?.questions?.length > questionIndex) {
+      setCurrentSection(sectionIndex);
+      setCurrentQuestionIndex(questionIndex);
+    }
   };
 
   // Error state
@@ -743,26 +758,53 @@ export default function MockTestPage() {
               </button>
             </div>
             
+            <div className="mb-6">
+              <div className="flex flex-wrap gap-2">
+                {sections.map((section, idx) => (
+                  <button
+                    key={section.sectionName}
+                    onClick={() => {
+                      setCurrentSection(idx);
+                      setCurrentQuestionIndex(0);
+                    }}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                      currentSection === idx
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    {section.sectionName}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div className="space-y-8">
-              {questions.map((q, idx) => {
-                const userAnswer = answers[q.id]?.selectedOption;
-                const detailedResult = result.detailedResults.find(r => r.questionId === q.id);
-                
-                return (
-                  <QuestionCard
-                    key={q.id}
-                    question={q}
-                    index={idx}
-                    selectedOption={userAnswer}
-                    handleOptionChange={() => {}}
-                    toggleMarkQuestion={() => {}}
-                    isMarked={markedQuestions.has(q.id)}
-                    isReviewMode={true}
-                    correctAnswer={q.correctAnswer}
-                    userAnswer={userAnswer}
-                  />
-                );
-              })}
+              {sections[currentSection]?.questions?.length ? (
+                sections[currentSection].questions.map((q, idx) => {
+                  const userAnswer = answers[q.id]?.selectedOption;
+                  const detailedResult = result.detailedResults.find(r => r.questionId === q.id);
+                  
+                  return (
+                    <QuestionCard
+                      key={q.id}
+                      question={q}
+                      index={idx}
+                      selectedOption={userAnswer}
+                      handleOptionChange={() => {}}
+                      toggleMarkQuestion={() => {}}
+                      isMarked={markedQuestions.has(q.id)}
+                      isReviewMode={true}
+                      correctAnswer={q.correctAnswer}
+                      userAnswer={userAnswer}
+                    />
+                  );
+                })
+              ) : (
+                <div className="text-center py-12">
+                  <p className="text-gray-600 text-lg">No questions available for this section.</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -777,7 +819,6 @@ export default function MockTestPage() {
       className="min-h-screen bg-gradient-to-b from-blue-50 to-gray-100 py-12 px-4 sm:px-6"
     >
       <div className="max-w-6xl mx-auto">
-        {/* Header with branding */}
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-800 flex items-center">
@@ -808,156 +849,190 @@ export default function MockTestPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-xl p-6 mb-8 border border-gray-100">
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div className="flex items-center space-x-6">
-              <TimerDisplay timeLeft={timeLeft} />
-              <div className="text-gray-700 text-lg font-medium">
-                {getAnsweredCount()} / {questions.length} answered
-              </div>
-              <div className="hidden md:flex items-center text-orange-600">
-                <Flag className="w-5 h-5 mr-2" />
-                {markedQuestions.size} marked
-              </div>
-            </div>
-            
-            <div className="flex space-x-3">
-              <button
-                onClick={handlePrevQuestion}
-                disabled={currentQuestionIndex === 0}
-                className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 disabled:opacity-50 text-gray-700"
-                aria-label="Previous question"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-              
-              <button
-                onClick={handleNextQuestion}
-                disabled={currentQuestionIndex === questions.length - 1}
-                className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 disabled:opacity-50 text-gray-700"
-                aria-label="Next question"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-          
-          <div className="mt-4">
-            <ProgressBar answeredCount={getAnsweredCount()} totalQuestions={questions.length} />
-          </div>
-        </div>
-
-        <div className="grid lg:grid-cols-4 gap-8">
-          <div className="lg:col-span-3">
-            <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 border border-gray-100">
-              {questions.length > 0 ? (
-                <QuestionCard
-                  question={questions[currentQuestionIndex]}
-                  index={currentQuestionIndex}
-                  selectedOption={answers[questions[currentQuestionIndex]?.id]?.selectedOption}
-                  handleOptionChange={handleOptionChange}
-                  toggleMarkQuestion={toggleMarkQuestion}
-                  isMarked={markedQuestions.has(questions[currentQuestionIndex]?.id)}
-                  isReviewMode={false}
-                />
-              ) : (
-                <div className="text-center py-12">
-                  <p className="text-gray-600 text-lg">No questions available for this exam.</p>
-                </div>
-              )}
-
-              <div className="flex flex-col sm:flex-row justify-between mt-8 gap-4">
-                <button
-                  onClick={handlePrevQuestion}
-                  disabled={currentQuestionIndex === 0}
-                  className="flex items-center justify-center px-6 py-3 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 disabled:opacity-50"
-                >
-                  <ChevronLeft className="w-5 h-5 mr-2" />
-                  Previous
-                </button>
-                
-                <div className="flex space-x-3">
+        {sections.length > 0 ? (
+          <>
+            <div className="bg-white rounded-2xl shadow-xl p-6 mb-8 border border-gray-100">
+              <div className="flex flex-wrap gap-3 mb-6">
+                {sections.map((section, idx) => (
                   <button
-                    onClick={() => toggleMarkQuestion(questions[currentQuestionIndex]?.id)}
-                    className={`flex items-center justify-center px-6 py-3 rounded-lg font-medium ${
-                      markedQuestions.has(questions[currentQuestionIndex]?.id)
-                        ? 'bg-orange-100 text-orange-700'
+                    key={section.sectionName}
+                    onClick={() => {
+                      setCurrentSection(idx);
+                      setCurrentQuestionIndex(0);
+                    }}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                      currentSection === idx
+                        ? 'bg-blue-600 text-white shadow-lg'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
+                    {section.sectionName}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div className="flex items-center space-x-6">
+                  <TimerDisplay timeLeft={timeLeft} />
+                  <div className="text-gray-700 text-lg font-medium">
+                    {getAnsweredCount()} / {sections.reduce((acc, section) => acc + (section.questions?.length || 0), 0)} answered
+                  </div>
+                  <div className="hidden md:flex items-center text-orange-600">
                     <Flag className="w-5 h-5 mr-2" />
-                    {markedQuestions.has(questions[currentQuestionIndex]?.id) ? 'Unmark' : 'Mark'}
+                    {markedQuestions.size} marked
+                  </div>
+                </div>
+                
+                <div className="flex space-x-3">
+                  <button
+                    onClick={handlePrevQuestion}
+                    disabled={currentSection === 0 && currentQuestionIndex === 0}
+                    className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 disabled:opacity-50 text-gray-700"
+                    aria-label="Previous question"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
                   </button>
                   
                   <button
                     onClick={handleNextQuestion}
-                    disabled={currentQuestionIndex === questions.length - 1}
-                    className="flex items-center justify-center px-6 py-3 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 disabled:opacity-50"
+                    disabled={currentSection === sections.length - 1 && 
+                             currentQuestionIndex === (sections[currentSection]?.questions?.length - 1 || 0)}
+                    className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 disabled:opacity-50 text-gray-700"
+                    aria-label="Next question"
                   >
-                    Next
-                    <ChevronRight className="w-5 h-5 ml-2" />
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+              
+              <div className="mt-4">
+                <ProgressBar 
+                  answeredCount={getAnsweredCount()} 
+                  totalQuestions={sections.reduce((acc, section) => acc + (section.questions?.length || 0), 0)} 
+                />
+              </div>
+            </div>
+
+            <div className="grid lg:grid-cols-4 gap-8">
+              <div className="lg:col-span-3">
+                <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 border border-gray-100">
+                  {sections[currentSection]?.questions?.length > 0 ? (
+                    <QuestionCard
+                      question={sections[currentSection].questions[currentQuestionIndex]}
+                      index={currentQuestionIndex}
+                      selectedOption={answers[sections[currentSection].questions[currentQuestionIndex]?.id]?.selectedOption}
+                      handleOptionChange={handleOptionChange}
+                      toggleMarkQuestion={toggleMarkQuestion}
+                      isMarked={markedQuestions.has(sections[currentSection].questions[currentQuestionIndex]?.id)}
+                      isReviewMode={false}
+                    />
+                  ) : (
+                    <div className="text-center py-12">
+                      <p className="text-gray-600 text-lg">No questions available for this section.</p>
+                    </div>
+                  )}
+
+                  <div className="flex flex-col sm:flex-row justify-between mt-8 gap-4">
+                    <button
+                      onClick={handlePrevQuestion}
+                      disabled={currentSection === 0 && currentQuestionIndex === 0}
+                      className="flex items-center justify-center px-6 py-3 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 disabled:opacity-50"
+                    >
+                      <ChevronLeft className="w-5 h-5 mr-2" />
+                      Previous
+                    </button>
+                    
+                    <div className="flex space-x-3">
+                      <button
+                        onClick={() => toggleMarkQuestion(sections[currentSection]?.questions[currentQuestionIndex]?.id)}
+                        className={`flex items-center justify-center px-6 py-3 rounded-lg font-medium ${
+                          markedQuestions.has(sections[currentSection]?.questions[currentQuestionIndex]?.id)
+                            ? 'bg-orange-100 text-orange-700'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                        disabled={!sections[currentSection]?.questions[currentQuestionIndex]}
+                      >
+                        <Flag className="w-5 h-5 mr-2" />
+                        {markedQuestions.has(sections[currentSection]?.questions[currentQuestionIndex]?.id) ? 'Unmark' : 'Mark'}
+                      </button>
+                      
+                      <button
+                        onClick={handleNextQuestion}
+                        disabled={currentSection === sections.length - 1 && 
+                                 currentQuestionIndex === (sections[currentSection]?.questions?.length - 1 || 0)}
+                        className="flex items-center justify-center px-6 py-3 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 disabled:opacity-50"
+                      >
+                        Next
+                        <ChevronRight className="w-5 h-5 ml-2" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="lg:col-span-1">
+                <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100 sticky top-6">
+                  <h3 className="font-semibold text-xl text-gray-800 mb-4">Question Navigation</h3>
+                  
+                  <QuestionNavigation
+                    sections={sections}
+                    currentSection={currentSection}
+                    currentIndex={currentQuestionIndex}
+                    answers={answers}
+                    markedQuestions={markedQuestions}
+                    onSelect={handleQuestionSelect}
+                  />
+                  
+                  <div className="flex flex-col space-y-3 mb-6">
+                    <div className="flex items-center">
+                      <div className="w-4 h-4 rounded-full bg-blue-100 mr-2"></div>
+                      <span className="text-sm">Answered</span>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-4 h-4 rounded-full bg-gray-100 border border-gray-300 mr-2"></div>
+                      <span className="text-sm">Unanswered</span>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-4 h-4 rounded-full bg-orange-100 border-2 border-orange-400 mr-2"></div>
+                      <span className="text-sm">Marked</span>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-4 h-4 rounded-full bg-white ring-4 ring-blue-500 mr-2"></div>
+                      <span className="text-sm">Current</span>
+                    </div>
+                  </div>
+                  
+                  <button
+                    onClick={() => {
+                      if (window.confirm('Are you ready to submit your test?')) {
+                        handleSubmit();
+                      }
+                    }}
+                    disabled={submitting}
+                    className={`w-full py-3 rounded-xl font-semibold text-white flex items-center justify-center transition-all shadow-lg ${
+                      submitting
+                        ? 'bg-gray-400'
+                        : 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 hover:shadow-xl'
+                    }`}
+                  >
+                    {submitting ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                        Submitting...
+                      </>
+                    ) : (
+                      'Submit Test'
+                    )}
                   </button>
                 </div>
               </div>
             </div>
+          </>
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-gray-600 text-lg">No sections available for this exam.</p>
           </div>
-          
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100 sticky top-6">
-              <h3 className="font-semibold text-xl text-gray-800 mb-4">Question Navigation</h3>
-              
-              <QuestionNavigation
-                questions={questions}
-                currentIndex={currentQuestionIndex}
-                answers={answers}
-                markedQuestions={markedQuestions}
-                onSelect={handleQuestionSelect}
-              />
-              
-              <div className="flex flex-col space-y-3">
-                <div className="flex items-center">
-                  <div className="w-4 h-4 rounded-full bg-blue-100 mr-2"></div>
-                  <span className="text-sm">Answered</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-4 h-4 rounded-full bg-gray-100 border border-gray-300 mr-2"></div>
-                  <span className="text-sm">Unanswered</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-4 h-4 rounded-full bg-orange-100 border-2 border-orange-400 mr-2"></div>
-                  <span className="text-sm">Marked</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-4 h-4 rounded-full bg-white ring-4 ring-blue-500 mr-2"></div>
-                  <span className="text-sm">Current</span>
-                </div>
-              </div>
-              
-              <button
-                onClick={() => {
-                  if (window.confirm('Are you ready to submit your test?')) {
-                    handleSubmit();
-                  }
-                }}
-                disabled={submitting}
-                className={`mt-8 w-full py-3 rounded-xl font-semibold text-white flex items-center justify-center transition-all shadow-lg ${
-                  submitting
-                    ? 'bg-gray-400'
-                    : 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 hover:shadow-xl'
-                }`}
-              >
-                {submitting ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                    Submitting...
-                  </>
-                ) : (
-                  'Submit Test'
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
+        )}
       </div>
       <Toaster position="bottom-right" />
     </div>
