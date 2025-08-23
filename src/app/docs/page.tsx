@@ -2,6 +2,10 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 import { BookOpen, Target, Clock, Award, Play, CheckCircle, Users, Calendar } from 'lucide-react'
 import { Suspense } from 'react'
+import { ExamsErrorUI } from './ExamsErrorUI';
+
+// Enable ISR with revalidation every hour
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: 'Exam Preparation - Study Resources & Tips',
@@ -10,7 +14,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Exam Preparation - Study Resources & Tips',
     description: 'Access study tips, recommended resources, and mock tests to prepare effectively for JEE, NEET, CUET, BITSAT, and other entrance exams.',
-    url: '/preparation',
+    url: '/docs',
     type: 'website',
   },
 }
@@ -130,7 +134,6 @@ function HeroStatsSkeleton() {
 async function fetchExams(): Promise<Exam[]> {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://backend.bitecodes.com';
   const res = await fetch(`${apiUrl}/api/exams`, {
-    cache: 'no-store',
     signal: AbortSignal.timeout(10000),
   });
   
@@ -147,8 +150,6 @@ async function fetchExams(): Promise<Exam[]> {
 }
 
 async function fetchPreparationTips(): Promise<PreparationTip[]> {
-  // In a real app, this would fetch from your API
-  // For now, returning static data but you can replace with API call
   return [
     {
       title: 'Create a Study Schedule',
@@ -179,8 +180,6 @@ async function fetchPreparationTips(): Promise<PreparationTip[]> {
 }
 
 async function fetchRecommendedResources(): Promise<RecommendedResource[]> {
-  // In a real app, this would fetch from your API
-  // For now, returning static data but you can replace with API call
   return [
     {
       name: 'NCERT Textbooks',
@@ -279,10 +278,7 @@ function ExamCard({ exam }: { exam: Exam }) {
       aria-label={`View study material for ${exam.name}`}
     >
       <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-md hover:shadow-xl transition-all duration-500 p-6 border border-slate-200/50 hover:border-blue-300/50 transform hover:-translate-y-1 hover:scale-[1.02] relative overflow-hidden">
-        {/* Gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 to-slate-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-        
-        {/* Content */}
         <div className="relative z-10">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xl font-bold text-slate-800 group-hover:text-blue-700 transition-colors leading-tight">
@@ -292,11 +288,9 @@ function ExamCard({ exam }: { exam: Exam }) {
               {exam.difficulty}
             </span>
           </div>
-          
           <p className="text-slate-600 group-hover:text-slate-700 mb-4 text-sm leading-relaxed transition-colors">
             {exam.description}
           </p>
-          
           <div className="space-y-3 text-sm">
             <div className="flex items-center text-slate-500 group-hover:text-slate-600 transition-colors">
               <div className="p-1 bg-gradient-to-r from-slate-600 to-slate-700 rounded-lg mr-2">
@@ -304,7 +298,6 @@ function ExamCard({ exam }: { exam: Exam }) {
               </div>
               <span className="font-medium">{exam.studentsAppear} students</span>
             </div>
-            
             <div className="flex items-center text-slate-500 group-hover:text-slate-600 transition-colors">
               <div className="p-1 bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg mr-2">
                 <Calendar className="w-3 h-3 text-white" />
@@ -314,7 +307,6 @@ function ExamCard({ exam }: { exam: Exam }) {
                 {examDate.toLocaleDateString()}
               </span>
             </div>
-            
             <div className="flex items-center text-slate-500 group-hover:text-slate-600 transition-colors">
               <div className="p-1 bg-gradient-to-r from-emerald-600 to-emerald-700 rounded-lg mr-2">
                 <BookOpen className="w-3 h-3 text-white" />
@@ -324,7 +316,6 @@ function ExamCard({ exam }: { exam: Exam }) {
               </span>
             </div>
           </div>
-          
           <div className="mt-6 pt-4 border-t border-slate-100">
             <div className="flex items-center justify-between">
               <span className="text-sm font-semibold text-blue-600 flex items-center group-hover:text-blue-700 transition-colors">
@@ -337,8 +328,6 @@ function ExamCard({ exam }: { exam: Exam }) {
             </div>
           </div>
         </div>
-
-        {/* Animated border */}
         <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-600 to-slate-600 opacity-0 group-hover:opacity-10 transition-opacity duration-500 blur-sm"></div>
       </div>
     </Link>
@@ -405,22 +394,7 @@ async function FeaturedExamsContent() {
     );
   } catch (error) {
     console.error('FeaturedExamsContent: Error fetching exams:', error);
-    return (
-      <div className="text-center py-12">
-        <div className="bg-red-50/90 backdrop-blur-sm border border-red-200/50 rounded-2xl p-8 max-w-md mx-auto shadow-md">
-          <h3 className="text-red-800 font-bold text-lg mb-3">Failed to Load Featured Exams</h3>
-          <p className="text-red-600 text-sm mb-6 leading-relaxed">
-            We're having trouble loading the featured exam data. Please try refreshing the page.
-          </p>
-          <button
-            onClick={() => window.location.reload()}
-            className="bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-xl font-semibold hover:from-red-700 hover:to-red-800 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
-    );
+    return <ExamsErrorUI />;
   }
 }
 
@@ -451,18 +425,15 @@ async function PreparationTipsContent() {
   }
 }
 
-
 export default function PreparationPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-slate-800 via-green-800 to-slate-800 text-white py-20 relative overflow-hidden">
-        {/* Background elements */}
         <div className="absolute inset-0">
           <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-green-400/10 to-slate-400/10 rounded-full blur-3xl"></div>
           <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-slate-400/10 to-green-400/10 rounded-full blur-3xl"></div>
         </div>
-        
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
@@ -472,8 +443,6 @@ export default function PreparationPage() {
               Discover expert study tips, curated resources, and practice tests to excel in{' '}
               <span className="text-green-400 font-semibold">JEE, NEET, CUET, BITSAT, and more</span>.
             </p>
-            
-            {/* Hero Stats with Suspense */}
             <Suspense fallback={<HeroStatsSkeleton />}>
               <HeroStats />
             </Suspense>
@@ -492,7 +461,6 @@ export default function PreparationPage() {
               Explore study materials for the most popular entrance exams
             </p>
           </div>
-          
           <Suspense fallback={<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"><ExamCardSkeleton /><ExamCardSkeleton /><ExamCardSkeleton /></div>}>
             <FeaturedExamsContent />
           </Suspense>
@@ -508,15 +476,10 @@ export default function PreparationPage() {
               Expert advice to help you prepare effectively and maximize your scores
             </p>
           </div>
-          
           <Suspense fallback={<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"><PreparationTipSkeleton /><PreparationTipSkeleton /><PreparationTipSkeleton /></div>}>
             <PreparationTipsContent />
           </Suspense>
         </div>
-
-       
-       
-      
       </div>
     </div>
   );

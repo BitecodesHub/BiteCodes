@@ -91,7 +91,6 @@ function HeroStatsSkeleton() {
 async function fetchUniversities(): Promise<University[]> {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
   const response = await fetch(`${apiUrl}/api/universities`, { 
-    cache: 'no-store',
     signal: AbortSignal.timeout(10000), // 10 second timeout
   });
   

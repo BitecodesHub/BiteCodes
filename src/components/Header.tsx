@@ -102,13 +102,13 @@ if (response.data.success) {
       name: 'Entrance Exams',
       href: '/entrance-exams',
       icon: BookOpen,
-      description: 'JEE, NEET, CUET & more'
+      description: 'CMAT, NFAT, DAIICT & more'
     },
     {
       name: 'Universities',
       href: '/universities',
       icon: University,
-      description: 'IIT, NIT, AIIMS & more'
+      description: 'DAU, NFSU, NIRMA & more'
     },
     {
       name: 'Preparation',

@@ -3,6 +3,9 @@ import Link from "next/link";
 import { BookOpen, Users, Clock, TrendingUp, Target, Award, Play } from "lucide-react";
 import { Suspense } from "react";
 
+// Enable ISR with revalidation every hour
+export const revalidate = 3600;
+
 export const metadata: Metadata = {
   title: "Mock Tests - Practice & Prepare for Entrance Exams",
   description:
@@ -32,7 +35,7 @@ interface MockTest {
   price: string;
   featured: boolean;
   testDate: string;
-  language?: string[]; // Made optional to handle undefined cases
+  language?: string[];
 }
 
 // Skeleton Components
@@ -108,9 +111,8 @@ function HeroStatsSkeleton() {
 }
 
 async function fetchMockTests(): Promise<MockTest[]> {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://backend.bitecodes.com";
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
   const res = await fetch(`${apiUrl}/api/exams`, {
-    cache: "no-store",
     signal: AbortSignal.timeout(10000),
   });
 
@@ -209,10 +211,7 @@ function MockTestCard({ test }: { test: MockTest }) {
   return (
     <Link href={`/mock-tests/${test.id}`} className="group" aria-label={`Start ${test.name}`}>
       <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-md hover:shadow-xl transition-all duration-500 p-6 border border-slate-200/50 hover:border-blue-300/50 transform hover:-translate-y-1 hover:scale-[1.02] relative overflow-hidden">
-        {/* Gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 to-slate-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-        {/* Content */}
         <div className="relative z-10">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xl font-bold text-slate-800 group-hover:text-blue-700 transition-colors leading-tight">
@@ -224,7 +223,6 @@ function MockTestCard({ test }: { test: MockTest }) {
               {test.difficulty}
             </span>
           </div>
-
           <div className="flex flex-wrap gap-2 mb-4">
             <span className="px-2.5 py-1 bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 rounded-lg text-xs font-semibold border border-blue-200">
               {test.examType}
@@ -238,11 +236,9 @@ function MockTestCard({ test }: { test: MockTest }) {
               {test.price}
             </span>
           </div>
-
           <p className="text-slate-600 group-hover:text-slate-700 mb-4 text-sm leading-relaxed transition-colors">
             {test.description}
           </p>
-
           <div className="space-y-3 text-sm">
             <div className="flex items-center text-slate-500 group-hover:text-slate-600 transition-colors">
               <div className="p-1 bg-gradient-to-r from-slate-600 to-slate-700 rounded-lg mr-2">
@@ -252,21 +248,18 @@ function MockTestCard({ test }: { test: MockTest }) {
                 {test.questions} Questions • {test.totalMarks} Marks
               </span>
             </div>
-
             <div className="flex items-center text-slate-500 group-hover:text-slate-600 transition-colors">
               <div className="p-1 bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg mr-2">
                 <Clock className="w-3 h-3 text-white" />
               </div>
               <span className="font-medium">Duration: {test.duration}</span>
             </div>
-
             <div className="flex items-center text-slate-500 group-hover:text-slate-600 transition-colors">
               <div className="p-1 bg-gradient-to-r from-emerald-600 to-emerald-700 rounded-lg mr-2">
                 <Users className="w-3 h-3 text-white" />
               </div>
               <span className="font-medium">{test.attempts} attempts</span>
             </div>
-
             <div className="flex items-center text-slate-500 group-hover:text-slate-600 transition-colors">
               <div className="p-1 bg-gradient-to-r from-amber-600 to-amber-700 rounded-lg mr-2">
                 <Award className="w-3 h-3 text-white" />
@@ -274,7 +267,6 @@ function MockTestCard({ test }: { test: MockTest }) {
               <span className="font-medium">Rating: {test.rating}/5</span>
             </div>
           </div>
-
           <div className="mt-6 pt-4 border-t border-slate-100">
             <div className="flex items-center justify-between">
               <span className="text-sm text-slate-500 font-medium">
@@ -287,8 +279,6 @@ function MockTestCard({ test }: { test: MockTest }) {
             </div>
           </div>
         </div>
-
-        {/* Animated border */}
         <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-600 to-slate-600 opacity-0 group-hover:opacity-10 transition-opacity duration-500 blur-sm"></div>
       </div>
     </Link>
@@ -310,58 +300,19 @@ async function FeaturedTestsContent() {
     );
   } catch (error) {
     console.error("FeaturedTestsContent: Error fetching mock tests:", error);
-    return (
-      <div className="text-center py-12">
-        <div className="bg-red-50/90 backdrop-blur-sm border border-red-200/50 rounded-2xl p-8 max-w-md mx-auto shadow-md">
-          <h3 className="text-red-800 font-bold text-lg mb-3">Failed to Load Featured Tests</h3>
-          <p className="text-red-600 text-sm mb-6 leading-relaxed">
-            We're having trouble loading the featured test data. Please try refreshing the page.
-          </p>
-        </div>
-      </div>
-    );
+    return null;
   }
 }
 
-// All Tests Content Component
-async function AllTestsContent() {
-  try {
-    const mockTests = await fetchMockTests();
-    const otherTests = mockTests.filter((test) => !test.featured);
-
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {otherTests.map((test) => (
-          <MockTestCard key={test.id} test={test} />
-        ))}
-      </div>
-    );
-  } catch (error) {
-    console.error("AllTestsContent: Error fetching mock tests:", error);
-    return (
-      <div className="text-center py-12">
-        <div className="bg-red-50/90 backdrop-blur-sm border border-red-200/50 rounded-2xl p-8 max-w-md mx-auto shadow-md">
-          <h3 className="text-red-800 font-bold text-lg mb-3">Failed to Load All Tests</h3>
-          <p className="text-red-600 text-sm mb-6 leading-relaxed">
-            We're having trouble loading the test data. Please try refreshing the page.
-          </p>
-        </div>
-      </div>
-    );
-  }
-}
 
 export default function MockTestsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
-      {/* Hero Section */}
       <div className="bg-gradient-to-r from-slate-800 via-green-800 to-slate-800 text-white py-20 relative overflow-hidden">
-        {/* Background elements */}
         <div className="absolute inset-0">
           <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-green-400/10 to-slate-400/10 rounded-full blur-3xl"></div>
           <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-slate-400/10 to-green-400/10 rounded-full blur-3xl"></div>
         </div>
-
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
@@ -371,17 +322,13 @@ export default function MockTestsPage() {
               Practice with comprehensive mock tests for all major entrance exams.{" "}
               <span className="text-green-400 font-semibold">Get detailed analytics and improve your scores.</span>
             </p>
-
-            {/* Hero Stats with Suspense */}
             <Suspense fallback={<HeroStatsSkeleton />}>
               <HeroStats />
             </Suspense>
           </div>
         </div>
       </div>
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        {/* Featured Tests */}
         <div className="mb-16">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-4">Featured Mock Tests</h2>
@@ -389,25 +336,16 @@ export default function MockTestsPage() {
               Handpicked tests to help you prepare effectively for your exams
             </p>
           </div>
-
           <Suspense fallback={<MockTestGridSkeleton />}>
             <FeaturedTestsContent />
           </Suspense>
         </div>
-
-        {/* All Tests */}
         <div className="mb-16">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-3xl font-bold text-slate-800">All Mock Tests</h2>
-            {/* Removed FilterSortControls */}
           </div>
-
-          <Suspense fallback={<MockTestGridSkeleton />}>
-            <AllTestsContent />
-          </Suspense>
+      
         </div>
-
-
       </div>
     </div>
   );
