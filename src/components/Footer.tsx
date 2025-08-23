@@ -4,11 +4,9 @@ import { BookOpen, Mail, Phone, MapPin, Facebook, Twitter, Instagram, Youtube } 
 
 export default function Footer() {
   const quickLinks = [
-    { name: 'JEE Main', href: '/entrance-exams/jee-main' },
-    { name: 'NEET', href: '/entrance-exams/neet' },
-    { name: 'CUET', href: '/entrance-exams/cuet' },
-    { name: 'IIT Delhi', href: '/universities/iit-delhi' },
-    { name: 'AIIMS', href: '/universities/aiims' },
+    { name: 'NFSU', href: '/entrance-exams/nfsu' },
+    { name: 'DAU', href: '/entrance-exams/daiict' },
+    { name: 'NIRMA', href: '/entrance-exams/nirma' },
   ]
 
   const resources = [

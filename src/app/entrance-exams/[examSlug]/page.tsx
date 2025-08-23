@@ -166,10 +166,9 @@ function formatDate(dateString: string): string {
 
 // Mock data for new features
 const relatedExams = [
-  { name: 'JEE Main', slug: 'jee-main' },
-  { name: 'NEET UG', slug: 'neet-ug' },
-  { name: 'BITSAT', slug: 'bitsat' },
-  { name: 'VITEEE', slug: 'viteee' },
+  { name: 'DAU', slug: 'daiict' },
+  { name: 'NIRMA', slug: 'nirma' },
+  { name: 'NFSU', slug: 'nfsu' },
 ];
 
 export default async function ExamDetailPage({ params }: { params: Promise<{ examSlug: string }> }) {

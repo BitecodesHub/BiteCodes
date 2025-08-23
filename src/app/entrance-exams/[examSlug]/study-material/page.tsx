@@ -5,11 +5,11 @@ import { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Exam Preparation - Study Resources & Tips',
-  description: 'Access study tips, recommended resources, and mock tests to prepare effectively for JEE, NEET, CUET, BITSAT, and other entrance exams.',
-  keywords: ['exam preparation', 'study tips', 'JEE preparation', 'NEET preparation', 'mock tests', 'study resources'],
+  description: 'Access study tips, recommended resources, and mock tests to prepare effectively for DAU, NIRMA, NFSU, and other entrance exams.',
+  keywords: ['exam preparation', 'study tips', 'DAU preparation', 'NIRMA preparation', 'NFSU preparation', 'mock tests', 'study resources'],
   openGraph: {
     title: 'Exam Preparation - Study Resources & Tips',
-    description: 'Access study tips, recommended resources, and mock tests to prepare effectively for JEE, NEET, CUET, BITSAT, and other entrance exams.',
+    description: 'Access study tips, recommended resources, and mock tests to prepare effectively for DAU, NIRMA, NFSU, and other entrance exams.',
     url: '/preparation',
     type: 'website',
   },

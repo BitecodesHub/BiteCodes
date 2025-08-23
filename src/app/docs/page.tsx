@@ -179,40 +179,6 @@ async function fetchPreparationTips(): Promise<PreparationTip[]> {
   ];
 }
 
-async function fetchRecommendedResources(): Promise<RecommendedResource[]> {
-  return [
-    {
-      name: 'NCERT Textbooks',
-      description: 'Essential for JEE, NEET, and CUET preparation, covering core concepts in Physics, Chemistry, Biology, and Mathematics.',
-      link: '#',
-      examTypes: ['JEE Main', 'NEET', 'CUET'],
-    },
-    {
-      name: 'HC Verma - Concepts of Physics',
-      description: 'A must-have for JEE aspirants to master Physics concepts and problem-solving.',
-      link: '#',
-      examTypes: ['JEE Main', 'JEE Advanced'],
-    },
-    {
-      name: 'RD Sharma - Mathematics',
-      description: 'Comprehensive resource for Mathematics practice, ideal for JEE and BITSAT preparation.',
-      link: '#',
-      examTypes: ['JEE Main', 'JEE Advanced', 'BITSAT'],
-    },
-    {
-      name: 'MTG NEET Guide',
-      description: 'Complete guide with practice questions and solutions for NEET aspirants.',
-      link: '#',
-      examTypes: ['NEET'],
-    },
-    {
-      name: 'Arihant CUET Prep Books',
-      description: 'Domain-specific books tailored for CUET preparation, covering General Test and subject areas.',
-      link: '#',
-      examTypes: ['CUET'],
-    },
-  ];
-}
 
 // Get difficulty configuration for professional colors
 function getDifficultyConfig(difficulty: string) {
@@ -441,7 +407,7 @@ export default function PreparationPage() {
             </h1>
             <p className="text-xl md:text-2xl text-slate-300 max-w-4xl mx-auto leading-relaxed font-light">
               Discover expert study tips, curated resources, and practice tests to excel in{' '}
-              <span className="text-green-400 font-semibold">JEE, NEET, CUET, BITSAT, and more</span>.
+              <span className="text-green-400 font-semibold">DAU, NIRMA, NFSU, and more</span>.
             </p>
             <Suspense fallback={<HeroStatsSkeleton />}>
               <HeroStats />

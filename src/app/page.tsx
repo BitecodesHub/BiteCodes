@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Bitecodes Academy | Free Mock Tests & Entrance Exam Preparation',
     description:
-      'Join thousands of students using Bitecodes Academy to prepare for JEE, NEET, CUET and more. Get university-wise info, expert-curated materials, and full-length mock tests.',
+      'Join thousands of students using Bitecodes Academy to prepare for DAU, NIRMA, NFSU and more. Get university-wise info, expert-curated materials, and full-length mock tests.',
     url: 'https://bitecodes.com',
     siteName: 'Bitecodes Academy',
     images: [
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     creator: '@bitecodes',
     title: 'Bitecodes Academy | Entrance Exam Hub',
     description:
-      'Free mock tests, university data, and preparation material for exams like JEE, NEET, and CUET. Start your journey to success today with Bitecodes Academy!',
+      'Free mock tests, university data, and preparation material for exams like DAU, NIRMA, NFSU. Start your journey to success today with Bitecodes Academy!',
     images: ['https://bitecodes.com/og-image.jpg'],
   },
   icons: {
