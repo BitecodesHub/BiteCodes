@@ -5,11 +5,11 @@ import { Suspense } from 'react'
 
 export const metadata: Metadata = {
   title: 'Universities - Top Institutes for Higher Education',
-  description: 'Explore top universities accepting JEE, NEET, CUET, and BITSAT for undergraduate and postgraduate programs.',
-  keywords: ['universities', 'JEE', 'NEET', 'CUET', 'BITSAT', 'higher education'],
+  description: 'Explore top universities like DAU, NIRMA, NFSU for undergraduate and postgraduate programs.',
+  keywords: ['universities', 'NFSU', 'DAU', 'DAIICT', 'NIRMA', 'higher education'],
   openGraph: {
     title: 'Universities - Top Institutes for Higher Education',
-    description: 'Explore top universities accepting JEE, NEET, CUET, and BITSAT for undergraduate and postgraduate programs.',
+    description: 'Explore top universities like DAU, NIRMA, NFSU for undergraduate and postgraduate programs.',
     url: '/universities',
     type: 'website',
   },

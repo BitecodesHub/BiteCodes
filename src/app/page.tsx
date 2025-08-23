@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description:
     'Bitecodes Academy is your ultimate platform for entrance exam preparation. Access top university details, expert preparation guides, previous year papers, and AI-powered free mock tests. Unlock your academic success today!',
   keywords:
-    'Bitecodes Academy, entrance exams, JEE, NEET, CUET, university info, mock tests, preparation guides, previous year papers, online tests, NFSU, DAIICT, competitive exams, career preparation',
+    'Bitecodes Academy, entrance exams, DAU, NFSU, NIRMA, university info, mock tests, preparation guides, previous year papers, online tests, NFSU, DAIICT, competitive exams, career preparation',
   authors: [{ name: 'Bitecodes Team', url: 'https://bitecodes.com' }],
   creator: 'Bitecodes Academy',
   metadataBase: new URL('https://bitecodes.com'),

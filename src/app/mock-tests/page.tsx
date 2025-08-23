@@ -9,11 +9,11 @@ export const revalidate = 3600;
 export const metadata: Metadata = {
   title: "Mock Tests - Practice & Prepare for Entrance Exams",
   description:
-    "Practice with comprehensive mock tests for JEE, NEET, CUET, BITSAT and other entrance exams. Get detailed analytics and improve your scores.",
-  keywords: ["mock tests", "practice tests", "JEE mock test", "NEET mock test", "online test", "exam preparation"],
+    "Practice with comprehensive mock tests for DAU, NIRMA, NFSU and other entrance exams. Get detailed analytics and improve your scores.",
+  keywords: ["mock tests", "practice tests", "DAU mock test", "NIRMA mock test", "NFSU mock test", "online test", "exam preparation"],
   openGraph: {
     title: "Mock Tests - Practice & Prepare for Entrance Exams",
-    description: "Practice with comprehensive mock tests for JEE, NEET, CUET, BITSAT and other entrance exams.",
+    description: "Practice with comprehensive mock tests for DAU, NIRMA, NFSU and other entrance exams.",
     url: "/mock-tests",
     type: "website",
   },
