@@ -92,15 +92,15 @@ export default function Footer() {
             <div className="space-y-2">
               <div className="flex items-center space-x-2 text-gray-400 text-sm">
                 <Mail className="w-4 h-4" />
-                <span>info@bitecodesacademy.com</span>
+                <span>bitecodes.global@gmail.com</span>
               </div>
               <div className="flex items-center space-x-2 text-gray-400 text-sm">
                 <Phone className="w-4 h-4" />
-                <span>+91 98765 43210</span>
+                <span>+91 9428767709</span>
               </div>
               <div className="flex items-center space-x-2 text-gray-400 text-sm">
                 <MapPin className="w-4 h-4" />
-                <span>Mumbai, Maharashtra, India</span>
+                <span>Ahmedabad, Gujarat, India</span>
               </div>
             </div>
           </div>

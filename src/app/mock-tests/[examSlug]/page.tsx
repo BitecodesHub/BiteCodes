@@ -127,9 +127,10 @@ const ResultCard = ({
   }, [result.passed]);
   
   return (
+    
     <div className="bg-white rounded-2xl shadow-xl p-8 max-w-4xl mx-auto border border-gray-100 relative overflow-hidden">
       {showConfetti && <Confetti recycle={false} numberOfPieces={500} />}
-      
+
       <div className="text-center mb-8 animate-fade-in">
         {result.passed ? (
           <div className="relative inline-block">

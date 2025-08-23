@@ -1,6 +1,20 @@
 import { notFound } from 'next/navigation';
 import StudyMaterialClient from './StudyMaterialClient';
 
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Exam Preparation - Study Resources & Tips',
+  description: 'Access study tips, recommended resources, and mock tests to prepare effectively for JEE, NEET, CUET, BITSAT, and other entrance exams.',
+  keywords: ['exam preparation', 'study tips', 'JEE preparation', 'NEET preparation', 'mock tests', 'study resources'],
+  openGraph: {
+    title: 'Exam Preparation - Study Resources & Tips',
+    description: 'Access study tips, recommended resources, and mock tests to prepare effectively for JEE, NEET, CUET, BITSAT, and other entrance exams.',
+    url: '/preparation',
+    type: 'website',
+  },
+}
+
 async function getStudyMaterials(slug: string) {
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/study-material/${slug}`, {
