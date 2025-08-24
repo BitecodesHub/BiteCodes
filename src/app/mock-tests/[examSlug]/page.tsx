@@ -7,19 +7,58 @@ import {
   ChevronLeft, ChevronRight, HelpCircle, Award
 } from 'lucide-react';
 import axios from 'axios';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Confetti from 'react-confetti';
 import { toast, Toaster } from 'react-hot-toast';
-import { ExamQuestion, Answer, ExamAttemptResponse, ExamSection } from './types';
+
+// Types
+interface ExamQuestion {
+  id: string;
+  questionText: string;
+  options: string[];
+  correctAnswer: number;
+  courseId: string;
+  difficulty?: string;
+  explanation?: string;
+}
+
+interface Answer {
+  selectedOption: number;
+}
+
+interface ExamSection {
+  sectionName: string;
+  questions: ExamQuestion[];
+}
+
+interface ExamAttemptResponse {
+  id: string;
+  userId: string;
+  courseName: string;
+  score: number;
+  correctAnswers: number;
+  incorrectAnswers: number;
+  skipped: number;
+  totalQuestions: number;
+  timeTaken: number;
+  passed: boolean;
+  attemptedAt: string;
+  detailedResults: Array<{
+    questionId: string;
+    correct: boolean;
+    selectedOption: number;
+    correctOption: number;
+  }>;
+}
 
 // Helper function to check if error is an axios error
 const isAxiosError = (error: unknown): error is { response?: { status?: number; data?: any } } => {
   return typeof error === 'object' && error !== null && 'response' in error;
 };
 
-// Reusable Components (unchanged, included for completeness)
+// Reusable Components
 const TimerDisplay = ({ timeLeft }: { timeLeft: number }) => {
-  const isCritical = timeLeft < 300; // Less than 5 minutes
+  const isCritical = timeLeft < 300;
   return (
     <div className={`flex items-center px-4 py-2 rounded-lg shadow-md transition-all duration-300 ${
       isCritical 
@@ -127,11 +166,10 @@ const ResultCard = ({
   }, [result.passed]);
   
   return (
-    
     <div className="bg-white rounded-2xl shadow-xl p-8 max-w-4xl mx-auto border border-gray-100 relative overflow-hidden">
       {showConfetti && <Confetti recycle={false} numberOfPieces={500} />}
 
-      <div className="text-center mb-8 animate-fade-in">
+      <div className="text-center mb-8">
         {result.passed ? (
           <div className="relative inline-block">
             <CheckCircle className="w-20 h-20 text-green-500 mx-auto mb-4 animate-bounce" />
@@ -335,7 +373,9 @@ const formatTime = (seconds: number) => {
 export default function MockTestPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const examSlug = (params?.examSlug as string) || 'cmat';
+  const attemptId = searchParams.get('attemptId');
   const [sections, setSections] = useState<ExamSection[]>([]);
   const [currentSection, setCurrentSection] = useState(0);
   const [answers, setAnswers] = useState<Record<string, Answer>>({});
@@ -352,7 +392,14 @@ export default function MockTestPage() {
   const [showReview, setShowReview] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const userId = 1;
+  const storedUser = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
+  let userData: { id?: string; userid?: string } | null = null;
+
+  if (storedUser) {
+    userData = JSON.parse(storedUser);
+  }
+
+  const userId = userData?.id || userData?.userid || null;
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
   const authToken = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
@@ -363,6 +410,50 @@ export default function MockTestPage() {
       ...(authToken && { Authorization: `Bearer ${authToken}` }),
     },
   });
+
+  // Fetch attempt result if attemptId is provided
+  useEffect(() => {
+    async function fetchAttemptResult() {
+      if (!attemptId) return;
+      
+      try {
+        setLoading(true);
+        setError(null);
+        const res = await axiosInstance.get(`/api/exams/result/${attemptId}`);
+        
+        if (!res.data) {
+          throw new Error('Invalid attempt response format');
+        }
+        
+        setResult(res.data);
+        setShowReview(false);
+        setLoading(false);
+      } catch (err) {
+        let errorMessage = 'Failed to load attempt results';
+        
+        if (isAxiosError(err)) {
+          const status = err.response?.status;
+          if (status === 401) {
+            errorMessage = 'Unauthorized: Please log in to view this attempt.';
+          } else if (status === 404) {
+            errorMessage = 'Attempt not found.';
+          } else if (status === 500) {
+            errorMessage = 'Server error. Please try again later.';
+          }
+        } else if (err instanceof Error) {
+          errorMessage = err.message;
+        }
+        
+        setError(errorMessage);
+        setLoading(false);
+        toast.error(errorMessage);
+      }
+    }
+    
+    if (attemptId) {
+      fetchAttemptResult();
+    }
+  }, [attemptId]);
 
   // Timer effect
   useEffect(() => {
@@ -425,8 +516,8 @@ export default function MockTestPage() {
   // Fetch questions
   useEffect(() => {
     async function fetchQuestions() {
-      if (!examSlug) {
-        setError('No exam specified. Please select an exam.');
+      if (!examSlug || attemptId) {
+        // Don't fetch questions if we're loading an attempt
         setLoading(false);
         return;
       }
@@ -510,11 +601,11 @@ export default function MockTestPage() {
     }
 
     fetchQuestions();
-  }, [examSlug]);
+  }, [examSlug, attemptId]);
 
   // Auto-save progress
   useEffect(() => {
-    if (examStarted && sections.length > 0) {
+    if (examStarted && sections.length > 0 && !attemptId) {
       const saveProgress = () => {
         localStorage.setItem(`examProgress-${examSlug}`, JSON.stringify({
           answers,
@@ -529,7 +620,7 @@ export default function MockTestPage() {
       const saveInterval = setInterval(saveProgress, 30000);
       return () => clearInterval(saveInterval);
     }
-  }, [examStarted, sections, answers, markedQuestions, timeLeft, examSlug, currentSection, currentQuestionIndex]);
+  }, [examStarted, sections, answers, markedQuestions, timeLeft, examSlug, currentSection, currentQuestionIndex, attemptId]);
 
   const handleOptionChange = (questionId: string, optionIndex: number) => {
     setAnswers((prev) => ({ 
@@ -660,6 +751,7 @@ export default function MockTestPage() {
     setShowReview(false);
     setError(null);
     localStorage.removeItem(`examProgress-${examSlug}`);
+    router.push(`/mock-tests/${examSlug}`);
   };
 
   const toggleFullScreen = () => {
@@ -681,7 +773,7 @@ export default function MockTestPage() {
   if (error && !result) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-blue-50 to-gray-100 flex items-center justify-center p-6">
-        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-lg border border-red-100 animate-fade-in">
+        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-lg border border-red-100">
           <div className="flex items-center mb-4">
             <AlertCircle className="w-6 h-6 text-red-500 mr-3" />
             <h2 className="text-2xl font-bold text-gray-800">Error</h2>
@@ -722,9 +814,9 @@ export default function MockTestPage() {
             </div>
           </div>
           <p className="mt-4 text-2xl text-gray-800 font-bold">
-            Preparing your <span className="text-blue-600">Bitecodes Academy</span> exam...
+            {attemptId ? 'Loading your results...' : 'Preparing your Bitecodes Academy exam...'}
           </p>
-          <p className="text-gray-600 mt-2">Loading questions</p>
+          <p className="text-gray-600 mt-2">{attemptId ? 'Fetching attempt data' : 'Loading questions'}</p>
         </div>
       </div>
     );

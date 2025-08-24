@@ -126,8 +126,7 @@ if (response.data.success) {
 
   const userMenuItems = [
     { name: 'My Profile', href: '/profile', icon: User },
-    { name: 'My Courses', href: '/my-courses', icon: BookOpen },
-    { name: 'Settings', href: '/settings', icon: Settings },
+    { name: 'Mock Attempts', href: '/mock-attempts', icon: BookOpen },
     { name: 'Billing', href: '/billing', icon: CreditCard },
     { name: 'Help Center', href: '/help', icon: HelpCircle },
   ]
