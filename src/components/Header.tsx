@@ -1,3 +1,4 @@
+// components/Header.tsx
 "use client";
 import Link from 'next/link'
 import { useState, useEffect, useRef } from 'react'
@@ -6,33 +7,16 @@ import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google'
 import axios from 'axios'
 import { toast } from 'react-hot-toast'
 import { jwtDecode } from 'jwt-decode'
-
-interface User {
-  userid: number
-  username: string
-  email: string
-  name: string
-  profileurl: string
-  role: string
-}
+import { useAuth } from '@/app/contexts/AuthContext';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false)
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [user, setUser] = useState<User | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
-
-  // Check if user is logged in on mount
-  useEffect(() => {
-    const token = localStorage.getItem('token')
-    const storedUser = localStorage.getItem('user')
-    if (token && storedUser) {
-      setIsLoggedIn(true)
-      setUser(JSON.parse(storedUser))
-    }
-  }, [])
+  
+  // Use auth context
+  const { user, isLoggedIn, login, logout } = useAuth();
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -59,25 +43,17 @@ export default function Header() {
       })
 
       // On Google login success:
-if (response.data.success) {
-  const { token, username, email, profileurl, userid, name, role } = response.data;
+      if (response.data.success) {
+        const { token, username, email, profileurl, userid, name, role } = response.data;
 
-  // Save token and user to localStorage
-  localStorage.setItem('token', token);
-  localStorage.setItem(
-    'user',
-    JSON.stringify({ userid, username, email, profileurl, name, role })
-  );
+        // Use the auth context login function
+        login({ userid, username, email, profileurl, name, role }, token);
+        setIsUserDropdownOpen(false);
 
-  // Update states
-  setIsLoggedIn(true);
-  setUser({ userid, username, email, profileurl, name, role });
-  setIsUserDropdownOpen(false);
-
-  toast.success('Google login successful!');
-} else {
-  toast.error(response.data.message || 'Google login failed');
-}
+        toast.success('Google login successful!');
+      } else {
+        toast.error(response.data.message || 'Google login failed');
+      }
 
     } catch (error) {
       toast.error('Google login failed: ' + (error instanceof Error ? error.message : 'Unknown error'))
@@ -89,12 +65,9 @@ if (response.data.success) {
   }
 
   const handleLogout = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
-    setIsLoggedIn(false)
-    setUser(null)
-    setIsUserDropdownOpen(false)
-    toast.success('Logged out successfully')
+    logout();
+    setIsUserDropdownOpen(false);
+    toast.success('Logged out successfully');
   }
 
   const navigation = [
@@ -166,9 +139,6 @@ if (response.data.success) {
             </nav>
 
             <div className="flex items-center space-x-4">
-              {/* Notifications (only show when logged in) */}
-           
-
               {/* User Profile / Login */}
               <div className="relative" ref={dropdownRef}>
                 {isLoggedIn && user ? (
