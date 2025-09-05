@@ -4,17 +4,9 @@ import { BookOpen, Mail, Phone, MapPin, Facebook, Twitter, Instagram, Youtube } 
 
 export default function Footer() {
   const quickLinks = [
-    { name: 'NFSU', href: '/entrance-exams/nfsu' },
-    { name: 'DAU', href: '/entrance-exams/daiict' },
-    { name: 'NIRMA', href: '/entrance-exams/nirma' },
-  ]
-
-  const resources = [
-    { name: 'Study Materials', href: '/docs' },
-    { name: 'Previous Papers', href: '/docs/previous-papers' },
-    { name: 'Syllabus', href: '/docs/syllabus' },
-    { name: 'Time Management', href: '/docs/time-management' },
-    { name: 'Exam Tips', href: '/docs/exam-tips' },
+    { name: 'NFSU', href: '/universities/nfsu' },
+    { name: 'DAU', href: '/universities/daiict' },
+    { name: 'NIRMA', href: '/universities/nirma' },
   ]
 
   const company = [
@@ -70,19 +62,6 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Resources */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Resources</h3>
-            <ul className="space-y-2">
-              {resources.map((link) => (
-                <li key={link.name}>
-                  <Link href={link.href} className="text-gray-400 hover:text-white text-sm">
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
 
           {/* Contact Info */}
           <div>
