@@ -2,7 +2,7 @@
 "use client";
 import Link from 'next/link'
 import { useState, useEffect, useRef } from 'react'
-import { Menu, X, BookOpen, University, FileText, Target, User, LogIn, LogOut, Settings, Bell, CreditCard, HelpCircle, ChevronDown } from 'lucide-react'
+import { Menu, X, BookOpen, University, FileText, Target, User, LogIn, LogOut, Settings, Bell, CreditCard, HelpCircle, ChevronDown, GraduationCap } from 'lucide-react'
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google'
 import axios from 'axios'
 import { toast } from 'react-hot-toast'
@@ -42,12 +42,12 @@ export default function Header() {
         picture: decoded.picture
       })
 
+      console.log("🔍 Header Google login response:", response.data);
+
       // On Google login success:
       if (response.data.success) {
-        const { token, username, email, profileurl, userid, name, role } = response.data;
-
-        // Use the auth context login function
-        login({ userid, username, email, profileurl, name, role }, token);
+        // ✅ Pass entire response to include purchasedCourses
+        login(response.data);
         setIsUserDropdownOpen(false);
 
         toast.success('Google login successful!');
@@ -99,6 +99,7 @@ export default function Header() {
 
   const userMenuItems = [
     { name: 'My Profile', href: '/profile', icon: User },
+    { name: 'My Courses', href: '/mycourses', icon: GraduationCap }, // ✅ Added My Courses
     { name: 'Mock Attempts', href: '/mock-attempts', icon: BookOpen },
     { name: 'Billing', href: '/billing', icon: CreditCard },
     { name: 'Help Center', href: '/help', icon: HelpCircle },
@@ -193,6 +194,14 @@ export default function Header() {
                               </span>
                             </div>
                           </div>
+                          {/* Show purchased courses count if available */}
+                          {user.purchasedCourses && user.purchasedCourses.length > 0 && (
+                            <div className="mt-3 pt-3 border-t border-white/20">
+                              <p className="text-xs text-gray-600">
+                                📚 {user.purchasedCourses.length} course{user.purchasedCourses.length !== 1 ? 's' : ''} enrolled
+                              </p>
+                            </div>
+                          )}
                         </div>
 
                         {/* Menu Items */}
@@ -206,6 +215,12 @@ export default function Header() {
                             >
                               <item.icon className="w-4 h-4 mr-3 text-gray-400 group-hover:text-blue-500" />
                               <span>{item.name}</span>
+                              {/* Show course count badge on My Courses */}
+                              {item.name === 'My Courses' && user.purchasedCourses && user.purchasedCourses.length > 0 && (
+                                <span className="ml-auto bg-blue-100 text-blue-600 text-xs px-2 py-0.5 rounded-full font-medium">
+                                  {user.purchasedCourses.length}
+                                </span>
+                              )}
                             </Link>
                           ))}
                         </div>
@@ -314,6 +329,11 @@ export default function Header() {
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-semibold text-gray-800 truncate">{user.name}</p>
                             <p className="text-xs text-gray-600 truncate">{user.email}</p>
+                            {user.purchasedCourses && user.purchasedCourses.length > 0 && (
+                              <p className="text-xs text-blue-600 mt-1">
+                                {user.purchasedCourses.length} course{user.purchasedCourses.length !== 1 ? 's' : ''} enrolled
+                              </p>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -321,11 +341,19 @@ export default function Header() {
                         <Link
                           key={item.name}
                           href={item.href}
-                          className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium transition-colors"
+                          className="flex items-center justify-between space-x-3 text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium transition-colors"
                           onClick={() => setIsMenuOpen(false)}
                         >
-                          <item.icon className="w-5 h-5" />
-                          <div>{item.name}</div>
+                          <div className="flex items-center space-x-3">
+                            <item.icon className="w-5 h-5" />
+                            <div>{item.name}</div>
+                          </div>
+                          {/* Show course count badge on My Courses in mobile */}
+                          {item.name === 'My Courses' && user.purchasedCourses && user.purchasedCourses.length > 0 && (
+                            <span className="bg-blue-100 text-blue-600 text-xs px-2 py-0.5 rounded-full font-medium">
+                              {user.purchasedCourses.length}
+                            </span>
+                          )}
                         </Link>
                       ))}
                       <button

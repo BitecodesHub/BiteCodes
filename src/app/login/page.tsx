@@ -54,10 +54,10 @@ function LoginForm() {
         password
       });
       
-      const { token, user } = response.data;
+      console.log("📧 Regular login response:", response.data);
       
-      // Use the auth context login function
-      login(user, token);
+      // ✅ FIX: Pass the entire response.data to login function
+      login(response.data);
       
       toast.success('Login successful!');
       
@@ -85,12 +85,13 @@ function LoginForm() {
         picture: decoded.picture
       });
 
+      console.log("🔍 Google login full response:", response.data);
+
       // On Google login success:
       if (response.data.success) {
-        const { token, username, email, profileurl, userid, name, role } = response.data;
-
-        // Use the auth context login function
-        login({ userid, username, email, profileurl, name, role }, token);
+        // ✅ FIX: Pass the entire response.data to login function
+        // This will include purchasedCourses if present
+        login(response.data);
 
         toast.success('Google login successful!');
         
@@ -103,6 +104,7 @@ function LoginForm() {
       }
 
     } catch (error) {
+      console.error('Google login error:', error);
       toast.error('Google login failed: ' + (error instanceof Error ? error.message : 'Unknown error'));
     }
   };

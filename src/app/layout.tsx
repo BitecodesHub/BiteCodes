@@ -1,10 +1,11 @@
-// src/app/layout.tsx
 import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { AuthProvider } from './contexts/AuthContext';
+import ProtectedRoutes from '@/components/ProtectedRoute';
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -16,7 +17,7 @@ export const metadata: Metadata = {
     'Bitecodes, entrance exams, university preparation, mock tests, NFSU, DAIICT, exam info',
   authors: [{ name: 'Bitecodes Team' }],
   creator: 'Bitecodes',
-  metadataBase: new URL('https://www.bitecodes.in'), // update if hosted elsewhere
+  metadataBase: new URL('https://www.bitecodes.in'),
   openGraph: {
     title: 'Bitecodes Academy - Entrance Exam Hub',
     description:
@@ -25,7 +26,7 @@ export const metadata: Metadata = {
     siteName: 'Bitecodes',
     images: [
       {
-        url: '/public/globe.svg',
+        url: '/globe.svg', // no /public prefix needed
         width: 1200,
         height: 630,
         alt: 'Bitecodes Academy',
@@ -40,25 +41,22 @@ export const metadata: Metadata = {
       'Explore entrance exams, universities, preparation docs, and mock tests all in one place.',
     site: '@bitecodes',
     creator: '@bitecodes',
-    images: ['/public/globe.svg'],
+    images: ['/globe.svg'],
   },
   icons: {
     icon: '/favicon.ico',
   },
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <head />
       <body className={inter.className}>
         <AuthProvider>
           <Header />
-          <main>{children}</main>
+          <ProtectedRoutes>
+            <main>{children}</main>
+          </ProtectedRoutes>
           <Footer />
         </AuthProvider>
       </body>
