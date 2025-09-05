@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useParams } from "next/navigation"
 import {
   MapPin,
   BookOpen,
@@ -29,8 +29,8 @@ interface University {
   purchased?: boolean
 }
 
-export default function UniversityPage({ params }: { params: { universitySlug: string } }) {
-  const { universitySlug } = params
+export default function UniversityPage() {
+  const { universitySlug } = useParams<{ universitySlug: string }>() // ✅ get param here
   const [university, setUniversity] = useState<University | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -38,25 +38,33 @@ export default function UniversityPage({ params }: { params: { universitySlug: s
   const router = useRouter()
 
   useEffect(() => {
+    if (!universitySlug) return
+
     const fetchUniversity = async () => {
       setLoading(true)
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"
 
         // read user from localStorage
-        const storedUser = typeof window !== "undefined" ? localStorage.getItem("user") : null
+        const storedUser =
+          typeof window !== "undefined" ? localStorage.getItem("user") : null
         let userData: { id?: number; userid?: number } | null = null
         if (storedUser) {
           userData = JSON.parse(storedUser)
           setUserId(userData?.id || userData?.userid || null)
         }
 
-        // prefer endpoint that returns price/purchase info for user
-        const url = userData?.id || userData?.userid
-          ? `${apiUrl}/api/universities/${universitySlug}?userId=${userData.id || userData.userid}`
-          : `${apiUrl}/api/universities/${universitySlug}`
+        const url =
+          userData?.id || userData?.userid
+            ? `${apiUrl}/api/universities/${universitySlug}?userId=${
+                userData.id || userData.userid
+              }`
+            : `${apiUrl}/api/universities/${universitySlug}`
 
-        const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
+        const token =
+          typeof window !== "undefined"
+            ? localStorage.getItem("token")
+            : null
         const res = await fetch(url, {
           cache: "no-store",
           headers: token ? { Authorization: `Bearer ${token}` } : undefined,
@@ -69,7 +77,6 @@ export default function UniversityPage({ params }: { params: { universitySlug: s
         }
 
         const data = await res.json()
-        // normalize price (ensure number)
         if (data.allCoursesPrice && typeof data.allCoursesPrice === "string") {
           data.allCoursesPrice = Number(data.allCoursesPrice)
         }
@@ -84,14 +91,6 @@ export default function UniversityPage({ params }: { params: { universitySlug: s
 
     fetchUniversity()
   }, [universitySlug])
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-10 h-10 animate-spin text-green-600" />
-      </div>
-    )
-  }
 
   if (error) {
     return (
