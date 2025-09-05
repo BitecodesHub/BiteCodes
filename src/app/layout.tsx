@@ -5,6 +5,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoutes from '@/components/ProtectedRoute';
+import AIChatbot from '@/components/Chatbot';
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 const inter = Inter({ subsets: ['latin'] });
@@ -54,6 +55,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={inter.className}>
         <AuthProvider>
           <Header />
+          <AIChatbot/>
           <ProtectedRoutes>
             <main>{children}</main>
           </ProtectedRoutes>
