@@ -6,6 +6,9 @@ import Footer from '@/components/Footer';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoutes from '@/components/ProtectedRoute';
 import AIChatbot from '@/components/Chatbot';
+import 'leaflet/dist/leaflet.css';
+import DisableInspectWrapper from '@/components/DisableInspectWrapper';
+
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 const inter = Inter({ subsets: ['latin'] });
@@ -53,6 +56,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className={inter.className}>
+        <DisableInspectWrapper>
         <AuthProvider>
           <Header />
           <AIChatbot/>
@@ -61,6 +65,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </ProtectedRoutes>
           <Footer />
         </AuthProvider>
+        </DisableInspectWrapper>
       </body>
     </html>
   );

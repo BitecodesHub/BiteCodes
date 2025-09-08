@@ -55,7 +55,7 @@ const ChatbotClient: React.FC<ChatbotClientProps> = ({ apiKey }) => {
         // Set initial welcome message
         const welcomeMessage: Message = {
           id: '1',
-          content: "Hi! I'm your AI assistant powered by Google Gemini. How can I help you today?",
+          content: "Hi! I'm your AI assistant powered by Bitecodes. How can I help you today?",
           isUser: false,
           timestamp: new Date()
         };
@@ -66,7 +66,7 @@ const ChatbotClient: React.FC<ChatbotClientProps> = ({ apiKey }) => {
       console.error('Error loading messages from localStorage:', error);
       const welcomeMessage: Message = {
         id: '1',
-        content: "Hi! I'm your AI assistant powered by Google Gemini. How can I help you today?",
+        content: "Hi! I'm your AI assistant powered by Bitecodes. How can I help you today?",
         isUser: false,
         timestamp: new Date()
       };
@@ -150,10 +150,10 @@ const ChatbotClient: React.FC<ChatbotClientProps> = ({ apiKey }) => {
         setMessages(finalMessages);
         saveToLocalStorage(finalMessages);
       } else {
-        throw new Error('Invalid response format from Gemini API');
+        throw new Error('Invalid response format from Bitecodes API');
       }
     } catch (error) {
-      console.error('Error calling Gemini API:', error);
+      console.error('Error calling Bitecodes AI API:', error);
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         content: "I apologize, but I'm having trouble connecting to the AI service right now. Please check your internet connection and try again. If the problem persists, the API key might need to be verified.",
@@ -171,7 +171,7 @@ const ChatbotClient: React.FC<ChatbotClientProps> = ({ apiKey }) => {
   const clearChat = () => {
     const welcomeMessage: Message = {
       id: Date.now().toString(),
-      content: "Hi! I'm your AI assistant powered by Google Gemini. How can I help you today?",
+      content: "Hi! I'm your AI assistant powered by Bitecodes. How can I help you today?",
       isUser: false,
       timestamp: new Date()
     };
@@ -336,7 +336,7 @@ const ChatbotClient: React.FC<ChatbotClientProps> = ({ apiKey }) => {
                   </button>
                 </div>
                 <p className="text-xs text-gray-500 mt-2 text-center">
-                  Powered by Google Gemini AI • Press Enter to send
+                  Powered by Bitecodes • Press Enter to send
                 </p>
               </div>
             </>
