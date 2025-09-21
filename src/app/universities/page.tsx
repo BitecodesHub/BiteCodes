@@ -306,84 +306,8 @@ export default function UniversitiesPage() {
     };
   }
 
-  const PurchaseButton = ({ university }: { university: University }) => {
-    const isLoading = purchaseLoading.has(university.slug);
-    const isPurchased = university.purchased === true;
-    const isCheckingStatus = university.purchased === undefined;
-
-    if (isCheckingStatus) {
-      return (
-        <button
-          disabled
-          className="flex items-center px-4 py-2 bg-slate-100 text-slate-600 rounded-xl shadow-sm"
-        >
-          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-          <span className="text-sm font-semibold">Checking...</span>
-        </button>
-      );
-    }
-
-    if (isPurchased) {
-      return (
-        <div className="flex items-center px-4 py-2 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-xl shadow-sm transform hover:scale-105 transition-transform duration-300">
-          <CheckCircle className="w-4 h-4 mr-2" />
-          <span className="text-sm font-semibold">Purchased</span>
-        </div>
-      );
-    }
-
-    return (
-      <button
-        onClick={() => handlePurchaseClick(university.slug)}
-        disabled={isLoading}
-        className="flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl shadow-sm transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95"
-      >
-        {isLoading ? (
-          <>
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            <span className="text-sm font-semibold">Processing...</span>
-          </>
-        ) : (
-          <>
-            <ShoppingCart className="w-4 h-4 mr-2" />
-            <span className="text-sm font-semibold">₹{university.allCoursesPrice}</span>
-          </>
-        )}
-      </button>
-    );
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
-        <div className="text-center">
-          <Loader2 className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
-          <p className="text-slate-600 font-medium text-lg">Loading universities...</p>
-          <p className="text-slate-500 text-sm mt-2">Please wait while we fetch the latest data</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
-        <div className="bg-red-50 border border-red-200 rounded-2xl p-8 max-w-md mx-auto shadow-md">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-red-600 text-2xl">⚠️</span>
-          </div>
-          <h3 className="text-red-800 font-bold text-lg mb-3 text-center">Oops! Something went wrong</h3>
-          <p className="text-red-600 text-sm text-center mb-4">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="w-full bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
-          >
-            Try Again
-          </button>
-        </div>
-      </div>
-    );
-  }
+  
+ 
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
@@ -660,7 +584,6 @@ export default function UniversitiesPage() {
                               Quick View
                             </button>
                           </div>
-                          <PurchaseButton university={university} />
                         </div>
                         <button
                           onClick={() => viewOnMap(university.slug)}
@@ -846,7 +769,6 @@ export default function UniversitiesPage() {
                         <Play className="w-4 h-4 mr-1" />
                         Full Details
                       </Link>
-                      <PurchaseButton university={quickViewUniversity} />
                     </div>
                   </div>
                 </div>

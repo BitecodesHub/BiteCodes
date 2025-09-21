@@ -1,10 +1,12 @@
 "use client";
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { PremiumAPI, PremiumStatusResponse } from "@/app/utils/premiumApi";
 
-export interface Course {
-  slug: string;
-  name: string;
-  price: number;
+export interface PremiumStatus {
+  isPremium: boolean;
+  plan?: string | null;
+  expiresAt?: string | null;
+  features?: string[];
 }
 
 export interface User {
@@ -14,16 +16,17 @@ export interface User {
   name: string;
   profileurl: string;
   role: string;
-  purchasedCourses: Course[];
+  premiumStatus: PremiumStatus;
 }
 
 interface AuthContextType {
   user: User | null;
   isLoggedIn: boolean;
   loading: boolean;
-  login: (response: any) => void; // Now expects full backend response
+  login: (response: any) => void;
   logout: () => void;
-  addPurchasedCourse: (course: Course) => void;
+  updatePremiumStatus: (premiumStatus: PremiumStatus) => void;
+  isPremiumUser: () => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -33,44 +36,80 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // 🔄 Rehydrate from localStorage
+  // Fetch premium status from backend
+  const fetchPremiumStatus = async (userId: number) => {
+    try {
+      console.log(`🗳 Fetching premium status for userId: ${userId}`);
+      const status: PremiumStatusResponse = await PremiumAPI.getPremiumStatus(userId);
+      const premiumStatus: PremiumStatus = {
+        isPremium: status.hasPremium,
+        plan: status.subscriptionType || null,
+        expiresAt: status.endDate || null,
+        features: status.hasPremium ? ['Unlimited Mock Tests', 'Advanced Analytics', 'Priority Support', 'Exclusive Content', 'Download PDFs', 'No Ads'] : [],
+      };
+      console.log("✅ Fetched premium status:", premiumStatus);
+      return premiumStatus;
+    } catch (error: any) {
+      console.error("❌ Failed to fetch premium status:", error);
+      return {
+        isPremium: false,
+        plan: null,
+        expiresAt: null,
+        features: [],
+      };
+    }
+  };
+
+  // Rehydrate from localStorage and sync with backend
   useEffect(() => {
     const token = localStorage.getItem("token");
     const storedUser = localStorage.getItem("user");
-    
+
     console.log("🗄 Checking localStorage:", { token, storedUser });
-    
+
     if (token && storedUser) {
       try {
         const parsedUser = JSON.parse(storedUser) as User;
         const normalizedUser: User = {
           ...parsedUser,
-          purchasedCourses: Array.isArray(parsedUser.purchasedCourses)
-            ? parsedUser.purchasedCourses
-            : [],
+          premiumStatus: parsedUser.premiumStatus || {
+            isPremium: false,
+            plan: null,
+            expiresAt: null,
+            features: [],
+          },
         };
-        
+
         console.log("✅ Restored user from localStorage:", normalizedUser);
         setUser(normalizedUser);
         setIsLoggedIn(true);
+
+        // Sync premium status with backend
+        fetchPremiumStatus(normalizedUser.userid).then((premiumStatus) => {
+          const updatedUser: User = {
+            ...normalizedUser,
+            premiumStatus,
+          };
+          setUser(updatedUser);
+          localStorage.setItem("user", JSON.stringify(updatedUser));
+          console.log("✅ Synced premium status from backend:", premiumStatus);
+          setLoading(false);
+        });
       } catch (err) {
         console.error("❌ Failed to parse stored user:", err);
         localStorage.removeItem("user");
         localStorage.removeItem("token");
+        setLoading(false);
       }
+    } else {
+      setLoading(false);
     }
-    
-    setLoading(false);
   }, []);
 
-  // 🔑 Login and save user + token
-  const login = (response: any) => {
-    // 🐛 Debug: Log the entire response to see what we're getting
+  const login = async (response: any) => {
     console.log("🔍 Full login response received:", response);
-    console.log("📚 purchasedCourses in response:", response.purchasedCourses);
-    console.log("📚 purchasedCourses type:", typeof response.purchasedCourses);
-    console.log("📚 purchasedCourses is array:", Array.isArray(response.purchasedCourses));
-    
+    console.log("💎 premiumStatus in response:", response.premiumStatus);
+
     const normalizedUser: User = {
       userid: response.userid,
       username: response.username,
@@ -78,23 +117,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       name: response.name,
       profileurl: response.profileurl,
       role: response.role,
-      // ✅ FIX: Properly extract purchasedCourses from response
-      purchasedCourses: Array.isArray(response.purchasedCourses)
-        ? response.purchasedCourses
-        : [],
+      premiumStatus: response.premiumStatus || {
+        isPremium: false,
+        plan: null,
+        expiresAt: null,
+        features: [],
+      },
     };
-    
+
+    // Fetch latest premium status from backend
+    const premiumStatus = await fetchPremiumStatus(normalizedUser.userid);
+    normalizedUser.premiumStatus = premiumStatus;
+
     console.log("🔑 Final normalized user:", normalizedUser);
-    console.log("🔑 Final purchasedCourses:", normalizedUser.purchasedCourses);
-    
+    console.log("💎 Final premiumStatus:", normalizedUser.premiumStatus);
+
     localStorage.setItem("token", response.token);
     localStorage.setItem("user", JSON.stringify(normalizedUser));
-    
+
     setUser(normalizedUser);
     setIsLoggedIn(true);
   };
 
-  // 🚪 Logout
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
@@ -102,32 +146,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoggedIn(false);
   };
 
-  // ➕ Add a new purchased course
-  const addPurchasedCourse = (course: Course) => {
+  const updatePremiumStatus = (premiumStatus: PremiumStatus) => {
     if (!user) return;
-    
-    const alreadyPurchased = user.purchasedCourses.some(c => c.slug === course.slug);
-    if (alreadyPurchased) return;
-    
     const updatedUser: User = {
       ...user,
-      purchasedCourses: [...user.purchasedCourses, course],
+      premiumStatus,
     };
-    
     setUser(updatedUser);
     localStorage.setItem("user", JSON.stringify(updatedUser));
+    console.log("💎 Updated premium status:", premiumStatus);
+  };
+
+  const isPremiumUser = (): boolean => {
+    if (!user || !user.premiumStatus) return false;
+    const { isPremium, expiresAt } = user.premiumStatus;
+    if (!isPremium) return false;
+    if (!expiresAt) return true; // No expiry means permanent (e.g., LIFETIME)
+    const now = new Date();
+    const expiryDate = new Date(expiresAt);
+    return now < expiryDate;
   };
 
   return (
     <AuthContext.Provider
-      value={{ user, isLoggedIn, loading, login, logout, addPurchasedCourse }}
+      value={{ user, isLoggedIn, loading, login, logout, updatePremiumStatus, isPremiumUser }}
     >
       {children}
     </AuthContext.Provider>
   );
 };
 
-// ✅ Custom hook
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {

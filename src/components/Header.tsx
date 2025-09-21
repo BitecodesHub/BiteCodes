@@ -2,7 +2,7 @@
 "use client";
 import Link from 'next/link'
 import { useState, useEffect, useRef } from 'react'
-import { Menu, X, BookOpen, University, FileText, Target, User, LogIn, LogOut, Settings, Bell, CreditCard, HelpCircle, ChevronDown, GraduationCap } from 'lucide-react'
+import { Menu, X, BookOpen, University, FileText, Target, User, LogIn, LogOut, Settings, Bell, CreditCard, HelpCircle, ChevronDown, Crown, Star } from 'lucide-react'
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google'
 import axios from 'axios'
 import { toast } from 'react-hot-toast'
@@ -16,7 +16,7 @@ export default function Header() {
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
   
   // Use auth context
-  const { user, isLoggedIn, login, logout } = useAuth();
+  const { user, isLoggedIn, login, logout, isPremiumUser } = useAuth();
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -46,10 +46,9 @@ export default function Header() {
 
       // On Google login success:
       if (response.data.success) {
-        // ✅ Pass entire response to include purchasedCourses
+        // Pass entire response to include premiumStatus
         login(response.data);
         setIsUserDropdownOpen(false);
-
         toast.success('Google login successful!');
       } else {
         toast.error(response.data.message || 'Google login failed');
@@ -99,7 +98,6 @@ export default function Header() {
 
   const userMenuItems = [
     { name: 'My Profile', href: '/profile', icon: User },
-    { name: 'My Courses', href: '/mycourses', icon: GraduationCap }, // ✅ Added My Courses
     { name: 'Mock Attempts', href: '/mock-attempts', icon: BookOpen },
     { name: 'Billing', href: '/billing', icon: CreditCard },
     { name: 'Help Center', href: '/help', icon: HelpCircle },
@@ -140,66 +138,61 @@ export default function Header() {
             </nav>
 
             <div className="flex items-center space-x-4">
+              {/* Premium/Upgrade Button */}
+              {isLoggedIn && user ? (
+                isPremiumUser() ? (
+                  <div className="hidden md:flex items-center space-x-2 bg-gradient-to-r from-amber-50 to-orange-50 px-3 py-2 rounded-full border border-amber-200">
+                    <Crown className="w-4 h-4 text-amber-600" />
+                    <span className="text-sm font-semibold text-amber-800">Premium</span>
+                  </div>
+                ) : (
+                  <Link
+                    href="/premium"
+                    className="hidden md:flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 font-medium text-sm"
+                  >
+                    <Star className="w-4 h-4" />
+                    <span>Upgrade</span>
+                  </Link>
+                )
+              ) : null}
+
               {/* User Profile / Login */}
               <div className="relative" ref={dropdownRef}>
                 {isLoggedIn && user ? (
-                  <button
-                    onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
-                    className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-50 transition-colors duration-200 group"
-                  >
-                    <img
-                      src={user.profileurl || 'https://webcrumbs.cloud/placeholder'}
-                      alt="Profile"
-                      className="w-8 h-8 rounded-full object-cover ring-2 ring-transparent group-hover:ring-blue-200 transition-all duration-200"
-                    />
-                    <span className="hidden md:inline font-medium text-gray-700">{user.name}</span>
-                    <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
-                      isUserDropdownOpen ? 'rotate-180' : ''
-                    }`} />
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
-                    className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-50 transition-colors duration-200 text-gray-700"
-                  >
-                    <LogIn className="w-5 h-5" />
-                    <span className="hidden md:inline font-medium">Login</span>
-                    <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
-                      isUserDropdownOpen ? 'rotate-180' : ''
-                    }`} />
-                  </button>
-                )}
+                  <>
+                    {/* User Profile Button */}
+                    <button
+                      onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
+                      className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                    >
+                      {user.picture ? (
+                        <img
+                          src={user.picture}
+                          alt={user.name}
+                          className="w-8 h-8 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+                          <User className="w-4 h-4 text-gray-600" />
+                        </div>
+                      )}
+                      <span className="hidden md:block text-sm font-medium text-gray-700">
+                        {user.name?.split(' ')[0] || 'User'}
+                      </span>
+                      <ChevronDown className="w-4 h-4 text-gray-500" />
+                    </button>
 
-                {/* Enhanced User Dropdown */}
-                {isUserDropdownOpen && (
-                  <div className="absolute right-0 mt-3 w-72 bg-white rounded-xl shadow-lg border border-gray-200 z-50 overflow-hidden animate-in slide-in-from-top-2 duration-200">
-                    {isLoggedIn && user ? (
-                      <>
-                        {/* User Info Section */}
-                        <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 border-b border-gray-100">
-                          <div className="flex items-center space-x-3">
-                            <div className="relative">
-                              <img
-                                src={user.profileurl || 'https://webcrumbs.cloud/placeholder'}
-                                alt="Profile"
-                                className="w-12 h-12 rounded-full object-cover ring-2 ring-white shadow-sm"
-                              />
-                              <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 rounded-full ring-2 ring-white"></div>
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-semibold text-gray-900 truncate">{user.name}</p>
-                              <p className="text-xs text-gray-600 truncate">{user.email}</p>
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mt-1">
-                                {user.role}
-                              </span>
-                            </div>
-                          </div>
-                          {/* Show purchased courses count if available */}
-                          {user.purchasedCourses && user.purchasedCourses.length > 0 && (
-                            <div className="mt-3 pt-3 border-t border-white/20">
-                              <p className="text-xs text-gray-600">
-                                📚 {user.purchasedCourses.length} course{user.purchasedCourses.length !== 1 ? 's' : ''} enrolled
-                              </p>
+                    {/* User Dropdown Menu */}
+                    {isUserDropdownOpen && (
+                      <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                        {/* User Info */}
+                        <div className="px-4 py-3 border-b border-gray-100">
+                          <p className="text-sm font-medium text-gray-900">{user.name}</p>
+                          <p className="text-sm text-gray-500 truncate">{user.email}</p>
+                          {isPremiumUser() && (
+                            <div className="mt-2 flex items-center space-x-1">
+                              <Crown className="w-3 h-3 text-amber-600" />
+                              <span className="text-xs text-amber-600 font-medium">Premium Member</span>
                             </div>
                           )}
                         </div>
@@ -210,191 +203,152 @@ export default function Header() {
                             <Link
                               key={item.name}
                               href={item.href}
-                              className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-150 group"
+                              className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                               onClick={() => setIsUserDropdownOpen(false)}
                             >
-                              <item.icon className="w-4 h-4 mr-3 text-gray-400 group-hover:text-blue-500" />
+                              <item.icon className="w-4 h-4" />
                               <span>{item.name}</span>
-                              {/* Show course count badge on My Courses */}
-                              {item.name === 'My Courses' && user.purchasedCourses && user.purchasedCourses.length > 0 && (
-                                <span className="ml-auto bg-blue-100 text-blue-600 text-xs px-2 py-0.5 rounded-full font-medium">
-                                  {user.purchasedCourses.length}
-                                </span>
-                              )}
                             </Link>
                           ))}
+                          
+                          {isPremiumUser() && (
+                            <Link
+                              href="/premium/manage"
+                              className="flex items-center space-x-3 px-4 py-2 text-sm text-amber-700 hover:bg-amber-50 transition-colors"
+                              onClick={() => setIsUserDropdownOpen(false)}
+                            >
+                              <Crown className="w-4 h-4" />
+                              <span>Manage Premium</span>
+                            </Link>
+                          )}
                         </div>
 
-                        {/* Logout Button */}
+                        {/* Logout */}
                         <div className="border-t border-gray-100 py-2">
                           <button
                             onClick={handleLogout}
-                            className="w-full flex items-center px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors duration-150 group"
+                            className="flex items-center space-x-3 px-4 py-2 w-full text-left text-sm text-red-600 hover:bg-red-50 transition-colors"
                           >
-                            <LogOut className="w-4 h-4 mr-3" />
+                            <LogOut className="w-4 h-4" />
                             <span>Sign Out</span>
                           </button>
                         </div>
-                      </>
-                    ) : (
-                      <>
-                        {/* Login Section */}
-                        <div className="p-4 border-b border-gray-100">
-                          <h3 className="text-sm font-semibold text-gray-900 mb-3">Welcome to Bitecodes Academy</h3>
-                          <GoogleLogin
-                            onSuccess={handleGoogleLoginSuccess}
-                            onError={handleGoogleLoginFailure}
-                            width="240"
-                            theme="outline"
-                            size="medium"
-                          />
-                        </div>
-
-                        {/* Alternative Login Options */}
-                        <div className="py-2">
-                          <Link
-                            href="/login"
-                            className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-150 group"
-                            onClick={() => setIsUserDropdownOpen(false)}
-                          >
-                            <LogIn className="w-4 h-4 mr-3 text-gray-400 group-hover:text-blue-500" />
-                            <span>Login with Email</span>
-                          </Link>
-                          <Link
-                            href="/register"
-                            className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-150 group"
-                            onClick={() => setIsUserDropdownOpen(false)}
-                          >
-                            <User className="w-4 h-4 mr-3 text-gray-400 group-hover:text-blue-500" />
-                            <span>Create Account</span>
-                          </Link>
-                        </div>
-
-                        {/* Help Section */}
-                        <div className="border-t border-gray-100 py-2">
-                          <Link
-                            href="/help"
-                            className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-150 group"
-                            onClick={() => setIsUserDropdownOpen(false)}
-                          >
-                            <HelpCircle className="w-4 h-4 mr-3 text-gray-400 group-hover:text-blue-500" />
-                            <span>Help Center</span>
-                          </Link>
-                        </div>
-                      </>
+                      </div>
                     )}
-                  </div>
+                  </>
+                ) : (
+                  <>
+                    {/* Login Button */}
+                    <GoogleLogin
+                      onSuccess={handleGoogleLoginSuccess}
+                      onError={handleGoogleLoginFailure}
+                      useOneTap
+                      theme="outline"
+                      size="medium"
+                      text="signin_with"
+                      shape="rectangular"
+                    />
+                  </>
                 )}
               </div>
 
+              {/* Mobile Menu Button */}
               <button
+                className="lg:hidden p-2 rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="lg:hidden p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-50 transition-colors"
               >
-                {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                {isMenuOpen ? (
+                  <X className="w-6 h-6" />
+                ) : (
+                  <Menu className="w-6 h-6" />
+                )}
               </button>
             </div>
           </div>
 
           {/* Mobile Menu */}
           {isMenuOpen && (
-            <div className="lg:hidden border-t border-gray-200 animate-in slide-in-from-top-2 duration-200">
-              <div className="px-2 pt-2 pb-3 space-y-1">
+            <div className="lg:hidden">
+              <div className="pt-2 pb-3 space-y-1 border-t border-gray-200">
                 {navigation.map((item) => (
                   <Link
                     key={item.name}
                     href={item.href}
-                    className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium transition-colors"
+                    className="flex items-center space-x-3 px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <item.icon className="w-5 h-5" />
-                    <div>
-                      <div>{item.name}</div>
-                      <div className="text-xs text-gray-500">{item.description}</div>
-                    </div>
+                    <span>{item.name}</span>
                   </Link>
                 ))}
-
-                {/* Mobile Auth Links */}
-                <div className="border-t border-gray-200 pt-2 mt-2">
-                  {isLoggedIn && user ? (
-                    <>
-                      <div className="px-3 py-2 bg-gray-50 rounded-lg mx-2 mb-2">
-                        <div className="flex items-center space-x-3">
-                          <img
-                            src={user.profileurl || 'https://webcrumbs.cloud/placeholder'}
-                            alt="Profile"
-                            className="w-10 h-10 rounded-full object-cover"
-                          />
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-gray-800 truncate">{user.name}</p>
-                            <p className="text-xs text-gray-600 truncate">{user.email}</p>
-                            {user.purchasedCourses && user.purchasedCourses.length > 0 && (
-                              <p className="text-xs text-blue-600 mt-1">
-                                {user.purchasedCourses.length} course{user.purchasedCourses.length !== 1 ? 's' : ''} enrolled
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      {userMenuItems.map((item) => (
-                        <Link
-                          key={item.name}
-                          href={item.href}
-                          className="flex items-center justify-between space-x-3 text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium transition-colors"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          <div className="flex items-center space-x-3">
-                            <item.icon className="w-5 h-5" />
-                            <div>{item.name}</div>
-                          </div>
-                          {/* Show course count badge on My Courses in mobile */}
-                          {item.name === 'My Courses' && user.purchasedCourses && user.purchasedCourses.length > 0 && (
-                            <span className="bg-blue-100 text-blue-600 text-xs px-2 py-0.5 rounded-full font-medium">
-                              {user.purchasedCourses.length}
-                            </span>
-                          )}
-                        </Link>
-                      ))}
-                      <button
-                        onClick={handleLogout}
-                        className="w-full flex items-center space-x-3 text-red-600 hover:text-red-700 hover:bg-red-50 px-3 py-2 rounded-md text-base font-medium transition-colors"
-                      >
-                        <LogOut className="w-5 h-5" />
-                        <div>Sign Out</div>
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <div className="px-3 py-2 mb-2">
-                        <GoogleLogin
-                          onSuccess={handleGoogleLoginSuccess}
-                          onError={handleGoogleLoginFailure}
-                          width="280"
-                          theme="outline"
-                          size="medium"
-                        />
-                      </div>
-                      <Link
-                        href="/login"
-                        className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium transition-colors"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        <LogIn className="w-5 h-5" />
-                        <div>Login with Email</div>
-                      </Link>
-                      <Link
-                        href="/register"
-                        className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium transition-colors"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        <User className="w-5 h-5" />
-                        <div>Create Account</div>
-                      </Link>
-                    </>
-                  )}
-                </div>
               </div>
+
+              {/* Mobile Premium/User Section */}
+              {isLoggedIn && user && (
+                <div className="pt-4 pb-3 border-t border-gray-200">
+                  <div className="flex items-center px-3 mb-3">
+                    {user.picture ? (
+                      <img
+                        src={user.picture}
+                        alt={user.name}
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
+                        <User className="w-5 h-5 text-gray-600" />
+                      </div>
+                    )}
+                    <div className="ml-3">
+                      <div className="text-base font-medium text-gray-800">{user.name}</div>
+                      <div className="text-sm text-gray-500">{user.email}</div>
+                    </div>
+                  </div>
+
+                  {!isPremiumUser() && (
+                    <Link
+                      href="/premium"
+                      className="mx-3 mb-3 flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 font-medium"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <Star className="w-4 h-4" />
+                      <span>Upgrade to Premium</span>
+                    </Link>
+                  )}
+
+                  <div className="space-y-1">
+                    {userMenuItems.map((item) => (
+                      <Link
+                        key={item.name}
+                        href={item.href}
+                        className="flex items-center space-x-3 px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        <item.icon className="w-5 h-5" />
+                        <span>{item.name}</span>
+                      </Link>
+                    ))}
+
+                    {isPremiumUser() && (
+                      <Link
+                        href="/premium/manage"
+                        className="flex items-center space-x-3 px-3 py-2 text-base font-medium text-amber-700 hover:text-amber-900 hover:bg-amber-50 rounded-md"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        <Crown className="w-5 h-5" />
+                        <span>Manage Premium</span>
+                      </Link>
+                    )}
+
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center space-x-3 px-3 py-2 w-full text-left text-base font-medium text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md"
+                    >
+                      <LogOut className="w-5 h-5" />
+                      <span>Sign Out</span>
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
