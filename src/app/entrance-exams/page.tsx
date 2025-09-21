@@ -95,7 +95,6 @@ async function fetchExams(): Promise<EntranceExam[]> {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://backend.bitecodes.com';
     const res = await fetch(`${apiUrl}/api/exams`, {
-      cache: 'no-store',
       // Removed timeout signal as it can cause issues
     });
     
