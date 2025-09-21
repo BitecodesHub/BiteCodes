@@ -165,9 +165,9 @@ export default function Header() {
                       onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
                       className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors"
                     >
-                      {user.picture ? (
+                      {user.profileurl ? (
                         <img
-                          src={user.picture}
+                          src={user.profileurl}
                           alt={user.name}
                           className="w-8 h-8 rounded-full object-cover"
                         />
@@ -287,9 +287,9 @@ export default function Header() {
               {isLoggedIn && user && (
                 <div className="pt-4 pb-3 border-t border-gray-200">
                   <div className="flex items-center px-3 mb-3">
-                    {user.picture ? (
+                    {user.profileurl ? (
                       <img
-                        src={user.picture}
+                        src={user.profileurl}
                         alt={user.name}
                         className="w-10 h-10 rounded-full object-cover"
                       />
