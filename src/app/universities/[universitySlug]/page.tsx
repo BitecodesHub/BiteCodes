@@ -87,14 +87,18 @@ export default function UniversityPage() {
           data.allCoursesPrice = Number(data.allCoursesPrice)
         }
         
-        // Parse map location if available
-        if (data.mapLocation) {
-          const [lat, lng] = data.mapLocation.split(',').map(coord => parseFloat(coord.trim()))
-          if (!isNaN(lat) && !isNaN(lng)) {
-            setCoordinates([lat, lng])
-          }
-        }
-        
+    // Parse map location if available
+if (data.mapLocation) {
+  const parts = data.mapLocation
+    .split(',')
+    .map((c: string) => parseFloat(c.trim()));
+
+  if (parts.length === 2 && parts.every((num: number) => !isNaN(num))) {
+    const [lat, lng] = parts;
+    setCoordinates([lat, lng]);
+  }
+}
+
         setUniversity(data)
       } catch (err) {
         console.error("Error fetching university:", err)
