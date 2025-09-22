@@ -21,12 +21,12 @@ export const metadata: Metadata = {
     'Bitecodes, entrance exams, university preparation, mock tests, NFSU, DAIICT, exam info',
   authors: [{ name: 'Bitecodes Team' }],
   creator: 'Bitecodes',
-  metadataBase: new URL('https://www.bitecodes.in'),
+  metadataBase: new URL('https://www.bitecodes.com'),
   openGraph: {
     title: 'Bitecodes Academy - Entrance Exam Hub',
     description:
       'Explore entrance exams, universities, preparation docs, and mock tests all in one place.',
-    url: 'https://www.bitecodes.in',
+    url: 'https://www.bitecodes.com',
     siteName: 'Bitecodes',
     images: [
       {
