@@ -40,14 +40,14 @@ const PremiumPurchasePage: React.FC = () => {
   const [appliedCoupon, setAppliedCoupon] = useState<CouponDetails | null>(null);
   const [couponLoading, setCouponLoading] = useState(false);
 
-  // Enhanced pricing plans with attractive starting price
-  const enhancedPlans = {
-    MONTHLY: { price: 99, duration: '1 Month', savings: 'Perfect for starters', popular: false },
-    QUARTERLY: { price: 249, duration: '3 Months', savings: 'Save 16%', popular: false },
-    HALF_YEARLY: { price: 449, duration: '6 Months', savings: 'Save 24%', popular: true },
-    YEARLY: { price: 799, duration: '1 Year', savings: 'Save 33%', popular: false },
-    LIFETIME: { price: 1999, duration: 'Lifetime', savings: 'Best Value - Save 80%', popular: false }
-  };
+  const enhancedPlans: PremiumPricing = {
+  MONTHLY:   { type: 'MONTHLY', price: 99, duration: '1 Month', savings: 'Perfect for starters', popular: false },
+  QUARTERLY: { type: 'QUARTERLY', price: 249, duration: '3 Months', savings: 'Save 16%', popular: false },
+  HALF_YEARLY: { type: 'HALF_YEARLY', price: 449, duration: '6 Months', savings: 'Save 24%', popular: true },
+  YEARLY:    { type: 'YEARLY', price: 799, duration: '1 Year', savings: 'Save 33%', popular: false },
+  LIFETIME:  { type: 'LIFETIME', price: 1999, duration: 'Lifetime', savings: 'Best Value - Save 80%', popular: false }
+};
+
 
   useEffect(() => {
     const loadRazorpayScript = () => {
