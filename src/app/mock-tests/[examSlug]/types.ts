@@ -1,44 +1,4 @@
-// // app/mock-tests/[examSlug]/types.ts
 
-// export interface ExamQuestion {
-//   id: string;
-//   questionText: string;
-//   options: string[];
-//   correctAnswer: number;
-//   courseId: string;
-//   explanation?: string;
-//   difficulty?: 'easy' | 'medium' | 'hard';
-// }
-
-// export interface Answer {
-//   questionId: string;
-//   selectedOption: number;
-//   isMarked?: boolean;
-// }
-
-// export interface ExamAttemptResponse {
-//   id: number;
-//   userId: number;
-//   courseName: string;
-//   score: number;
-//   passed: boolean;
-//   attemptedAt: string;
-//   timeTaken: number;
-//   correctAnswers: number;
-//   incorrectAnswers: number;
-//   skipped: number;
-//   detailedResults: {
-//     questionId: string;
-//     correct: boolean;
-//     userAnswer: number;
-//     correctAnswer: number;
-//     explanation?: string;
-//   }[];
-// }
-// export interface ExamSection {
-//   sectionName: string;
-//   questions: ExamQuestion[];
-// }
 export interface ExamQuestion {
   id: string;
   questionText: string;

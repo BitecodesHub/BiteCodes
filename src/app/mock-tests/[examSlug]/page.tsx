@@ -567,8 +567,8 @@ if (storedUser) {
         }
 
         const totalQuestions = sectionsData.reduce((acc, section) => acc + section.questions.length, 0);
-        if (totalQuestions !== 100) {
-          throw new Error(`Expected 100 questions, but received ${totalQuestions}`);
+        if (totalQuestions <1) {
+          throw new Error(`Didnt receive any questions`);
         }
 
         setSections(sectionsData);

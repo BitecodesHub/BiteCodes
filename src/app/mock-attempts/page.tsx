@@ -596,20 +596,57 @@ function DetailedAnalysisModal({ analysis, onClose }: { analysis: DetailedAttemp
 }
 
 function PerformanceTrendsSection({ trends, userId }: { trends: PerformanceTrends; userId: string }) {
+  const [selectedCourse, setSelectedCourse] = useState<string>("all");
+
+  // Extract unique courses from scoreOverTime
+  const availableCourses = useMemo(() => {
+    const courses = new Set<string>();
+    trends.scoreOverTime.forEach((point) => {
+      if (point.label) {
+        courses.add(point.label);
+      }
+    });
+    return ["all", ...Array.from(courses).sort()];
+  }, [trends.scoreOverTime]);
+
+  // Filter chart data based on selected course
   const chartData = useMemo(() => {
     if (!trends.scoreOverTime || trends.scoreOverTime.length === 0) {
       return [];
     }
-    return trends.scoreOverTime.map((point, index) => {
-      const dateStr = point.date || point.x;
-      return {
-        date: dateStr ? new Date(dateStr).toLocaleDateString() : `Point ${index + 1}`,
-        score: point.value ?? point.y ?? 0,
-        accuracy: trends.accuracyOverTime?.[index]?.value ?? trends.accuracyOverTime?.[index]?.y ?? 0,
-        efficiency: trends.timeEfficiencyOverTime?.[index]?.value ?? trends.timeEfficiencyOverTime?.[index]?.y ?? 0,
-      };
+    return trends.scoreOverTime
+      .filter((point) => selectedCourse === "all" || point.label === selectedCourse)
+      .map((point, index) => {
+        const dateStr = point.date || point.x;
+        const matchingAccuracy = trends.accuracyOverTime?.find(
+          (a) => (a.date || a.x) === dateStr && a.label === point.label
+        );
+        const matchingEfficiency = trends.timeEfficiencyOverTime?.find(
+          (e) => (e.date || e.x) === dateStr && e.label === point.label
+        );
+        return {
+          date: dateStr ? new Date(dateStr).toLocaleDateString() : `Point ${index + 1}`,
+          score: point.value ?? point.y ?? 0,
+          accuracy: matchingAccuracy ? matchingAccuracy.value ?? matchingAccuracy.y ?? 0 : 0,
+          efficiency: matchingEfficiency ? matchingEfficiency.value ?? matchingEfficiency.y ?? 0:0,
+        };
+      });
+  }, [trends, selectedCourse]);
+
+  // Filter topic trends based on selected course
+  const filteredTopicTrends = useMemo(() => {
+    if (!trends.topicTrends) return {};
+    if (selectedCourse === "all") return trends.topicTrends;
+    
+    const filtered: Record<string, TrendPoint[]> = {};
+    Object.entries(trends.topicTrends).forEach(([topic, topicData]) => {
+      const filteredData = topicData.filter((point) => point.label === selectedCourse);
+      if (filteredData.length > 0) {
+        filtered[topic] = filteredData;
+      }
     });
-  }, [trends]);
+    return filtered;
+  }, [trends.topicTrends, selectedCourse]);
 
   const streakData = useMemo(() => [
     { name: 'Current Streak', value: Math.abs(trends.currentStreak ?? 0), color: (trends.currentStreak ?? 0) > 0 ? '#10B981' : '#EF4444' },
@@ -620,7 +657,7 @@ function PerformanceTrendsSection({ trends, userId }: { trends: PerformanceTrend
 
   return (
     <div className="bg-white/95 rounded-2xl shadow-lg p-4 sm:p-8 mb-8 sm:mb-12 border border-slate-200/50">
-      <div className="flex items-center justify-between mb-4 sm:mb-6">
+      <div className="flex flex-wrap items-center justify-between mb-4 sm:mb-6">
         <h2 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center">
           <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-purple-500" />
           Performance Trends
@@ -643,6 +680,17 @@ function PerformanceTrendsSection({ trends, userId }: { trends: PerformanceTrend
               Confidence: {trends.trendConfidence.toFixed(1)}%
             </div>
           )}
+          <select
+            value={selectedCourse}
+            onChange={(e) => setSelectedCourse(e.target.value)}
+            className="bg-white border border-gray-300 rounded-lg px-3 sm:px-4 py-1.5 sm:py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            {availableCourses.map((course) => (
+              <option key={course} value={course}>
+                {course === "all" ? "All Courses" : course}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -715,11 +763,11 @@ function PerformanceTrendsSection({ trends, userId }: { trends: PerformanceTrend
         </div>
       )}
 
-      {trends.topicTrends && Object.keys(trends.topicTrends).length > 0 && (
+      {Object.keys(filteredTopicTrends).length > 0 && (
         <div className="mb-6 sm:mb-8">
           <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Topic-wise Performance Trends</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-6">
-            {Object.entries(trends.topicTrends).slice(0, 4).map(([topic, topicData]) => {
+            {Object.entries(filteredTopicTrends).slice(0, 4).map(([topic, topicData]) => {
               const chartData = topicData.map((point, index) => ({
                 date: point.date || point.x ? new Date(point.date || point.x!).toLocaleDateString() : `Point ${index + 1}`,
                 accuracy: point.value ?? point.y ?? 0,
@@ -980,8 +1028,8 @@ export default function EnhancedMockAttemptsPage() {
 
   const apiService = useMemo(() => new APIService(), []);
 
- const { user, isLoggedIn, loading: authLoading } = useAuth()
- const fetchAllData = useCallback(
+  const { user, isLoggedIn, loading: authLoading } = useAuth();
+  const fetchAllData = useCallback(
     async (userId: string) => {
       try {
         setLoading(true);
@@ -1021,11 +1069,10 @@ export default function EnhancedMockAttemptsPage() {
     [apiService]
   );
 
-  // Update useEffect to use user.userid from AuthContext
   useEffect(() => {
-    if (authLoading) return; // Wait for auth loading to complete
-    if (!isLoggedIn || !user?.userid) return; // Check if user is logged in and has userid
-    fetchAllData(user.userid.toString()); // Convert userid to string if necessary
+    if (authLoading) return;
+    if (!isLoggedIn || !user?.userid) return;
+    fetchAllData(user.userid.toString());
   }, [user, isLoggedIn, authLoading, fetchAllData]);
 
   const handleCourseChange = useCallback(
@@ -1086,7 +1133,6 @@ export default function EnhancedMockAttemptsPage() {
     return Array.from(new Set(attempts.map((a) => a.courseName))).sort();
   }, [attempts]);
 
-  // Combine authLoading with component loading
   if (authLoading || loading) {
     return <LoadingSpinner />;
   }
@@ -1120,8 +1166,7 @@ export default function EnhancedMockAttemptsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 py-8 sm:py-12 px-4 sm:px-6">
       <div className="max-w-7xl mx-auto">
-        {/* Optionally display premium status */}
-        {user.premiumStatus.isPremium && (
+        {user.premiumStatus?.isPremium && (
           <div className="mb-6 text-center">
             <p className="text-sm sm:text-base text-purple-600 font-semibold">
               Premium User: {user.premiumStatus.plan} (Expires:{" "}
@@ -1151,7 +1196,7 @@ export default function EnhancedMockAttemptsPage() {
               <select
                 value={selectedCourse}
                 onChange={(e) => handleCourseChange(e.target.value)}
-                className="bg-white border border-gray-300 rounded-lg px-3 sm:px-4 py-1.5 sm:py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="bg-white border border-gray-300 rounded-lg px-3 sm:px-4 py-1.5 sm:py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 {availableCourses.map((course) => (
                   <option key={course} value={course}>
