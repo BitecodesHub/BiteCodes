@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import dynamic from "next/dynamic";
+import { useAuth } from "../contexts/AuthContext";
 
 const UniversitiesMap = dynamic(() => import("@/components/UniversitiesMap"), {
   ssr: false,
@@ -70,9 +71,10 @@ const cityCoords: Record<string, string> = {
   'porbandar': '21.642138,69.609170',
 };
 
-
 export default function UniversitiesPage() {
-  const [user, setUser] = useState<UserData | null>(null);
+  // Use useAuth at the top level - NOT inside useEffect
+  const { user: authUser, isLoggedIn, loading: authLoading } = useAuth();
+  
   const [universities, setUniversities] = useState<University[]>([]);
   const [filteredUniversities, setFilteredUniversities] = useState<University[]>([]);
   const [loading, setLoading] = useState(true);
@@ -119,7 +121,6 @@ export default function UniversitiesPage() {
       };
     });
   };
-  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -127,20 +128,14 @@ export default function UniversitiesPage() {
         setLoading(true);
         setError(null);
 
-        const token = localStorage.getItem("token");
-        const storedUser = localStorage.getItem("user");
-
-        if (!token || !storedUser) {
+        // Check authentication using the authUser from useAuth (already available at top level)
+        if (!isLoggedIn || !authUser) {
           setError("Please log in to view universities");
           setLoading(false);
           return;
         }
 
-        const parsedUser: UserData = JSON.parse(storedUser);
-        setUser(parsedUser);
-
-        const userId = parsedUser.id || parsedUser.userid;
-        if (!userId) {
+        if (!authUser.userid) {
           setError("User ID missing, please re-login");
           setLoading(false);
           return;
@@ -148,10 +143,7 @@ export default function UniversitiesPage() {
 
         try {
           // Try to fetch data from API
-          const response = await axios.get(`${API_BASE_URL}/api/universities`, {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-          
+          const response = await axios.get(`${API_BASE_URL}/api/universities`);
           
           const universitiesData: University[] = response.data;
           const processedUniversities = processUniversityData(universitiesData);
@@ -160,6 +152,7 @@ export default function UniversitiesPage() {
           setFilteredUniversities(processedUniversities);
         } catch (apiError) {
           console.error("API failed, using fallback data", apiError);
+          setError("Failed to load universities data");
         }
         
         setLoading(false);
@@ -171,7 +164,7 @@ export default function UniversitiesPage() {
     };
 
     fetchData();
-  }, [API_BASE_URL]);
+  }, [API_BASE_URL, isLoggedIn, authUser]);
 
   useEffect(() => {
     let result = [...universities];
@@ -221,7 +214,7 @@ export default function UniversitiesPage() {
   }, [universities, searchQuery, locationFilter, examFilter, sortBy, sortAsc]);
 
   const handlePurchaseClick = async (universitySlug: string) => {
-    if (!user) return;
+    if (!authUser) return;
 
     // Mark this university as "loading"
     setPurchaseLoading(prev => new Set([...prev, universitySlug]));
@@ -306,8 +299,17 @@ export default function UniversitiesPage() {
     };
   }
 
-  
- 
+  // Show loading state while auth is loading
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-3" />
+          <p className="text-slate-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
@@ -503,7 +505,28 @@ export default function UniversitiesPage() {
 
       {/* University Listing */}
       <div className="max-w-7xl mx-auto px-4 pb-16">
-        {viewMode === 'grid' ? (
+        {loading ? (
+          <div className="text-center py-16">
+            <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
+            <p className="text-slate-600">Loading universities...</p>
+          </div>
+        ) : error ? (
+          <div className="text-center py-16">
+            <div className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <X className="w-12 h-12 text-red-500" />
+            </div>
+            <h3 className="text-xl font-bold text-slate-800 mb-2">Error Loading Universities</h3>
+            <p className="text-slate-600 mb-4">{error}</p>
+            {error.includes("log in") && (
+              <Link
+                href="/login"
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Go to Login
+              </Link>
+            )}
+          </div>
+        ) : viewMode === 'grid' ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredUniversities.map((university) => {
               const rankingConfig = getRankingConfig(university.ranking);

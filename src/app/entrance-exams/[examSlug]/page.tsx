@@ -613,7 +613,7 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ exa
                   Study Material
                 </Link>
                 <Link
-                  href={`/entrance-exams/${examSlug}/counseling`}
+                  href={`/help`}
                   prefetch={false}
                   className="w-full bg-gradient-to-r from-purple-600 to-violet-700 text-white px-4 py-3 rounded-xl font-bold hover:opacity-90 transition-opacity flex items-center justify-center shadow-md"
                   aria-label={`View counseling info for ${examData.name}`}

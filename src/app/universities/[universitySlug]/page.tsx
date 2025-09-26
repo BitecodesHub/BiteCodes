@@ -15,6 +15,7 @@ import {
 } from "lucide-react"
 import BuyButton from "@/components/BuyButton"
 import dynamic from "next/dynamic"
+import { useAuth } from "@/app/contexts/AuthContext"
 
 // Dynamically import the map component to avoid SSR issues
 const MapComponent = dynamic(() => import("@/components/MapComponent"), {
@@ -50,6 +51,7 @@ export default function UniversityPage() {
   const [userId, setUserId] = useState<number | null>(null)
   const [coordinates, setCoordinates] = useState<[number, number] | null>(null)
   const router = useRouter()
+         const { user: storedUser, isLoggedIn, loading: authLoading } = useAuth();
 
   useEffect(() => {
     if (!universitySlug) return
@@ -58,11 +60,11 @@ export default function UniversityPage() {
       setLoading(true)
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"
-        const storedUser = typeof window !== "undefined" ? localStorage.getItem("user") : null
+        // const storedUser = typeof window !== "undefined" ? localStorage.getItem("user") : null
         let userData: { id?: number; userid?: number } | null = null
         
         if (storedUser) {
-          userData = JSON.parse(storedUser)
+          userData = storedUser
           setUserId(userData?.id || userData?.userid || null)
         }
 
@@ -273,46 +275,6 @@ if (data.mapLocation) {
               )}
             </div>
 
-            {/* Action Card */}
-            <div className="bg-white rounded-xl shadow-lg p-6">
-              <h2 className="text-2xl font-bold text-gray-800 mb-6">Program Access</h2>
-              
-              <div className="mb-6 p-4 bg-blue-50 rounded-lg">
-                <h3 className="font-semibold text-blue-800 mb-2">All Courses Package</h3>
-                <p className="text-2xl font-bold text-blue-600">
-                  ${university.allCoursesPrice || 0}
-                </p>
-                <p className="text-sm text-gray-600 mt-1">One-time payment, lifetime access</p>
-              </div>
-
-              <div className="space-y-4">
-                {university.purchased ? (
-                  <div className="bg-green-50 text-green-700 p-4 rounded-lg text-center">
-                    <span className="font-bold">✅ Purchased</span>
-                    <p className="text-sm mt-1">You have full access to all courses</p>
-                  </div>
-                ) : userId ? (
-                  <BuyButton
-                    amount={university.allCoursesPrice || 0}
-                    userId={userId}
-                    universitySlug={university.slug}
-                    onPurchase={() => setUniversity({ ...university, purchased: true })}
-                  />
-                ) : (
-                  <div className="bg-yellow-50 text-yellow-700 p-4 rounded-lg text-center">
-                    <p>Please log in to purchase courses</p>
-                  </div>
-                )}
-
-                <Link
-                  href="/mock-tests"
-                  className="flex items-center justify-center w-full bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors"
-                >
-                  <Play className="w-5 h-5 mr-2" /> 
-                  Prepare with Mock Tests
-                </Link>
-              </div>
-            </div>
           </div>
         </div>
       </div>
