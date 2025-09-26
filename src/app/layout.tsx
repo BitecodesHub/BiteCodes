@@ -56,7 +56,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className={inter.className}>
-        <DisableInspectWrapper>
+        {/* <DisableInspectWrapper> */}
         <AuthProvider>
           <Header />
           <AIChatbot/>
@@ -65,7 +65,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </ProtectedRoutes>
           <Footer />
         </AuthProvider>
-        </DisableInspectWrapper>
+        {/* </DisableInspectWrapper> */}
       </body>
     </html>
   );
