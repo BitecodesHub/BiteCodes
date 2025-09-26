@@ -15,13 +15,16 @@ interface SubscriptionPlan {
 }
 
 interface CouponDetails {
-  code: string;
-  name: string;
+  couponCode: string;
+  couponName: string;
   discountPercentage: number;
-  maxDiscountAmount?: number;
-  minPurchaseAmount?: number;
+  discountAmount: number;
+  maxDiscountAmount: number;
+  minPurchaseAmount: number;
+  originalAmount: number;
+  finalAmount: number;
   valid: boolean;
-  message?: string;
+  error?: string;
 }
 
 declare global {
@@ -39,15 +42,15 @@ const PremiumPurchasePage: React.FC = () => {
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<CouponDetails | null>(null);
   const [couponLoading, setCouponLoading] = useState(false);
+  const [couponError, setCouponError] = useState<string>('');
 
   const enhancedPlans: PremiumPricing = {
-  MONTHLY:   { type: 'MONTHLY', price: 99, duration: '1 Month', savings: 'Perfect for starters', popular: false },
-  QUARTERLY: { type: 'QUARTERLY', price: 249, duration: '3 Months', savings: 'Save 16%', popular: false },
-  HALF_YEARLY: { type: 'HALF_YEARLY', price: 449, duration: '6 Months', savings: 'Save 24%', popular: true },
-  YEARLY:    { type: 'YEARLY', price: 799, duration: '1 Year', savings: 'Save 33%', popular: false },
-  LIFETIME:  { type: 'LIFETIME', price: 1999, duration: 'Lifetime', savings: 'Best Value - Save 80%', popular: false }
-};
-
+    MONTHLY: { type: 'MONTHLY', price: 99, duration: '1 Month', savings: 'Perfect for starters', popular: false },
+    QUARTERLY: { type: 'QUARTERLY', price: 249, duration: '3 Months', savings: 'Save 16%', popular: false },
+    HALF_YEARLY: { type: 'HALF_YEARLY', price: 449, duration: '6 Months', savings: 'Save 24%', popular: true },
+    YEARLY: { type: 'YEARLY', price: 799, duration: '1 Year', savings: 'Save 33%', popular: false },
+    LIFETIME: { type: 'LIFETIME', price: 1999, duration: 'Lifetime', savings: 'Best Value - Save 80%', popular: false }
+  };
 
   useEffect(() => {
     const loadRazorpayScript = () => {
@@ -91,29 +94,68 @@ const PremiumPurchasePage: React.FC = () => {
 
   const applyCoupon = async () => {
     if (!couponCode.trim()) {
+      setCouponError('Please enter a coupon code');
       toast.error('Please enter a coupon code');
       return;
     }
     if (!user?.userid) {
+      setCouponError('Please login to apply coupon');
       toast.error('Please login to apply coupon');
       return;
     }
     if (!selectedPlan) {
+      setCouponError('Please select a plan first');
       toast.error('Please select a plan first');
       return;
     }
+
     setCouponLoading(true);
+    setCouponError('');
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://backend.bitecodes.com';
     try {
-      const response = await PremiumAPI.validateCoupon(couponCode.trim(), user.userid, selectedPlan);
-      if (response.valid) {
-        setAppliedCoupon(response);
-        toast.success(`Coupon applied! ${response.discountPercentage}% off`);
+      // Call the validation API with the updated structure
+const response = await fetch(
+  `${API_BASE_URL}/api/premium/validate-coupon?couponCode=${encodeURIComponent(
+    couponCode.trim()
+  )}&userId=${user.userid}&subscriptionType=${selectedPlan}`,
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  }
+);
+
+const data = await response.json();
+
+
+      if (data.valid) {
+        // Map the response to our CouponDetails interface
+        const couponDetails: CouponDetails = {
+          couponCode: data.couponCode,
+          couponName: data.couponName,
+          discountPercentage: data.discountPercentage,
+          discountAmount: data.discountAmount,
+          maxDiscountAmount: data.maxDiscountAmount,
+          minPurchaseAmount: data.minPurchaseAmount,
+          originalAmount: data.originalAmount,
+          finalAmount: data.finalAmount,
+          valid: true
+        };
+        
+        setAppliedCoupon(couponDetails);
+        setCouponError('');
+        toast.success(`🎉 Coupon "${data.couponName}" applied! ${data.discountPercentage}% off (₹${data.discountAmount} saved)`);
       } else {
-        toast.error(response.message || 'Invalid or expired coupon');
         setAppliedCoupon(null);
+        setCouponError(data.error || 'Invalid or expired coupon');
+        toast.error(data.error || 'Invalid or expired coupon');
       }
     } catch (error: any) {
-      toast.error(error.message || 'Failed to apply coupon');
+      console.error('Coupon validation error:', error);
+      const errorMessage = error.message || 'Failed to validate coupon. Please try again.';
+      setCouponError(errorMessage);
+      toast.error(errorMessage);
       setAppliedCoupon(null);
     } finally {
       setCouponLoading(false);
@@ -123,20 +165,22 @@ const PremiumPurchasePage: React.FC = () => {
   const removeCoupon = () => {
     setAppliedCoupon(null);
     setCouponCode('');
+    setCouponError('');
     toast.success('Coupon removed');
   };
 
   const calculateFinalAmount = () => {
-    const originalAmount = plans[selectedPlan]?.price || 0;
-    if (!appliedCoupon) return originalAmount;
-    const discount = (originalAmount * appliedCoupon.discountPercentage) / 100;
-    const maxDiscount = appliedCoupon.maxDiscountAmount || discount;
-    return Math.max(0, originalAmount - Math.min(discount, maxDiscount));
+    if (!appliedCoupon || !appliedCoupon.valid) {
+      return plans[selectedPlan]?.price || 0;
+    }
+    return appliedCoupon.finalAmount;
   };
 
   const calculateDiscountAmount = () => {
-    const originalAmount = plans[selectedPlan]?.price || 0;
-    return originalAmount - calculateFinalAmount();
+    if (!appliedCoupon || !appliedCoupon.valid) {
+      return 0;
+    }
+    return appliedCoupon.discountAmount;
   };
 
   const calculateExpiryDate = (planType: string): string => {
@@ -177,21 +221,27 @@ const PremiumPurchasePage: React.FC = () => {
       toast.error('Payment system not loaded. Please refresh the page.');
       return;
     }
+
     setPurchasing(true);
+    
     try {
+      // Create order with the final amount after coupon discount
+      const finalAmount = calculateFinalAmount();
       const orderResponse: CreateOrderResponse = await PremiumAPI.createPremiumOrder(
         user.userid,
         selectedPlan,
-        appliedCoupon?.code
+        appliedCoupon?.couponCode,
+        finalAmount.toString() // Convert to string
       );
+      
       const { razorpayOrderId, amount, currency } = orderResponse;
 
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_RDc7AGHUscKt8H',
-        amount,
+        amount: amount, // This should be the discounted amount from the server
         currency: currency || 'INR',
         name: 'Bitecodes Academy',
-        description: `Premium ${selectedPlan} Subscription - AI Powered Learning`,
+        description: `Premium ${selectedPlan} Subscription - AI Powered Learning${appliedCoupon ? ` (${appliedCoupon.couponName} applied)` : ''}`,
         order_id: razorpayOrderId,
         prefill: {
           name: user.name || 'User',
@@ -208,12 +258,14 @@ const PremiumPurchasePage: React.FC = () => {
               toast.error('Payment response is incomplete. Please try again.');
               return;
             }
+            
             const verifyResponse: PaymentVerificationResponse = await PremiumAPI.verifyPayment({
               userId: user.userid,
               paymentId: response.razorpay_payment_id,
               orderId: response.razorpay_order_id,
               signature: response.razorpay_signature,
             });
+            
             if (verifyResponse.success && verifyResponse.premiumStatus) {
               updatePremiumStatus({
                 isPremium: verifyResponse.premiumStatus.hasPremium,
@@ -221,7 +273,14 @@ const PremiumPurchasePage: React.FC = () => {
                 expiresAt: verifyResponse.premiumStatus.endDate || calculateExpiryDate(selectedPlan),
                 features: getPremiumFeatures(),
               });
-              toast.success('Premium subscription activated successfully!');
+              
+              const savedAmount = calculateDiscountAmount();
+              const successMessage = savedAmount > 0 
+                ? `🎉 Premium subscription activated! You saved ₹${savedAmount} with ${appliedCoupon?.couponName}!`
+                : '🎉 Premium subscription activated successfully!';
+              
+              toast.success(successMessage);
+              
               setTimeout(() => {
                 window.location.href = '/premium/manage';
               }, 2000);
@@ -243,6 +302,7 @@ const PremiumPurchasePage: React.FC = () => {
           },
         },
       };
+      
       const razorpay = new window.Razorpay(options);
       razorpay.on('payment.failed', (response: any) => {
         console.error('Razorpay payment failed:', response.error);
@@ -254,6 +314,19 @@ const PremiumPurchasePage: React.FC = () => {
       console.error('Payment initiation error:', error.response?.data || error);
       toast.error(error.message || 'Failed to initiate payment');
       setPurchasing(false);
+    }
+  };
+
+  // Reset coupon when plan changes
+  const handlePlanChange = (planType: string) => {
+    setSelectedPlan(planType);
+    if (appliedCoupon) {
+      setAppliedCoupon(null);
+      setCouponCode('');
+      setCouponError('');
+      toast('Coupon removed. Please reapply for the new plan if needed.', { 
+        icon: 'ℹ️'
+      });
     }
   };
 
@@ -417,10 +490,6 @@ const PremiumPurchasePage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header Section with Price Highlight */}
           <div className="text-center mb-12">
-            <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-400 to-blue-500 rounded-full text-white font-bold text-sm mb-4">
-              <Zap className="w-4 h-4 mr-1" />
-              SPECIAL OFFER: STARTING AT JUST ₹99!
-            </div>
             <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
               <Crown className="w-8 h-8 text-white" />
             </div>
@@ -449,11 +518,7 @@ const PremiumPurchasePage: React.FC = () => {
                       className={`relative p-4 border-2 rounded-xl cursor-pointer transition-all transform hover:scale-105 ${
                         selectedPlan === type ? 'border-blue-500 bg-blue-50 shadow-lg scale-105' : 'border-gray-200 hover:border-gray-300'
                       } ${plan.popular ? 'ring-2 ring-blue-200 shadow-xl' : ''}`}
-                      onClick={() => {
-                        setSelectedPlan(type);
-                        setAppliedCoupon(null);
-                        setCouponCode('');
-                      }}
+                      onClick={() => handlePlanChange(type)}
                     >
                       {plan.popular && (
                         <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
@@ -487,26 +552,42 @@ const PremiumPurchasePage: React.FC = () => {
                     <Gift className="w-5 h-5 text-purple-600 mr-2" />
                     <h3 className="text-lg font-semibold text-gray-900">Apply Coupon Code</h3>
                   </div>
+                  
                   {!appliedCoupon ? (
-                    <div className="flex gap-3">
-                      <div className="flex-1">
-                        <input
-                          type="text"
-                          placeholder="Enter coupon code (e.g., WELCOME10)"
-                          value={couponCode}
-                          onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                          onKeyPress={(e) => e.key === 'Enter' && applyCoupon()}
-                          className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 text-base font-medium placeholder-gray-500 bg-white"
-                          disabled={couponLoading}
-                        />
+                    <div className="space-y-3">
+                      <div className="flex gap-3">
+                        <div className="flex-1">
+                          <input
+                            type="text"
+                            placeholder="Enter coupon code (e.g., WELCOME10)"
+                            value={couponCode}
+                            onChange={(e) => {
+                              setCouponCode(e.target.value.toUpperCase());
+                              setCouponError(''); // Clear error when user types
+                            }}
+                            onKeyPress={(e) => e.key === 'Enter' && applyCoupon()}
+                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 text-base font-medium placeholder-gray-500 bg-white"
+                            disabled={couponLoading}
+                          />
+                        </div>
+                        <button
+                          onClick={applyCoupon}
+                          disabled={!couponCode.trim() || couponLoading}
+                          className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center min-w-[100px] justify-center"
+                        >
+                          {couponLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Apply'}
+                        </button>
                       </div>
-                      <button
-                        onClick={applyCoupon}
-                        disabled={!couponCode.trim() || couponLoading}
-                        className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center min-w-[100px] justify-center"
-                      >
-                        {couponLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Apply'}
-                      </button>
+                      
+                      {/* Error Display */}
+                      {couponError && (
+                        <div className="bg-red-50 border-2 border-red-200 rounded-lg p-3">
+                          <div className="flex items-center">
+                            <AlertCircle className="w-4 h-4 text-red-500 mr-2" />
+                            <p className="text-sm text-red-700 font-medium">{couponError}</p>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 rounded-lg p-4">
@@ -514,11 +595,19 @@ const PremiumPurchasePage: React.FC = () => {
                         <div className="flex items-center">
                           <Gift className="w-5 h-5 text-green-600 mr-2" />
                           <div>
-                            <p className="font-semibold text-green-900 text-base">{appliedCoupon.name}</p>
-                            <p className="text-sm text-green-700 font-medium">{appliedCoupon.discountPercentage}% discount applied</p>
+                            <p className="font-semibold text-green-900 text-base">
+                              {appliedCoupon.couponName} ({appliedCoupon.couponCode})
+                            </p>
+                            <p className="text-sm text-green-700 font-medium">
+                              {appliedCoupon.discountPercentage}% discount - You saved ₹{appliedCoupon.discountAmount.toLocaleString()}!
+                            </p>
                           </div>
                         </div>
-                        <button onClick={removeCoupon} className="text-green-700 hover:text-green-900 p-1" title="Remove coupon">
+                        <button 
+                          onClick={removeCoupon} 
+                          className="text-green-700 hover:text-green-900 p-1 rounded-full hover:bg-green-100" 
+                          title="Remove coupon"
+                        >
                           <X className="w-5 h-5" />
                         </button>
                       </div>
@@ -531,25 +620,35 @@ const PremiumPurchasePage: React.FC = () => {
                   <h3 className="text-lg font-bold text-gray-900 mb-4">Order Summary</h3>
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <span className="text-gray-800 font-medium text-base">Plan Price</span>
+                      <span className="text-gray-800 font-medium text-base">Plan Price ({plans[selectedPlan]?.duration})</span>
                       <span className="font-semibold text-gray-900 text-base">₹{plans[selectedPlan]?.price.toLocaleString()}</span>
                     </div>
-                    {appliedCoupon && calculateDiscountAmount() > 0 && (
+                    
+                    {appliedCoupon && appliedCoupon.valid && calculateDiscountAmount() > 0 && (
                       <div className="flex justify-between items-center text-green-700">
-                        <span className="font-medium text-base">Discount ({appliedCoupon.discountPercentage}% off)</span>
+                        <span className="font-medium text-base">
+                          Coupon Discount ({appliedCoupon.discountPercentage}% off)
+                        </span>
                         <span className="font-semibold text-base">-₹{calculateDiscountAmount().toLocaleString()}</span>
                       </div>
                     )}
+                    
                     <div className="border-t-2 border-blue-300 pt-3 flex justify-between items-center">
                       <span className="text-gray-900 font-bold text-xl">Final Amount</span>
                       <div className="text-right">
                         <span className="font-bold text-gray-900 text-2xl">₹{calculateFinalAmount().toLocaleString()}</span>
-                        {selectedPlan === 'MONTHLY' && (
+                        {selectedPlan === 'MONTHLY' && !appliedCoupon && (
                           <p className="text-sm text-gray-600 mt-1">That's just ₹3.3 per day!</p>
+                        )}
+                        {appliedCoupon && appliedCoupon.valid && (
+                          <p className="text-sm text-green-700 font-semibold mt-1">
+                            🎉 You saved ₹{calculateDiscountAmount().toLocaleString()}!
+                          </p>
                         )}
                       </div>
                     </div>
                   </div>
+                  
                   <button
                     onClick={handlePurchase}
                     disabled={purchasing || !isLoggedIn || !plans[selectedPlan]}
@@ -563,18 +662,28 @@ const PremiumPurchasePage: React.FC = () => {
                     ) : (
                       <>
                         <Zap className="w-5 h-5" />
-                        <span>Get AI-Powered Premium Now</span>
+                        <span>
+                          {appliedCoupon ? 
+                            `Pay ₹${calculateFinalAmount().toLocaleString()} - Get AI Premium` : 
+                            'Get AI-Powered Premium Now'
+                          }
+                        </span>
                       </>
                     )}
                   </button>
+                  
                   {!isLoggedIn && (
                     <div className="mt-4 p-3 bg-yellow-50 border-2 border-yellow-300 rounded-lg flex items-center">
                       <AlertCircle className="w-5 h-5 text-yellow-700 mr-2" />
                       <p className="text-sm text-yellow-800 font-medium">Please login to unlock premium features</p>
                     </div>
                   )}
+                  
                   <div className="mt-4 text-center">
                     <p className="text-xs text-gray-600">🔒 Secure payment powered by Razorpay</p>
+                    {appliedCoupon && appliedCoupon.valid && (
+                      <p className="text-xs text-green-600 mt-1">✨ Coupon applied - Final amount will be charged</p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -597,6 +706,21 @@ const PremiumPurchasePage: React.FC = () => {
                     </div>
                   ))}
                 </div>
+
+                {/* Coupon Benefits */}
+                {appliedCoupon && appliedCoupon.valid && (
+                  <div className="mt-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border-2 border-green-200">
+                    <div className="flex items-center mb-2">
+                      <Gift className="w-4 h-4 text-green-600 mr-2" />
+                      <p className="text-sm font-semibold text-green-900">Active Coupon Benefits</p>
+                    </div>
+                    <ul className="text-xs text-green-800 space-y-1">
+                      <li>✓ {appliedCoupon.discountPercentage}% discount applied</li>
+                      <li>✓ Save ₹{appliedCoupon.discountAmount.toLocaleString()} on this purchase</li>
+                      <li>✓ Valid for {plans[selectedPlan]?.duration} subscription</li>
+                    </ul>
+                  </div>
+                )}
 
                 {/* Trust Badges */}
                 <div className="mt-8 space-y-4">
@@ -624,14 +748,26 @@ const PremiumPurchasePage: React.FC = () => {
           <div className="text-center mt-12">
             <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-white">
               <h3 className="text-2xl font-bold mb-4">Ready to Boost Your Exam Preparation?</h3>
-              <p className="text-lg mb-6 opacity-90">Join 50,000+ students who transformed their learning with AI-powered premium</p>
+              <p className="text-lg mb-6 opacity-90">
+                Join 50,000+ students who transformed their learning with AI-powered premium
+                {appliedCoupon && appliedCoupon.valid && (
+                  <span className="block mt-2 text-yellow-200 font-semibold">
+                    🎉 Special offer: Save ₹{appliedCoupon.discountAmount.toLocaleString()} with {appliedCoupon.couponName}!
+                  </span>
+                )}
+              </p>
               <button
                 onClick={handlePurchase}
                 disabled={purchasing || !isLoggedIn}
                 className="bg-white text-blue-600 font-bold py-3 px-8 rounded-lg hover:bg-gray-100 disabled:opacity-50 transition-all inline-flex items-center space-x-2"
               >
                 <Crown className="w-5 h-5" />
-                <span>Start Your Premium Journey at ₹99</span>
+                <span>
+                  {appliedCoupon && appliedCoupon.valid ? 
+                    `Start Premium Journey - Pay ₹${calculateFinalAmount().toLocaleString()}` : 
+                    'Start Your Premium Journey at ₹99'
+                  }
+                </span>
               </button>
             </div>
           </div>

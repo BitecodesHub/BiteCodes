@@ -35,6 +35,7 @@ export interface CreateOrderResponse {
   couponApplied?: boolean;
   couponCode?: string;
   couponName?: string;
+
 }
 
 export interface PaymentVerificationRequest {

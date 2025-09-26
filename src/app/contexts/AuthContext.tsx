@@ -1,6 +1,8 @@
 "use client";
+
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { PremiumAPI, PremiumStatusResponse } from "@/app/utils/premiumApi";
+import CryptoJS from "crypto-js";
 
 export interface PremiumStatus {
   isPremium: boolean;
@@ -23,7 +25,7 @@ interface AuthContextType {
   user: User | null;
   isLoggedIn: boolean;
   loading: boolean;
-  login: (response: any) => void;
+  login: (response: any) => Promise<void>;
   logout: () => void;
   updatePremiumStatus: (premiumStatus: PremiumStatus) => void;
   isPremiumUser: () => boolean;
@@ -31,26 +33,49 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+// 🔐 AES helpers
+const SECRET = process.env.NEXT_PUBLIC_ENCRYPT_KEY || "super-secret-fallback";
+
+const encrypt = (data: object) =>
+  CryptoJS.AES.encrypt(JSON.stringify(data), SECRET).toString();
+
+const decrypt = (ciphertext: string) => {
+  try {
+    const bytes = CryptoJS.AES.decrypt(ciphertext, SECRET);
+    return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+  } catch {
+    return null;
+  }
+};
+
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Fetch premium status from backend
-  const fetchPremiumStatus = async (userId: number) => {
+  // ✅ Always fetch premium from backend
+  const fetchPremiumStatus = async (userId: number): Promise<PremiumStatus> => {
     try {
-      console.log(`🗳 Fetching premium status for userId: ${userId}`);
-      const status: PremiumStatusResponse = await PremiumAPI.getPremiumStatus(userId);
-      const premiumStatus: PremiumStatus = {
+      const status: PremiumStatusResponse =
+        await PremiumAPI.getPremiumStatus(userId);
+      return {
         isPremium: status.hasPremium,
         plan: status.subscriptionType || null,
         expiresAt: status.endDate || null,
-        features: status.hasPremium ? ['Unlimited Mock Tests', 'Advanced Analytics', 'Priority Support', 'Exclusive Content', 'Download PDFs', 'No Ads'] : [],
+        features: status.hasPremium
+          ? [
+              "Unlimited Mock Tests",
+              "Advanced Analytics",
+              "Priority Support",
+              "Exclusive Content",
+              "Download PDFs",
+              "No Ads",
+            ]
+          : [],
       };
-      console.log("✅ Fetched premium status:", premiumStatus);
-      return premiumStatus;
-    } catch (error: any) {
-      console.error("❌ Failed to fetch premium status:", error);
+    } catch {
       return {
         isPremium: false,
         plan: null,
@@ -60,116 +85,105 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Rehydrate from localStorage and sync with backend
-  useEffect(() => {
-    const token = localStorage.getItem("token");
+  // 🔁 Restore user from encrypted localStorage
+  const restoreUser = async () => {
     const storedUser = localStorage.getItem("user");
+    if (!storedUser) return null;
 
-    console.log("🗄 Checking localStorage:", { token, storedUser });
+    const parsed = decrypt(storedUser);
+    if (!parsed?.userid) return null;
 
-    if (token && storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser) as User;
-        const normalizedUser: User = {
-          ...parsedUser,
-          premiumStatus: parsedUser.premiumStatus || {
-            isPremium: false,
-            plan: null,
-            expiresAt: null,
-            features: [],
-          },
-        };
-
-        console.log("✅ Restored user from localStorage:", normalizedUser);
-        setUser(normalizedUser);
-        setIsLoggedIn(true);
-
-        // Sync premium status with backend
-        fetchPremiumStatus(normalizedUser.userid).then((premiumStatus) => {
-          const updatedUser: User = {
-            ...normalizedUser,
-            premiumStatus,
-          };
-          setUser(updatedUser);
-          localStorage.setItem("user", JSON.stringify(updatedUser));
-          console.log("✅ Synced premium status from backend:", premiumStatus);
-          setLoading(false);
-        });
-      } catch (err) {
-        console.error("❌ Failed to parse stored user:", err);
-        localStorage.removeItem("user");
-        localStorage.removeItem("token");
-        setLoading(false);
-      }
-    } else {
-      setLoading(false);
+    // revalidate with backend
+    try {
+      const freshPremium = await fetchPremiumStatus(parsed.userid);
+      return { ...parsed, premiumStatus: freshPremium } as User;
+    } catch {
+      return null;
     }
-  }, []);
-
-  const login = async (response: any) => {
-    console.log("🔍 Full login response received:", response);
-    console.log("💎 premiumStatus in response:", response.premiumStatus);
-
-    const normalizedUser: User = {
-      userid: response.userid,
-      username: response.username,
-      email: response.email,
-      name: response.name,
-      profileurl: response.profileurl,
-      role: response.role,
-      premiumStatus: response.premiumStatus || {
-        isPremium: false,
-        plan: null,
-        expiresAt: null,
-        features: [],
-      },
-    };
-
-    // Fetch latest premium status from backend
-    const premiumStatus = await fetchPremiumStatus(normalizedUser.userid);
-    normalizedUser.premiumStatus = premiumStatus;
-
-    console.log("🔑 Final normalized user:", normalizedUser);
-    console.log("💎 Final premiumStatus:", normalizedUser.premiumStatus);
-
-    localStorage.setItem("token", response.token);
-    localStorage.setItem("user", JSON.stringify(normalizedUser));
-
-    setUser(normalizedUser);
-    setIsLoggedIn(true);
   };
 
+  useEffect(() => {
+    restoreUser().then((restored) => {
+      if (restored) {
+        setUser(restored);
+        setIsLoggedIn(true);
+        localStorage.setItem("user", encrypt(restored));
+      } else {
+        localStorage.removeItem("user");
+        setUser(null);
+        setIsLoggedIn(false);
+      }
+      setLoading(false);
+    });
+  }, []);
+
+  // 🔑 Login flow
+  const login = async (response: any) => {
+    try {
+      const premiumStatus = await fetchPremiumStatus(response.userid);
+      const normalizedUser: User = {
+        userid: response.userid,
+        username: response.username,
+        email: response.email,
+        name: response.name,
+        profileurl: response.profileurl,
+        role: response.role,
+        premiumStatus,
+      };
+
+      localStorage.setItem("user", encrypt(normalizedUser));
+      setUser(normalizedUser);
+      setIsLoggedIn(true);
+    } catch {
+      logout();
+    }
+  };
+
+  // 🚪 Logout clears everything
   const logout = () => {
-    localStorage.removeItem("token");
     localStorage.removeItem("user");
     setUser(null);
     setIsLoggedIn(false);
   };
 
+  // 💎 Update premium status
   const updatePremiumStatus = (premiumStatus: PremiumStatus) => {
     if (!user) return;
-    const updatedUser: User = {
-      ...user,
-      premiumStatus,
-    };
+    const updatedUser: User = { ...user, premiumStatus };
     setUser(updatedUser);
-    localStorage.setItem("user", JSON.stringify(updatedUser));
-    console.log("💎 Updated premium status:", premiumStatus);
+    localStorage.setItem("user", encrypt(updatedUser));
   };
 
+  // ⭐ Check premium validity
   const isPremiumUser = (): boolean => {
-    if (!user || !user.premiumStatus) return false;
+    if (!user?.premiumStatus) return false;
     const { isPremium, expiresAt } = user.premiumStatus;
     if (!isPremium) return false;
-    if (!expiresAt) return true; // No expiry means permanent (e.g., LIFETIME)
-    const now = new Date();
-    const expiryDate = new Date(expiresAt);
-    return now < expiryDate;
+    if (!expiresAt) return true; // lifetime
+    return new Date() < new Date(expiresAt);
   };
+
+  // Auto-logout if expired
+  useEffect(() => {
+    if (!user?.premiumStatus?.expiresAt) return;
+    const expiry = new Date(user.premiumStatus.expiresAt).getTime();
+    const now = Date.now();
+    if (expiry < now) {
+      logout();
+    }
+  }, [user]);
 
   return (
     <AuthContext.Provider
-      value={{ user, isLoggedIn, loading, login, logout, updatePremiumStatus, isPremiumUser }}
+      value={{
+        user,
+        isLoggedIn,
+        loading,
+        login,
+        logout,
+        updatePremiumStatus,
+        isPremiumUser,
+      }}
     >
       {children}
     </AuthContext.Provider>
@@ -177,9 +191,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 };
 
 export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
+  return ctx;
 };
