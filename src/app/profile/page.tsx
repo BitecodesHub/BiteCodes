@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import axios from 'axios'
 import { toast } from 'react-hot-toast'
+import { useAuth } from '@/app/contexts/AuthContext' // Import useAuth
 import { 
   User, 
   Loader2, 
@@ -42,6 +43,7 @@ interface UserData {
 }
 
 export default function ProfilePage() {
+  const { user: authUser, isLoggedIn, loading: authLoading } = useAuth() // Use AuthContext
   const [user, setUser] = useState<UserData | null>(null)
   const [formData, setFormData] = useState({ 
     name: '', 
@@ -59,6 +61,17 @@ export default function ProfilePage() {
   const [error, setError] = useState<string | null>(null)
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
+
+  // Debug logging
+  useEffect(() => {
+    console.log("🔍 Profile Page State:", {
+      authUser,
+      isLoggedIn,
+      authLoading,
+      hasAuthUser: !!authUser,
+      authUserId: authUser?.userid
+    })
+  }, [authUser, isLoggedIn, authLoading])
 
   // Form validation
   const validateForm = () => {
@@ -89,25 +102,28 @@ export default function ProfilePage() {
   // Fetch user data on mount
   useEffect(() => {
     const fetchUser = async () => {
+      // Wait for auth to load
+      if (authLoading) {
+        console.log("⏳ Waiting for auth to load...")
+        return
+      }
+
+      // Check if user is logged in via AuthContext
+      if (!isLoggedIn || !authUser) {
+        console.log("❌ Not logged in or no auth user")
+        setError('Please log in to view your profile')
+        return
+      }
+
       try {
-        const token = localStorage.getItem('token')
-        const storedUser = localStorage.getItem('user')
-
-        if (!token || !storedUser) {
-          setError('Please log in to view your profile')
-          return
-        }
-
-        const userData = JSON.parse(storedUser)
         setIsLoading(true)
         setError(null)
+        console.log("🚀 Fetching user data for ID:", authUser.userid)
 
-        const userId = userData.id || userData.userid
-        const response = await axios.get(`${API_BASE_URL}/api/auth/user/${userId}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        })
+        const response = await axios.get(`${API_BASE_URL}/api/auth/user/${authUser.userid}`)
 
         if (response.status === 200 && response.data) {
+          console.log("✅ User data fetched:", response.data)
           setUser(response.data)
           setFormData({
             name: response.data.name || '',
@@ -123,11 +139,9 @@ export default function ProfilePage() {
           setError('Failed to fetch user data')
         }
       } catch (err: any) {
-        console.error('Error fetching user data:', err)
+        console.error('❌ Error fetching user data:', err)
         if (err.response?.status === 401) {
           setError('Session expired. Please log in again.')
-          localStorage.removeItem('token')
-          localStorage.removeItem('user')
         } else if (err.request) {
           setError('Network error. Please check your connection.')
         } else {
@@ -139,7 +153,7 @@ export default function ProfilePage() {
     }
 
     fetchUser()
-  }, [API_BASE_URL])
+  }, [authUser, isLoggedIn, authLoading, API_BASE_URL])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -160,32 +174,28 @@ export default function ProfilePage() {
     }
     
     try {
-      const token = localStorage.getItem('token')
-      if (!token || !user) {
+      if (!authUser || !user) {
         setError('Please log in to update your profile')
         return
       }
 
       setIsUpdating(true)
+      console.log("🔄 Updating user profile...")
 
-      const response = await axios.put(`${API_BASE_URL}/api/auth/update/${user.id}`, formData, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
+      const response = await axios.put(`${API_BASE_URL}/api/auth/update/${user.id}`, formData)
 
       if (response.status === 200) {
         const updatedUser = { ...user, ...formData }
         setUser(updatedUser)
-        localStorage.setItem('user', JSON.stringify(updatedUser))
         toast.success('Profile updated successfully!')
+        console.log("✅ Profile updated successfully")
       } else {
         toast.error('Failed to update profile')
       }
     } catch (err: any) {
-      console.error('Error updating profile:', err)
+      console.error('❌ Error updating profile:', err)
       if (err.response?.status === 401) {
         toast.error('Session expired. Please log in again.')
-        localStorage.removeItem('token')
-        localStorage.removeItem('user')
       } else if (err.request) {
         toast.error('Network error. Please check your connection.')
       } else {
@@ -229,22 +239,18 @@ export default function ProfilePage() {
       if (uploadResponse.data && typeof uploadResponse.data === 'string') {
         const imageUrl = uploadResponse.data
         
-        // Update user profile with new image URL
-        const token = localStorage.getItem('token')
-        if (!token || !user) {
+        if (!authUser || !user) {
           toast.error('Please log in to update your profile photo')
           return
         }
 
         const updateResponse = await axios.put(`${API_BASE_URL}/api/auth/update/${user.id}`, 
-          { ...formData, profileurl: imageUrl },
-          { headers: { Authorization: `Bearer ${token}` }}
+          { ...formData, profileurl: imageUrl }
         )
 
         if (updateResponse.status === 200) {
           const updatedUser = { ...user, profileurl: imageUrl }
           setUser(updatedUser)
-          localStorage.setItem('user', JSON.stringify(updatedUser))
           toast.success('Profile photo updated successfully!')
         } else {
           toast.error('Failed to update profile photo')
@@ -283,7 +289,19 @@ export default function ProfilePage() {
     }
   }
 
-  // Loading state
+  // Loading state - wait for auth context to load
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-4">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
+          <p className="text-gray-600 font-medium">Loading authentication...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Loading user data
   if (isLoading && !user && !error) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-4">
@@ -295,24 +313,41 @@ export default function ProfilePage() {
     )
   }
 
-  // Error or unauthenticated state
-  if (error || !user) {
+  // Let ProtectedRoutes handle authentication - don't show error here
+  // Just show loading if we don't have user data yet
+  if (!user && !error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-4">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
+          <p className="text-gray-600 font-medium">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Error state (but not auth errors - let ProtectedRoutes handle those)
+  if (error && !error.includes('log in')) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-xl p-8 text-center max-w-md w-full">
           <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">Access Required</h2>
-          <p className="text-red-600 mb-6">{error || 'Please log in to view your profile'}</p>
-          <Link
-            href="/login"
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">Error Loading Profile</h2>
+          <p className="text-red-600 mb-6">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
             className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors font-medium"
           >
-            <User className="w-5 h-5 mr-2" />
-            Go to Login
-          </Link>
+            Try Again
+          </button>
         </div>
       </div>
     )
+  }
+
+  // Don't render anything if no user data - let ProtectedRoutes handle it
+  if (!user) {
+    return null
   }
 
   return (

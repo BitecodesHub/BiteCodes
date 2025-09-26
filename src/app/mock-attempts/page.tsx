@@ -8,10 +8,8 @@ import {
   BarChart,
   Loader2,
   TrendingUp,
-  Award,
   Brain,
   Target,
-  Zap,
   Users,
   Calendar,
   ArrowUp,
@@ -20,22 +18,11 @@ import {
   Eye,
   Flag,
   Trophy,
-  ChevronRight,
   Activity,
-  PieChart as RechartsPieChartIcon,
-  LineChart as LineChartIcon,
   Star,
   AlertCircle,
   CheckCircle2,
   RefreshCw,
-  Filter,
-  Search,
-  Download,
-  Share,
-  Settings,
-  Info,
-  TrendingDown,
-  Flame,
   Shield,
   Lightbulb,
 } from "lucide-react";
@@ -51,15 +38,10 @@ import {
   ResponsiveContainer,
   PieChart,
   Cell,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
   AreaChart,
   Area,
-  ScatterChart,
-  Scatter,
 } from "recharts";
+import { useAuth } from "../contexts/AuthContext";
 
 // Types from your backend
 interface QuestionResult {
@@ -998,108 +980,114 @@ export default function EnhancedMockAttemptsPage() {
 
   const apiService = useMemo(() => new APIService(), []);
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    
-    try {
-      const storedUser = localStorage.getItem("user");
-      if (storedUser) {
-        const parsed = JSON.parse(storedUser);
-        setUserId(parsed.id || parsed.userid || null);
+ const { user, isLoggedIn, loading: authLoading } = useAuth()
+ const fetchAllData = useCallback(
+    async (userId: string) => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const [attemptsData, analyticsData, trendsData] = await Promise.all([
+          apiService.getUserAttempts(userId),
+          apiService.getUserAnalytics(userId),
+          apiService.getPerformanceTrends(userId, 30),
+        ]);
+
+        setAttempts(attemptsData);
+        setAnalytics(analyticsData);
+        setTrends(trendsData);
+
+        if (attemptsData.length > 0) {
+          const latestCourse = attemptsData[0].courseName;
+          setSelectedCourse(latestCourse);
+          try {
+            const leaderboardData = await apiService.getCourseLeaderboard(
+              latestCourse,
+              10
+            );
+            setLeaderboard(leaderboardData);
+          } catch (leaderboardError) {
+            console.warn("Failed to fetch leaderboard:", leaderboardError);
+            setLeaderboard([]);
+          }
+        }
+      } catch (err: any) {
+        console.error("Error fetching data:", err);
+        setError(err.message || "Failed to load data. Please try again.");
+      } finally {
+        setLoading(false);
       }
-    } catch (e) {
-      setError("Failed to load user data. Please log in again.");
-    }
-  }, []);
+    },
+    [apiService]
+  );
 
-  const fetchAllData = useCallback(async (userIdParam: string) => {
-    try {
-      setLoading(true);
-      setError(null);
+  // Update useEffect to use user.userid from AuthContext
+  useEffect(() => {
+    if (authLoading) return; // Wait for auth loading to complete
+    if (!isLoggedIn || !user?.userid) return; // Check if user is logged in and has userid
+    fetchAllData(user.userid.toString()); // Convert userid to string if necessary
+  }, [user, isLoggedIn, authLoading, fetchAllData]);
 
-      const [attemptsData, analyticsData, trendsData] = await Promise.all([
-        apiService.getUserAttempts(userIdParam),
-        apiService.getUserAnalytics(userIdParam),
-        apiService.getPerformanceTrends(userIdParam, 30),
-      ]);
+  const handleCourseChange = useCallback(
+    async (courseName: string) => {
+      if (!user?.userid || !courseName) return;
 
-      setAttempts(attemptsData);
-      setAnalytics(analyticsData);
-      setTrends(trendsData);
+      setSelectedCourse(courseName);
+      try {
+        const leaderboardData = await apiService.getCourseLeaderboard(
+          courseName,
+          10
+        );
+        setLeaderboard(leaderboardData);
+      } catch (error) {
+        console.warn("Failed to fetch leaderboard for course:", error);
+        setLeaderboard([]);
+      }
+    },
+    [user, apiService]
+  );
 
-      if (attemptsData.length > 0) {
-        const latestCourse = attemptsData[0].courseName;
-        setSelectedCourse(latestCourse);
-        try {
-          const leaderboardData = await apiService.getCourseLeaderboard(latestCourse, 10);
-          setLeaderboard(leaderboardData);
-        } catch (leaderboardError) {
-          console.warn('Failed to fetch leaderboard:', leaderboardError);
-          setLeaderboard([]);
+  const handleViewDetails = useCallback(
+    async (attemptId: string) => {
+      try {
+        const analysis = await apiService.getDetailedAnalysis(attemptId);
+        setDetailedAnalysis(analysis);
+        setShowAnalysisModal(true);
+      } catch (error) {
+        console.error("Failed to fetch detailed analysis:", error);
+        const attempt = attempts.find((a) => a.id === attemptId);
+        if (attempt) {
+          setDetailedAnalysis({
+            attempt,
+            questionAnalyses: [],
+            topicBreakdown: attempt.topicPerformance,
+            timeDistribution: null,
+            comparisonData: null,
+            aiAnalysis: attempt.aiAnalysis ?? "",
+            keyInsights: attempt.improvementSuggestions
+              ? [attempt.improvementSuggestions]
+              : [],
+          });
+          setShowAnalysisModal(true);
         }
       }
-
-    } catch (err: any) {
-      console.error('Error fetching data:', err);
-      setError(err.message || "Failed to load data. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  }, [apiService]);
-
-  useEffect(() => {
-    if (!userId) return;
-    fetchAllData(userId);
-  }, [userId, fetchAllData]);
-
-  const handleCourseChange = useCallback(async (courseName: string) => {
-    if (!userId || !courseName) return;
-    
-    setSelectedCourse(courseName);
-    try {
-      const leaderboardData = await apiService.getCourseLeaderboard(courseName, 10);
-      setLeaderboard(leaderboardData);
-    } catch (error) {
-      console.warn('Failed to fetch leaderboard for course:', error);
-      setLeaderboard([]);
-    }
-  }, [userId, apiService]);
-
-  const handleViewDetails = useCallback(async (attemptId: string) => {
-    try {
-      const analysis = await apiService.getDetailedAnalysis(attemptId);
-      setDetailedAnalysis(analysis);
-      setShowAnalysisModal(true);
-    } catch (error) {
-      console.error('Failed to fetch detailed analysis:', error);
-      const attempt = attempts.find(a => a.id === attemptId);
-      if (attempt) {
-        setDetailedAnalysis({
-          attempt,
-          questionAnalyses: [],
-          topicBreakdown: attempt.topicPerformance,
-          timeDistribution: null,
-          comparisonData: null,
-          aiAnalysis: attempt.aiAnalysis ?? '',
-          keyInsights: attempt.improvementSuggestions ? [attempt.improvementSuggestions] : []
-        });
-        setShowAnalysisModal(true);
-      }
-    }
-  }, [attempts, apiService]);
+    },
+    [attempts, apiService]
+  );
 
   const handleRetry = useCallback(() => {
-    setRetryCount(prev => prev + 1);
-    if (userId) {
-      fetchAllData(userId);
+    setRetryCount((prev) => prev + 1);
+    if (user?.userid) {
+      fetchAllData(user.userid.toString());
     }
-  }, [userId, fetchAllData]);
+  }, [user, fetchAllData]);
 
   const availableCourses = useMemo(() => {
-    return Array.from(new Set(attempts.map(a => a.courseName))).sort();
+    return Array.from(new Set(attempts.map((a) => a.courseName))).sort();
   }, [attempts]);
 
-  if (loading) {
+  // Combine authLoading with component loading
+  if (authLoading || loading) {
     return <LoadingSpinner />;
   }
 
@@ -1107,15 +1095,19 @@ export default function EnhancedMockAttemptsPage() {
     return <ErrorMessage error={error} onRetry={handleRetry} />;
   }
 
-  if (!userId) {
+  if (!isLoggedIn || !user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 flex items-center justify-center p-4 sm:p-6">
         <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 max-w-md sm:max-w-lg text-center">
           <AlertCircle className="w-10 h-10 sm:w-12 sm:h-12 text-yellow-500 mx-auto mb-4" />
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">Authentication Required</h2>
-          <p className="text-gray-700 text-sm sm:text-base mb-6">Please log in to view your mock test attempts and analytics.</p>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">
+            Authentication Required
+          </h2>
+          <p className="text-gray-700 text-sm sm:text-base mb-6">
+            Please log in to view your mock test attempts and analytics.
+          </p>
           <button
-            onClick={() => window.location.href = '/login'}
+            onClick={() => window.location.href = "/login"}
             className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-blue-700 transition-all"
           >
             Go to Login
@@ -1128,63 +1120,61 @@ export default function EnhancedMockAttemptsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 py-8 sm:py-12 px-4 sm:px-6">
       <div className="max-w-7xl mx-auto">
-        <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 text-white py-16 sm:py-24 relative overflow-hidden rounded-3xl shadow-2xl mb-8 sm:mb-12">
-          <div className="absolute inset-0">
-            <div className="absolute top-0 right-0 w-64 sm:w-96 h-64 sm:h-96 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl"></div>
-            <div className="absolute bottom-0 left-0 w-64 sm:w-96 h-64 sm:h-96 bg-gradient-to-tr from-purple-400/20 to-blue-400/20 rounded-full blur-3xl"></div>
-          </div>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 leading-tight">
-              Your Learning <span className="text-blue-300">Analytics</span>
-            </h1>
-            <p className="text-base sm:text-lg md:text-xl text-blue-100 max-w-3xl sm:max-w-4xl mx-auto leading-relaxed mb-6 sm:mb-8">
-              Comprehensive performance insights powered by AI to accelerate your learning journey
+        {/* Optionally display premium status */}
+        {user.premiumStatus.isPremium && (
+          <div className="mb-6 text-center">
+            <p className="text-sm sm:text-base text-purple-600 font-semibold">
+              Premium User: {user.premiumStatus.plan} (Expires:{" "}
+              {user.premiumStatus.expiresAt
+                ? new Date(user.premiumStatus.expiresAt).toLocaleDateString()
+                : "Lifetime"}
+              )
             </p>
-            <div className="flex flex-wrap justify-center gap-3 sm:gap-4">
-              <div className="flex items-center space-x-2 bg-white/20 backdrop-blur-sm rounded-full px-3 sm:px-4 py-1.5 sm:py-2">
-                <Brain className="w-4 h-4 sm:w-5 sm:h-5" />
-                <span className="text-sm sm:text-base">AI-Powered Analysis</span>
-              </div>
-              <div className="flex items-center space-x-2 bg-white/20 backdrop-blur-sm rounded-full px-3 sm:px-4 py-1.5 sm:py-2">
-                <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" />
-                <span className="text-sm sm:text-base">Performance Tracking</span>
-              </div>
-              <div className="flex items-center space-x-2 bg-white/20 backdrop-blur-sm rounded-full px-3 sm:px-4 py-1.5 sm:py-2">
-                <Trophy className="w-4 h-4 sm:w-5 sm:h-5" />
-                <span className="text-sm sm:text-base">Competitive Insights</span>
-              </div>
-            </div>
           </div>
-        </div>
+        )}
 
         {analytics && <UserAnalyticsSection analytics={analytics} />}
 
-        {trends && userId && <PerformanceTrendsSection trends={trends} userId={userId} />}
+        {trends && user.userid && (
+          <PerformanceTrendsSection
+            trends={trends}
+            userId={user.userid.toString()}
+          />
+        )}
 
         {availableCourses.length > 0 && (
           <div className="mb-8 sm:mb-12">
             <div className="flex flex-wrap items-center justify-between mb-4 sm:mb-6">
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Course Performance</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+                Course Performance
+              </h2>
               <select
                 value={selectedCourse}
                 onChange={(e) => handleCourseChange(e.target.value)}
                 className="bg-white border border-gray-300 rounded-lg px-3 sm:px-4 py-1.5 sm:py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                {availableCourses.map(course => (
-                  <option key={course} value={course}>{course}</option>
+                {availableCourses.map((course) => (
+                  <option key={course} value={course}>
+                    {course}
+                  </option>
                 ))}
               </select>
             </div>
-            
+
             {leaderboard.length > 0 && (
-              <LeaderboardSection leaderboard={leaderboard} currentUserId={userId} />
+              <LeaderboardSection
+                leaderboard={leaderboard}
+                currentUserId={user.userid.toString()}
+              />
             )}
           </div>
         )}
 
         <div className="mb-8 sm:mb-12">
           <div className="text-center mb-6 sm:mb-8">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Your Mock Test History</h2>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
+              Your Mock Test History
+            </h2>
             <p className="text-base sm:text-lg text-gray-600 max-w-xl sm:max-w-2xl mx-auto">
               Detailed analysis of every attempt with AI-powered insights
             </p>
@@ -1193,9 +1183,9 @@ export default function EnhancedMockAttemptsPage() {
           {attempts.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {attempts.map((attempt) => (
-                <AttemptCard 
-                  key={attempt.id} 
-                  attempt={attempt} 
+                <AttemptCard
+                  key={attempt.id}
+                  attempt={attempt}
                   onViewDetails={handleViewDetails}
                 />
               ))}
@@ -1203,10 +1193,14 @@ export default function EnhancedMockAttemptsPage() {
           ) : (
             <div className="text-center py-8 sm:py-12">
               <BookOpen className="w-12 h-12 sm:w-16 sm:h-16 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-600 text-base sm:text-lg mb-4">No mock test attempts found</p>
-              <p className="text-gray-600 text-sm sm:text-base mb-6">Start your learning journey by taking your first mock test</p>
+              <p className="text-gray-600 text-base sm:text-lg mb-4">
+                No mock test attempts found
+              </p>
+              <p className="text-gray-600 text-sm sm:text-base mb-6">
+                Start your learning journey by taking your first mock test
+              </p>
               <button
-                onClick={() => window.location.href = '/mock-tests'}
+                onClick={() => window.location.href = "/mock-tests"}
                 className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 sm:px-8 py-2 sm:py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-600 transition-all"
               >
                 Take a Mock Test

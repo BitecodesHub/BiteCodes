@@ -10,6 +10,7 @@ import axios from 'axios';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Confetti from 'react-confetti';
 import { toast, Toaster } from 'react-hot-toast';
+import { useAuth } from '@/app/contexts/AuthContext';
 
 // Types
 interface ExamQuestion {
@@ -392,12 +393,19 @@ export default function MockTestPage() {
   const [showReview, setShowReview] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const storedUser = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
-  let userData: { id?: string; userid?: string } | null = null;
+  // const storedUser = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
+    // const { user:storedUser, isLoggedIn, loading: authLoading } = useAuth();
 
-  if (storedUser) {
-    userData = JSON.parse(storedUser);
-  }
+  // Get user info from useAuth hook
+const { user: storedUser, isLoggedIn, loading: authLoading } = useAuth();
+
+// Initialize userData
+let userData: { id?: string; userid?: number } | null = null;
+// Assign storedUser to userData if it exists
+if (storedUser) {
+  userData = storedUser; // no JSON.parse needed
+}
+
 
   const userId = userData?.id || userData?.userid || null;
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
