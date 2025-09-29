@@ -71,14 +71,9 @@ const BillingPage: React.FC = () => {
   const [sortBy, setSortBy] = useState('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [showSubscriptions, setShowSubscriptions] = useState(true);
-
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
   const fetchBillingData = useCallback(async () => {
-    console.log('🔄 Starting fetchBillingData...');
-    console.log('User:', user);
-    console.log('IsLoggedIn:', isLoggedIn);
-
     if (!user?.userid || !isLoggedIn) {
-      console.warn('❌ No user or not logged in');
       setError('Please login to view billing history');
       setLoading(false);
       return;
@@ -88,125 +83,39 @@ const BillingPage: React.FC = () => {
     setError(null);
     
     try {
-      const apiUrl = `http://localhost:8080/api/premium/history/${user.userid}`;
-      console.log('🌐 Fetching from:', apiUrl);
+      const response = await fetch(`${apiUrl}/api/premium/history/${user.userid}`);
       
-      // Add timeout and better error handling
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-
-      const response = await fetch(apiUrl, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          // Add authorization header if needed
-          // 'Authorization': `Bearer ${user.token}`,
-        },
-        signal: controller.signal
-      });
-
-      clearTimeout(timeoutId);
-
-      console.log('📡 Response status:', response.status);
-      console.log('📡 Response headers:', response.headers);
-
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('❌ API Error Response:', errorText);
-        
-        let errorMessage = 'Failed to fetch billing data';
-        switch (response.status) {
-          case 401:
-            errorMessage = 'Authentication required. Please login again.';
-            break;
-          case 403:
-            errorMessage = 'Access denied. You don\'t have permission to view this data.';
-            break;
-          case 404:
-            errorMessage = 'Billing data not found. This might be your first visit.';
-            break;
-          case 500:
-            errorMessage = 'Server error. Please try again later.';
-            break;
-          default:
-            errorMessage = `Server returned error ${response.status}: ${response.statusText}`;
-        }
-        
-        throw new Error(errorMessage);
+        throw new Error(`Failed to fetch billing data: ${response.status} ${response.statusText}`);
       }
       
       const data: BillingData = await response.json();
-      console.log('✅ Billing data received:', data);
-      
-      // Validate the response structure
-      if (!data || typeof data !== 'object') {
-        throw new Error('Invalid response format from server');
-      }
-
-      // Ensure arrays exist even if empty
-      const normalizedData: BillingData = {
-        premiumSubscriptions: Array.isArray(data.premiumSubscriptions) ? data.premiumSubscriptions : [],
-        purchases: Array.isArray(data.purchases) ? data.purchases : []
-      };
-
-      setBillingData(normalizedData);
-      console.log('✅ Billing data set successfully');
-      
+      setBillingData(data);
     } catch (err: any) {
-      console.error('❌ Error in fetchBillingData:', err);
-      
-      let errorMessage = 'Failed to fetch billing history';
-      
-      if (err.name === 'AbortError') {
-        errorMessage = 'Request timed out. Please check your connection and try again.';
-      } else if (err.message) {
-        errorMessage = err.message;
-      } else if (!navigator.onLine) {
-        errorMessage = 'No internet connection. Please check your network and try again.';
-      }
-      
-      setError(errorMessage);
-      toast.error(errorMessage);
+      setError(err.message || 'Failed to fetch billing history');
+      console.error('Error fetching billing data:', err);
+      toast.error('Failed to load billing history');
     } finally {
       setLoading(false);
-      console.log('🏁 fetchBillingData completed');
     }
   }, [user?.userid, isLoggedIn]);
 
   useEffect(() => {
-    console.log('🚀 BillingPage useEffect triggered');
-    console.log('User state:', { userid: user?.userid, isLoggedIn });
-    
-    if (isLoggedIn && user?.userid) {
-      fetchBillingData();
-    } else {
-      console.log('⏳ Waiting for authentication...');
-      setLoading(false);
-    }
-  }, [fetchBillingData, user?.userid, isLoggedIn]);
+    fetchBillingData();
+  }, [fetchBillingData]);
 
   const formatDate = (dateString: string): string => {
-    try {
-      return new Date(dateString).toLocaleDateString('en-IN', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-    } catch (error) {
-      console.error('Date formatting error:', error);
-      return 'Invalid Date';
-    }
+    return new Date(dateString).toLocaleDateString('en-IN', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
   const formatCurrency = (amount: number): string => {
-    try {
-      return `₹${amount.toLocaleString('en-IN')}`;
-    } catch (error) {
-      console.error('Currency formatting error:', error);
-      return `₹${amount}`;
-    }
+    return `₹${amount.toLocaleString('en-IN')}`;
   };
 
   const getStatusIcon = (status: string) => {
@@ -250,8 +159,8 @@ const BillingPage: React.FC = () => {
     if (!billingData?.purchases) return [];
     
     let filtered = billingData.purchases.filter(purchase => {
-      const matchesSearch = purchase.transactionId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           purchase.subscriptionType?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      const matchesSearch = purchase.transactionId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           purchase.subscriptionType.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            (purchase.paymentId && purchase.paymentId.toLowerCase().includes(searchTerm.toLowerCase()));
       
       const matchesFilter = filterStatus === 'ALL' || purchase.purchaseStatus === filterStatus;
@@ -293,13 +202,9 @@ const BillingPage: React.FC = () => {
   const handleDownloadInvoice = async (transactionId: string) => {
     try {
       toast.loading('Preparing invoice download...');
-      // Updated API endpoint with better error handling
-      const response = await fetch(`http://localhost:8080/api/premium/invoice/${transactionId}`, {
+      // Simulate API call for invoice download
+      const response = await fetch(`${apiUrl}/api/premium/invoice/${transactionId}`, {
         method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          // Add auth header if needed
-        }
       });
       
       if (response.ok) {
@@ -314,7 +219,7 @@ const BillingPage: React.FC = () => {
         window.URL.revokeObjectURL(url);
         toast.success('Invoice downloaded successfully!');
       } else {
-        throw new Error(`Failed to download invoice: ${response.status}`);
+        throw new Error('Failed to download invoice');
       }
     } catch (error) {
       console.error('Invoice download error:', error);
@@ -327,6 +232,7 @@ const BillingPage: React.FC = () => {
     toast.success(`Viewing details for transaction: ${purchase.transactionId}`);
     // You can implement a modal here or navigate to a details page
   };
+
   if (!isLoggedIn) {
     return (
       <>
@@ -377,21 +283,13 @@ const BillingPage: React.FC = () => {
             <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Error Loading Data</h2>
             <p className="text-gray-700 mb-6">{error}</p>
-            <div className="space-y-3">
-              <button
-                onClick={fetchBillingData}
-                className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all w-full justify-center"
-              >
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Retry
-              </button>
-      
-            </div>
-            <div className="mt-4 text-sm text-gray-500">
-              <p>Debug Info:</p>
-              <p>User ID: {user?.userid}</p>
-              <p>API URL: http://localhost:8080/api/premium/history/{user?.userid}</p>
-            </div>
+            <button
+              onClick={fetchBillingData}
+              className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all"
+            >
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Retry
+            </button>
           </div>
         </div>
       </>
@@ -420,15 +318,12 @@ const BillingPage: React.FC = () => {
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">Billing History</h1>
                 <p className="text-gray-600">Manage your subscriptions and view payment history</p>
               </div>
-              <div className="flex space-x-2">
-               
-                <button
-                  onClick={fetchBillingData}
-                  className="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 transition-all"
-                >
-                  <RefreshCw className="w-4 h-4" />
-                </button>
-              </div>
+              <button
+                onClick={fetchBillingData}
+                className="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 transition-all"
+              >
+                <RefreshCw className="w-4 h-4" />
+              </button>
             </div>
           </div>
 
@@ -665,6 +560,7 @@ const BillingPage: React.FC = () => {
               </div>
             )}
           </div>
+
           {/* Footer Actions */}
           <div className="mt-8 text-center">
             <div className="bg-white rounded-2xl shadow-lg p-6">
