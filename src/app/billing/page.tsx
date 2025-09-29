@@ -245,7 +245,7 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Login Required</h2>
             <p className="text-gray-700 mb-6">Please login to view your billing history</p>
             <a
-              href="/auth/login"
+              href="/login"
               className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all"
             >
               Login to Continue
@@ -576,7 +576,7 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
                   Contact Support
                 </a>
                 <a
-                  href="/premium"
+                  href="/help"
                   className="inline-flex items-center px-6 py-3 bg-white text-gray-800 font-semibold rounded-lg border border-gray-300 hover:bg-gray-50 transition-all"
                 >
                   <Crown className="w-4 h-4 mr-2" />

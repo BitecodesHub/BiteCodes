@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Eye, EyeOff, Mail, Lock, AlertCircle, LogIn, User } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, AlertCircle, LogIn, CheckCircle } from 'lucide-react';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
@@ -17,24 +17,82 @@ function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<{email?: string; password?: string}>({});
+  const [apiError, setApiError] = useState<string>('');
+  const [apiSuccess, setApiSuccess] = useState<string>('');
   const router = useRouter();
   const { login } = useAuth();
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://backend.bitecodes.com';
 
+  // Helper function to convert error messages to user-friendly format
+  const getUserFriendlyMessage = (error: any): string => {
+    // If there's a response from the server
+    if (error.response) {
+      const status = error.response.status;
+      const data = error.response.data;
+      
+      // Handle specific status codes
+      if (status === 401 || status === 403) {
+        return 'The email or password you entered is incorrect. Please try again.';
+      }
+      
+      if (status === 404) {
+        return 'No account found with this email address. Please check your email or sign up.';
+      }
+      
+      if (status === 429) {
+        return 'Too many login attempts. Please wait a few minutes and try again.';
+      }
+      
+      if (status === 500 || status === 502 || status === 503) {
+        return 'Our server is having trouble right now. Please try again in a moment.';
+      }
+      
+      // Check for specific error messages from backend
+      const message = data?.message || data?.error || '';
+      
+      if (message.toLowerCase().includes('email')) {
+        return 'Please enter a valid email address.';
+      }
+      
+      if (message.toLowerCase().includes('password')) {
+        return 'The password you entered is incorrect. Please try again.';
+      }
+      
+      if (message.toLowerCase().includes('not found') || message.toLowerCase().includes('does not exist')) {
+        return 'No account found with this email. Please check your email or sign up.';
+      }
+      
+      if (message.toLowerCase().includes('invalid credentials') || message.toLowerCase().includes('incorrect')) {
+        return 'The email or password you entered is incorrect. Please try again.';
+      }
+      
+      // Return a generic user-friendly message
+      return 'We couldn\'t sign you in. Please check your email and password and try again.';
+    }
+    
+    // Network errors
+    if (error.request) {
+      return 'Unable to connect. Please check your internet connection and try again.';
+    }
+    
+    // Other errors
+    return 'Something went wrong. Please try again.';
+  };
+
   const validateForm = () => {
     const newErrors: {email?: string; password?: string} = {};
     
     if (!email) {
-      newErrors.email = 'Email is required';
+      newErrors.email = 'Please enter your email address';
     } else if (!/\S+@\S+\.\S+/.test(email)) {
-      newErrors.email = 'Email is invalid';
+      newErrors.email = 'Please enter a valid email address';
     }
     
     if (!password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = 'Please enter your password';
     } else if (password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+      newErrors.password = 'Password must be at least 6 characters long';
     }
     
     setErrors(newErrors);
@@ -43,6 +101,10 @@ function LoginForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Clear previous messages
+    setApiError('');
+    setApiSuccess('');
     
     if (!validateForm()) return;
     
@@ -54,28 +116,37 @@ function LoginForm() {
         password
       });
       
-      console.log("📧 Regular login response:", response.data);
-      
-      // ✅ FIX: Pass the entire response.data to login function
-      login(response.data);
-      
-      toast.success('Login successful!');
-      
-      // Redirect to home page
-      setTimeout(() => {
-        router.push('/');
-      }, 1000);
+      // Check for explicit success flag
+      if (response.data.success === true && response.data.token) {
+        // Login successful
+        login(response.data);
+        setApiSuccess('Welcome back! Redirecting you now...');
+        toast.success('Login successful!');
+        
+        // Redirect to home page
+        setTimeout(() => {
+          router.push('/');
+        }, 1000);
+      } else {
+        // Handle unexpected response format
+        setApiError('We couldn\'t sign you in. Please try again.');
+        toast.error('Login failed');
+      }
       
     } catch (error: any) {
-      console.error('Login error:', error);
-      const errorMessage = error.response?.data?.message || 'Login failed. Please try again.';
-      toast.error(errorMessage);
+      const userMessage = getUserFriendlyMessage(error);
+      setApiError(userMessage);
+      toast.error(userMessage);
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleGoogleLoginSuccess = async (credentialResponse: any) => {
+    setIsLoading(true);
+    setApiError('');
+    setApiSuccess('');
+    
     try {
       // Decode the Google JWT token to extract user details
       const decoded: any = jwtDecode(credentialResponse.credential);
@@ -85,32 +156,34 @@ function LoginForm() {
         picture: decoded.picture
       });
 
-      console.log("🔍 Google login full response:", response.data);
-
-      // On Google login success:
-      if (response.data.success) {
-        // ✅ FIX: Pass the entire response.data to login function
-        // This will include purchasedCourses if present
+      // Check for explicit success flag
+      if (response.data.success === true && response.data.token) {
+        // Google login successful
         login(response.data);
-
-        toast.success('Google login successful!');
+        setApiSuccess('Welcome! Redirecting you now...');
+        toast.success('Successfully signed in with Google!');
         
         // Redirect to home page
         setTimeout(() => {
           router.push('/');
         }, 1000);
       } else {
-        toast.error(response.data.message || 'Google login failed');
+        setApiError('We couldn\'t sign you in with Google. Please try again.');
+        toast.error('Google sign-in failed');
       }
 
-    } catch (error) {
-      console.error('Google login error:', error);
-      toast.error('Google login failed: ' + (error instanceof Error ? error.message : 'Unknown error'));
+    } catch (error: any) {
+      const userMessage = getUserFriendlyMessage(error);
+      setApiError(userMessage);
+      toast.error(userMessage);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleGoogleLoginFailure = () => {
-    toast.error('Google login failed. Please try again.');
+    setApiError('Google sign-in was cancelled or failed. Please try again.');
+    toast.error('Google sign-in failed');
   };
 
   return (
@@ -124,6 +197,26 @@ function LoginForm() {
             <h1 className="text-3xl font-bold text-gray-800 mb-2">Welcome Back</h1>
             <p className="text-gray-600">Sign in to your account to continue</p>
           </div>
+
+          {/* API Error Message */}
+          {apiError && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start">
+              <AlertCircle className="w-5 h-5 text-red-600 mr-3 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm text-red-800">{apiError}</p>
+              </div>
+            </div>
+          )}
+
+          {/* API Success Message */}
+          {apiSuccess && (
+            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-start">
+              <CheckCircle className="w-5 h-5 text-green-600 mr-3 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm text-green-800">{apiSuccess}</p>
+              </div>
+            </div>
+          )}
           
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
@@ -139,8 +232,12 @@ function LoginForm() {
                   name="email"
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-2 focus:outline-none ${
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setApiError('');
+                    setErrors({...errors, email: undefined});
+                  }}
+                  className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-2 focus:outline-none text-gray-900 ${
                     errors.email 
                       ? 'border-red-500 focus:ring-red-500' 
                       : 'border-gray-300 focus:ring-indigo-500 focus:border-indigo-500'
@@ -169,8 +266,12 @@ function LoginForm() {
                   name="password"
                   type={showPassword ? "text" : "password"}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className={`block w-full pl-10 pr-10 py-3 border rounded-lg focus:ring-2 focus:outline-none ${
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setApiError('');
+                    setErrors({...errors, password: undefined});
+                  }}
+                  className={`block w-full pl-10 pr-10 py-3 border rounded-lg focus:ring-2 focus:outline-none text-gray-900 ${
                     errors.password 
                       ? 'border-red-500 focus:ring-red-500' 
                       : 'border-gray-300 focus:ring-indigo-500 focus:border-indigo-500'
@@ -221,7 +322,7 @@ function LoginForm() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-70 transition-colors"
+                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-70 disabled:cursor-not-allowed transition-colors"
               >
                 {isLoading ? (
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
