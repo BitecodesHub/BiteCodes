@@ -206,22 +206,65 @@ const Register: React.FC = () => {
       setIsSubmitting(false);
     }
   };
-
-  const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
+const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
+    setIsSubmitting(true);
     try {
       console.log("Google login success:", credentialResponse);
       
-      // You can implement Google OAuth registration here
-      // You'll need to decode the JWT token and create a user object
-      // For now, just redirect to login
-      toast.success("Google registration successful! Please login.");
-      router.push("/login");
+      // Decode the Google JWT token to extract user details
+      const base64Url = credentialResponse.credential!.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map((c) => {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      
+      const decoded: any = JSON.parse(jsonPayload);
+      
+      // Try to authenticate with Google
+      const response = await fetch(`${apiUrl}/api/auth/google-auth`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: decoded.email,
+          name: decoded.name,
+          picture: decoded.picture
+        }),
+      });
+
+      const responseData = await response.json();
+
+      if (response.ok && responseData.success && responseData.token) {
+        // Check if this was a registration or login
+        const isNewUser = responseData.message?.includes("registered") || responseData.isNewUser;
+        
+        if (isNewUser) {
+          toast.success("Welcome to Bitecodes Academy! Account created successfully.");
+        } else {
+          toast.success("Welcome back! Signed in successfully.");
+        }
+        
+        // Store the authentication data
+        localStorage.setItem('token', responseData.token);
+        localStorage.setItem('user', JSON.stringify(responseData.user));
+        
+        // Redirect to home page
+        setTimeout(() => {
+          router.push("/");
+        }, 1000);
+      } else {
+        throw new Error(responseData.message || "Google authentication failed");
+      }
     } catch (error) {
-      console.error("Google registration error:", error);
-      toast.error("Google registration failed. Please try again.");
+      console.error("Google authentication error:", error);
+      const errorMessage = error instanceof Error ? error.message : "Google authentication failed. Please try again.";
+      toast.error(errorMessage);
+      setMessage(errorMessage);
+    } finally {
+      setIsSubmitting(false);
     }
   };
-
   const handleGoogleError = () => {
     console.error("Google Login Failed");
     toast.error("Google registration failed. Please try again.");
