@@ -7,11 +7,7 @@ import { toast } from "react-hot-toast";
 import Head from "next/head";
 import Link from "next/link";
 
-interface VerifyOtpProps {
-  email?: string;
-}
-
-const VerifyOtp: React.FC<VerifyOtpProps> = () => {
+const VerifyOtp = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get("email") || "";
