@@ -14,8 +14,11 @@ import {
   Loader2 
 } from "lucide-react";
 import { toast } from "react-hot-toast";
+import { jwtDecode } from "jwt-decode";
+import axios from "axios";
 import Head from "next/head";
 import Link from "next/link";
+import { useAuth } from "../contexts/AuthContext";
 
 interface FormData {
   username: string;
@@ -34,6 +37,7 @@ interface ValidationErrors {
 
 const Register: React.FC = () => {
   const router = useRouter();
+  const { login } = useAuth();
   
   const [formData, setFormData] = useState<FormData>({
     username: "",
@@ -49,10 +53,7 @@ const Register: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
 
-  // Get API URL from environment variables
-  const apiUrl = process.env.NODE_ENV === "production"
-    ? process.env.NEXT_PUBLIC_LIVE_API
-    : process.env.NEXT_PUBLIC_LOCAL_API || "http://localhost:8080";
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://backend.bitecodes.com';
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -151,7 +152,7 @@ const Register: React.FC = () => {
         enabled: false // This matches your entity default
       };
 
-      const response = await fetch(`${apiUrl}/api/auth/register`, {
+      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -206,68 +207,67 @@ const Register: React.FC = () => {
       setIsSubmitting(false);
     }
   };
-const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
+
+  const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
     setIsSubmitting(true);
+    setMessage("");
+    
     try {
-      console.log("Google login success:", credentialResponse);
-      
       // Decode the Google JWT token to extract user details
-      const base64Url = credentialResponse.credential!.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(atob(base64).split('').map((c) => {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-      }).join(''));
+      const decoded: any = jwtDecode(credentialResponse.credential!);
       
-      const decoded: any = JSON.parse(jsonPayload);
-      
-      // Try to authenticate with Google
-      const response = await fetch(`${apiUrl}/api/auth/google-auth`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: decoded.email,
-          name: decoded.name,
-          picture: decoded.picture
-        }),
+      const response = await axios.post(`${API_BASE_URL}/api/auth/google-auth`, {
+        email: decoded.email,
+        name: decoded.name,
+        picture: decoded.picture
       });
 
-      const responseData = await response.json();
-
-      if (response.ok && responseData.success && responseData.token) {
-        // Check if this was a registration or login
-        const isNewUser = responseData.message?.includes("registered") || responseData.isNewUser;
-        
-        if (isNewUser) {
-          toast.success("Welcome to Bitecodes Academy! Account created successfully.");
-        } else {
-          toast.success("Welcome back! Signed in successfully.");
-        }
-        
-        // Store the authentication data
-        localStorage.setItem('token', responseData.token);
-        localStorage.setItem('user', JSON.stringify(responseData.user));
+      // Check for explicit success flag
+      if (response.data.success === true && response.data.token) {
+        // Google login successful
+        login(response.data);
+        setMessage('Welcome! Redirecting you now...');
+        toast.success('Successfully signed in with Google!');
         
         // Redirect to home page
         setTimeout(() => {
-          router.push("/");
+          router.push('/');
         }, 1000);
       } else {
-        throw new Error(responseData.message || "Google authentication failed");
+        setMessage('We couldn\'t sign you in with Google. Please try again.');
+        toast.error('Google sign-in failed');
       }
-    } catch (error) {
+
+    } catch (error: any) {
       console.error("Google authentication error:", error);
-      const errorMessage = error instanceof Error ? error.message : "Google authentication failed. Please try again.";
-      toast.error(errorMessage);
+      
+      let errorMessage = 'Google authentication failed. Please try again.';
+      
+      if (error.response) {
+        const status = error.response.status;
+        const data = error.response.data;
+        
+        if (status === 401 || status === 403) {
+          errorMessage = 'Unable to authenticate with Google. Please try again.';
+        } else if (status === 500 || status === 502 || status === 503) {
+          errorMessage = 'Server error. Please try again later.';
+        } else if (data?.message) {
+          errorMessage = data.message;
+        }
+      } else if (error.request) {
+        errorMessage = 'Unable to connect. Please check your internet connection.';
+      }
+      
       setMessage(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
   };
+
   const handleGoogleError = () => {
-    console.error("Google Login Failed");
-    toast.error("Google registration failed. Please try again.");
+    setMessage('Google sign-in was cancelled or failed. Please try again.');
+    toast.error('Google sign-in failed');
   };
 
   const getInputClassName = (fieldName: keyof ValidationErrors) => {
@@ -496,7 +496,7 @@ const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
                 {/* Error/Success Message */}
                 {message && (
                   <div className={`flex items-start gap-2 p-3 rounded-lg border ${
-                    message.includes("successful")
+                    message.includes("successful") || message.includes("Welcome")
                       ? "bg-green-50 text-green-700 border-green-200"
                       : "bg-red-50 text-red-700 border-red-200"
                   }`}>
@@ -521,6 +521,7 @@ const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
                   <GoogleLogin
                     onSuccess={handleGoogleSuccess}
                     onError={handleGoogleError}
+                    useOneTap
                     theme="filled_blue"
                     size="large"
                     text="signup_with"
