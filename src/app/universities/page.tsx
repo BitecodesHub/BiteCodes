@@ -72,7 +72,6 @@ const cityCoords: Record<string, string> = {
 };
 
 export default function UniversitiesPage() {
-  // Use useAuth at the top level - NOT inside useEffect
   const { user: authUser, isLoggedIn, loading: authLoading } = useAuth();
   
   const [universities, setUniversities] = useState<University[]>([]);
@@ -93,7 +92,6 @@ export default function UniversitiesPage() {
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
-  // Process university data with fallback coordinates
   const processUniversityData = (universitiesData: University[]) => {
     return universitiesData.map((uni) => {
       let cleanedMapLocation = uni.mapLocation ? String(uni.mapLocation).trim().replace(/\s+/g, ' ') : '';
@@ -111,7 +109,6 @@ export default function UniversitiesPage() {
         console.warn(`Assigned fallback for ${uni.name} in ${city}: ${cleanedMapLocation}`);
       }
 
-      // Add random student count and rating if not provided (for demo purposes)
       return { 
         ...uni, 
         mapLocation: cleanedMapLocation, 
@@ -128,7 +125,6 @@ export default function UniversitiesPage() {
         setLoading(true);
         setError(null);
 
-        // Check authentication using the authUser from useAuth (already available at top level)
         if (!isLoggedIn || !authUser) {
           setError("Please log in to view universities");
           setLoading(false);
@@ -142,9 +138,7 @@ export default function UniversitiesPage() {
         }
 
         try {
-          // Try to fetch data from API
           const response = await axios.get(`${API_BASE_URL}/api/universities`);
-          
           const universitiesData: University[] = response.data;
           const processedUniversities = processUniversityData(universitiesData);
           
@@ -197,7 +191,7 @@ export default function UniversitiesPage() {
       } else if (sortBy === 'name') {
         return sortAsc
           ? a.name.localeCompare(b.name)
-          : b.name.localeCompare(a.name);
+          : b.name.localeCompare(b.name);
       } else if (sortBy === 'established') {
         return sortAsc
           ? a.established - b.established
@@ -216,19 +210,15 @@ export default function UniversitiesPage() {
   const handlePurchaseClick = async (universitySlug: string) => {
     if (!authUser) return;
 
-    // Mark this university as "loading"
     setPurchaseLoading(prev => new Set([...prev, universitySlug]));
     
-    // Simulated delay (like processing payment)
     setTimeout(() => {
-      // Remove loading state
       setPurchaseLoading(prev => {
         const newSet = new Set(prev);
         newSet.delete(universitySlug);
         return newSet;
       });
 
-      // Update university list → mark as purchased
       setUniversities(prev => 
         prev.map(uni => 
           uni.slug === universitySlug 
@@ -243,7 +233,7 @@ export default function UniversitiesPage() {
             : uni
         )
       );
-    }, 1500); // ⏳ 1.5 seconds delay
+    }, 1500);
   };
 
   const handleSort = (option: SortOption) => {
@@ -299,7 +289,6 @@ export default function UniversitiesPage() {
     };
   }
 
-  // Show loading state while auth is loading
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
@@ -357,7 +346,7 @@ export default function UniversitiesPage() {
                 placeholder="Search universities by name, location, or exam..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-slate-900 placeholder:text-slate-500"
               />
               {searchQuery && (
                 <button
@@ -371,7 +360,7 @@ export default function UniversitiesPage() {
             <div className="flex gap-3">
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center px-4 py-3 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors transform hover:scale-105"
+                className="flex items-center px-4 py-3 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors transform hover:scale-105 text-black"
               >
                 <Filter className="w-5 h-5 mr-2" />
                 Filters
@@ -380,15 +369,23 @@ export default function UniversitiesPage() {
               <div className="flex bg-slate-100 rounded-xl p-1">
                 <button
                   onClick={() => setViewMode('grid')}
-                  className={`flex items-center px-3 py-2 rounded-lg transition-colors transform hover:scale-105 ${viewMode === 'grid' ? 'bg-white shadow-sm text-blue-600' : 'hover:bg-slate-200'}`}
+                  className={`flex items-center px-4 py-3 rounded-lg transition-colors transform hover:scale-105 ${
+                    viewMode === 'grid' ? 'bg-white shadow-sm text-blue-600' : 'hover:bg-slate-200 text-slate-700'
+                  } font-semibold`}
                 >
-                  <Grid className="w-4 h-4" />
+                  <Grid className="w-5 h-5 mr-2" />
+                  Grid View
                 </button>
                 <button
                   onClick={() => setViewMode('map')}
-                  className={`flex items-center px-3 py-2 rounded-lg transition-colors transform hover:scale-105 ${viewMode === 'map' ? 'bg-white shadow-sm text-blue-600' : 'hover:bg-slate-200'}`}
+                  className={`flex items-center px-4 py-3 rounded-lg transition-colors transform hover:scale-105 ${
+                    viewMode === 'map'
+                      ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg'
+                      : 'bg-slate-100 hover:bg-blue-100 text-blue-700'
+                  } font-semibold`}
                 >
-                  <Map className="w-4 h-4" />
+                  <Map className="w-5 h-5 mr-2" />
+                  Map View
                 </button>
               </div>
             </div>
@@ -404,7 +401,7 @@ export default function UniversitiesPage() {
                     placeholder="Filter by location..."
                     value={locationFilter}
                     onChange={(e) => setLocationFilter(e.target.value)}
-                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-slate-900 placeholder:text-slate-500"
                   />
                 </div>
                 <div>
@@ -414,7 +411,7 @@ export default function UniversitiesPage() {
                     placeholder="Filter by exam..."
                     value={examFilter}
                     onChange={(e) => setExamFilter(e.target.value)}
-                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-slate-900 placeholder:text-slate-500"
                   />
                 </div>
                 <div>
@@ -624,41 +621,41 @@ export default function UniversitiesPage() {
             })}
           </div>
         ) : (
-          <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-            <div className="p-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-blue-50">
+          <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border-2 border-blue-300">
+            <div className="p-6 border-b border-blue-200 bg-gradient-to-r from-blue-600 to-blue-800 text-white">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-2xl font-bold text-slate-800 mb-2">Interactive University Map</h2>
-                  <p className="text-slate-600">
+                  <h2 className="text-2xl font-bold mb-2">Interactive University Map</h2>
+                  <p className="text-blue-100">
                     Explore {filteredUniversities.length} universities on the map. Click markers for details or use the search to navigate.
-                    {filteredUniversities.some(u => u.mapLocation.split(',').map(c => parseFloat(c.trim())).some(isNaN) || parseFloat(u.mapLocation.split(',')[0]) === 0) && <span className="text-red-500 ml-1">⚠️ Some locations approximated</span>}
+                    {filteredUniversities.some(u => u.mapLocation.split(',').map(c => parseFloat(c.trim())).some(isNaN) || parseFloat(u.mapLocation.split(',')[0]) === 0) && <span className="text-yellow-300 ml-1">⚠️ Some locations approximated</span>}
                   </p>
                 </div>
-                <div className="flex items-center space-x-2 text-sm text-slate-500">
+                <div className="flex items-center space-x-4 text-sm text-blue-100">
                   <div className="flex items-center">
-                    <div className="w-3 h-3 bg-amber-500 rounded-full mr-1"></div>
+                    <div className="w-3 h-3 bg-amber-400 rounded-full mr-1"></div>
                     <span>Top 10</span>
                   </div>
                   <div className="flex items-center">
-                    <div className="w-3 h-3 bg-blue-500 rounded-full mr-1"></div>
+                    <div className="w-3 h-3 bg-blue-300 rounded-full mr-1"></div>
                     <span>Top 50</span>
                   </div>
                   <div className="flex items-center">
-                    <div className="w-3 h-3 bg-slate-500 rounded-full mr-1"></div>
+                    <div className="w-3 h-3 bg-slate-300 rounded-full mr-1"></div>
                     <span>Others</span>
                   </div>
                 </div>
               </div>
             </div>
-            <div className="h-[700px] relative">
+            <div className="h-[700px] relative bg-gradient-to-b from-blue-50 to-white">
               <UniversitiesMap universities={filteredUniversities} />
-              <div className="absolute top-4 right-4 z-[1000] bg-white rounded-lg shadow-md p-4 max-w-xs">
-                <h3 className="font-bold text-slate-800 mb-2">Map Guide</h3>
-                <p className="text-sm text-slate-600 mb-2">Click on any marker to see university details</p>
-                <p className="text-sm text-slate-600">Use the search box to find specific universities</p>
+              <div className="absolute top-4 right-4 z-[1000] bg-white rounded-lg shadow-lg p-5 max-w-xs border border-blue-200">
+                <h3 className="font-bold text-blue-800 mb-2 text-lg">Map Guide</h3>
+                <p className="text-sm text-slate-700 mb-2">Click on any marker to see university details.</p>
+                <p className="text-sm text-slate-700">Use the search box to find specific universities.</p>
                 <button 
                   onClick={() => setViewMode('grid')}
-                  className="mt-3 w-full text-center text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
+                  className="mt-4 w-full text-center text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg py-2 transition-colors"
                 >
                   ← Back to List View
                 </button>

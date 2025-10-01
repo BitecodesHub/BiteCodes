@@ -626,31 +626,7 @@ export default async function ExamDetailPage({ params }: { params: Promise<{ exa
           </div>
         </div>
 
-       
-        {/* Related Exams */}
-        <div className="mt-16">
-          <h2 className="text-3xl font-bold text-gray-800 mb-8">Related Entrance Exams</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-            {relatedExams.map((exam, index) => (
-              <Link 
-                href={`/entrance-exams/${exam.slug}`} 
-                key={index}
-                className="group"
-                prefetch={false}
-              >
-                <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200 group-hover:border-indigo-300 group-hover:shadow-xl transition-all h-full">
-                  <h3 className="font-bold text-lg text-gray-800 group-hover:text-indigo-700 transition-colors mb-2">{exam.name}</h3>
-                  <div className="flex items-center text-gray-600 group-hover:text-indigo-600 transition-colors">
-                    <span className="text-sm">View details</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
+      
       </div>
     </div>
   );

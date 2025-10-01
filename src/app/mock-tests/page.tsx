@@ -19,7 +19,6 @@ export const metadata: Metadata = {
   },
 };
 
-
 interface MockTest {
   id: string;
   name: string;
@@ -294,17 +293,38 @@ async function FeaturedTestsContent() {
 
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {featuredTests.map((test) => (
-          <MockTestCard key={test.id} test={test} />
-        ))}
+        {featuredTests.length > 0 ? (
+          featuredTests.map((test) => <MockTestCard key={test.id} test={test} />)
+        ) : (
+          <p className="text-center text-slate-600 col-span-full">No featured tests available.</p>
+        )}
       </div>
     );
   } catch (error) {
     console.error("FeaturedTestsContent: Error fetching mock tests:", error);
-    return null;
+    return <MockTestGridSkeleton />;
   }
 }
 
+// All Tests Content Component
+async function AllTestsContent() {
+  try {
+    const mockTests = await fetchMockTests();
+
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {mockTests.length > 0 ? (
+          mockTests.map((test) => <MockTestCard key={test.id} test={test} />)
+        ) : (
+          <p className="text-center text-slate-600 col-span-full">No tests available.</p>
+        )}
+      </div>
+    );
+  } catch (error) {
+    console.error("AllTestsContent: Error fetching mock tests:", error);
+    return <MockTestGridSkeleton />;
+  }
+}
 
 export default function MockTestsPage() {
   return (
@@ -345,7 +365,9 @@ export default function MockTestsPage() {
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-3xl font-bold text-slate-800">All Mock Tests</h2>
           </div>
-      
+          <Suspense fallback={<MockTestGridSkeleton />}>
+            <AllTestsContent />
+          </Suspense>
         </div>
       </div>
     </div>
