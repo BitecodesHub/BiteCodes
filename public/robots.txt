@@ -1,0 +1,18 @@
+# Robots.txt for Bitecodes.com
+# Optimized for SEO & Crawl Efficiency
+
+User-agent: *
+# ✅ Always allow Premium page (priority content)
+Allow: /premium
+
+# ❌ Block irrelevant or low-value sections
+Disallow: /profile
+Disallow: /tmp/
+Disallow: /cgi-bin/
+Disallow: /private/
+
+# ✅ Allow everything else
+Allow: /
+
+# 🗺️ Sitemap for fast indexing
+Sitemap: https://bitecodes.com/sitemap.xml
