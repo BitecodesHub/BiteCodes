@@ -1,8 +1,12 @@
-// components/Header.tsx
 "use client";
 import Link from 'next/link'
 import { useState, useEffect, useRef } from 'react'
-import { Menu, X, BookOpen, University, FileText, Target, User, LogIn, LogOut, Settings, Bell, CreditCard, HelpCircle, ChevronDown, Crown, Star } from 'lucide-react'
+import { 
+  Menu, X, BookOpen, Users, University, FileText, Target, 
+  User, LogIn, LogOut, Settings, Bell, CreditCard, HelpCircle, 
+  ChevronDown, Crown, Star, MessageCircle, Bookmark, Search,
+  Heart, TrendingUp
+} from 'lucide-react'
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google'
 import axios from 'axios'
 import { toast } from 'react-hot-toast'
@@ -12,11 +16,33 @@ import { useAuth } from '@/app/contexts/AuthContext';
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false)
+  const [unreadCount, setUnreadCount] = useState(0)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
   
   // Use auth context
   const { user, isLoggedIn, login, logout, isPremiumUser } = useAuth();
+
+  // Fetch unread notifications count
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      if (!isLoggedIn) return;
+
+      try {
+        const response = await axios.get(`${API_BASE_URL}/api/notifications/unread-count`, {
+          
+        });
+        setUnreadCount(response.data.unreadCount || 0);
+      } catch (error) {
+        console.error('Error fetching unread count:', error);
+      }
+    };
+
+    fetchUnreadCount();
+    // Refresh every 30 seconds
+    const interval = setInterval(fetchUnreadCount, 30000);
+    return () => clearInterval(interval);
+  }, [isLoggedIn, API_BASE_URL]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -71,6 +97,12 @@ export default function Header() {
 
   const navigation = [
     {
+      name: 'Community',
+      href: '/feed',
+      icon: Users,
+      description: 'Join discussions & connect'
+    },
+    {
       name: 'Entrance Exams',
       href: '/entrance-exams',
       icon: BookOpen,
@@ -83,30 +115,38 @@ export default function Header() {
       description: 'DAU, NFSU, NIRMA & more'
     },
     {
-      name: 'Preparation',
-      href: '/docs',
-      icon: FileText,
-      description: 'Study materials & guides'
-    },
-    {
       name: 'Mock Tests',
       href: '/mock-tests',
       icon: Target,
       description: 'Free practice tests'
     },
+    {
+      name: 'Search',
+      href: '/search',
+      icon: Search,
+      description: 'Find posts and discussions'
+    },
   ]
 
   const userMenuItems = [
     { name: 'My Profile', href: '/profile', icon: User },
+    { name: 'Bookmarks', href: '/bookmarks', icon: Bookmark },
+    { name: 'Notifications', href: '/notifications', icon: Bell, badge: unreadCount },
+    { name: 'Messages', href: '/chat', icon: MessageCircle },
     { name: 'Mock Attempts', href: '/mock-attempts', icon: BookOpen },
     { name: 'Billing', href: '/billing', icon: CreditCard },
     { name: 'Help Center', href: '/help', icon: HelpCircle },
   ]
 
+  const quickActions = [
+    { name: 'Create Post', href: '/create-post', icon: TrendingUp, description: 'Share your thoughts' },
+    { name: 'Explore Posts', href: '/feed', icon: Users, description: 'Discover community content' },
+  ]
+
   return (
     <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID'}>
       <header className="bg-white shadow-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex items-center">
@@ -138,6 +178,7 @@ export default function Header() {
             </nav>
 
             <div className="flex items-center space-x-4">
+
               {/* Premium/Upgrade Button */}
               {isLoggedIn && user ? (
                 isPremiumUser() ? (
@@ -155,6 +196,21 @@ export default function Header() {
                   </Link>
                 )
               ) : null}
+
+              {/* Notifications Bell */}
+              {isLoggedIn && user && (
+                <Link
+                  href="/notifications"
+                  className="relative p-2 text-gray-600 hover:text-blue-600 transition-colors"
+                >
+                  <Bell className="w-5 h-5" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
+                </Link>
+              )}
 
               {/* User Profile / Login */}
               <div className="relative" ref={dropdownRef}>
@@ -184,7 +240,7 @@ export default function Header() {
 
                     {/* User Dropdown Menu */}
                     {isUserDropdownOpen && (
-                      <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                      <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
                         {/* User Info */}
                         <div className="px-4 py-3 border-b border-gray-100">
                           <p className="text-sm font-medium text-gray-900">{user.name}</p>
@@ -197,17 +253,49 @@ export default function Header() {
                           )}
                         </div>
 
+                        {/* Quick Actions */}
+                        <div className="py-2 border-b border-gray-100">
+                          <div className="px-3 py-1">
+                            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+                              Quick Actions
+                            </p>
+                            <div className="space-y-1">
+                              {quickActions.map((action) => (
+                                <Link
+                                  key={action.name}
+                                  href={action.href}
+                                  className="flex items-center space-x-3 px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                                  onClick={() => setIsUserDropdownOpen(false)}
+                                >
+                                  <action.icon className="w-4 h-4" />
+                                  <div>
+                                    <div className="font-medium">{action.name}</div>
+                                    <div className="text-xs text-gray-500">{action.description}</div>
+                                  </div>
+                                </Link>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+
                         {/* Menu Items */}
                         <div className="py-2">
                           {userMenuItems.map((item) => (
                             <Link
                               key={item.name}
                               href={item.href}
-                              className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                              className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors group"
                               onClick={() => setIsUserDropdownOpen(false)}
                             >
-                              <item.icon className="w-4 h-4" />
-                              <span>{item.name}</span>
+                              <div className="flex items-center space-x-3">
+                                <item.icon className="w-4 h-4" />
+                                <span>{item.name}</span>
+                              </div>
+                              {item.badge && item.badge > 0 && (
+                                <span className="bg-red-500 text-white text-xs rounded-full px-2 py-1 min-w-5 text-center">
+                                  {item.badge > 9 ? '9+' : item.badge}
+                                </span>
+                              )}
                             </Link>
                           ))}
                           
@@ -281,6 +369,26 @@ export default function Header() {
                     <span>{item.name}</span>
                   </Link>
                 ))}
+
+                {/* Quick Actions for Mobile */}
+                {isLoggedIn && user && (
+                  <>
+                    <div className="px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wide">
+                      Quick Actions
+                    </div>
+                    {quickActions.map((action) => (
+                      <Link
+                        key={action.name}
+                        href={action.href}
+                        className="flex items-center space-x-3 px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        <action.icon className="w-5 h-5" />
+                        <span>{action.name}</span>
+                      </Link>
+                    ))}
+                  </>
+                )}
               </div>
 
               {/* Mobile Premium/User Section */}
@@ -301,6 +409,12 @@ export default function Header() {
                     <div className="ml-3">
                       <div className="text-base font-medium text-gray-800">{user.name}</div>
                       <div className="text-sm text-gray-500">{user.email}</div>
+                      {isPremiumUser() && (
+                        <div className="flex items-center space-x-1 mt-1">
+                          <Crown className="w-3 h-3 text-amber-600" />
+                          <span className="text-xs text-amber-600 font-medium">Premium Member</span>
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -320,11 +434,18 @@ export default function Header() {
                       <Link
                         key={item.name}
                         href={item.href}
-                        className="flex items-center space-x-3 px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md"
+                        className="flex items-center justify-between px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md"
                         onClick={() => setIsMenuOpen(false)}
                       >
-                        <item.icon className="w-5 h-5" />
-                        <span>{item.name}</span>
+                        <div className="flex items-center space-x-3">
+                          <item.icon className="w-5 h-5" />
+                          <span>{item.name}</span>
+                        </div>
+                        {item.badge && item.badge > 0 && (
+                          <span className="bg-red-500 text-white text-xs rounded-full px-2 py-1 min-w-5 text-center">
+                            {item.badge > 9 ? '9+' : item.badge}
+                          </span>
+                        )}
                       </Link>
                     ))}
 

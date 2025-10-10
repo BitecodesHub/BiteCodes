@@ -286,6 +286,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isLoggedIn, 
         loading, 
         login, 
+        
         logout, 
         updatePremiumStatus, 
         isPremiumUser,

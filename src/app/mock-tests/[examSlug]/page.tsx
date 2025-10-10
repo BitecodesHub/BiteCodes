@@ -409,14 +409,9 @@ if (storedUser) {
 
   const userId = userData?.id || userData?.userid || null;
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
-  const authToken = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
   const axiosInstance = axios.create({
-    baseURL: API_BASE_URL,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(authToken && { Authorization: `Bearer ${authToken}` }),
-    },
+    baseURL: API_BASE_URL
   });
 
   // Fetch attempt result if attemptId is provided

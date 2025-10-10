@@ -103,10 +103,7 @@ export interface PremiumStatusResponse {
 
 export class PremiumAPI {
   private static getAuthHeaders() {
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('token');
-      return token ? { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
-    }
+
     return { 'Content-Type': 'application/json' };
   }
 
