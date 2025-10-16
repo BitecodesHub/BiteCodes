@@ -410,7 +410,7 @@ export default function UserProfilePage() {
                 <div className="flex items-center space-x-2">
                   <h1 className="text-2xl font-bold text-gray-900">{userProfile.name}</h1>
                   {userProfile.postsCount > 50 && (
-                    <Award className="w-5 h-5 text-yellow-500" title="Active Contributor" />
+                    <Award className="w-5 h-5 text-yellow-500" />
                   )}
                 </div>
                 <p className="text-gray-600">@{userProfile.username}</p>
