@@ -41,9 +41,7 @@ export default function FollowingPage() {
         setError(null)
 
         const response = await axios.get(`${API_BASE_URL}/api/users/${userId}/following`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
+         
         })
 
         setFollowing(response.data.content || [])

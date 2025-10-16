@@ -42,9 +42,7 @@ export default function FollowersPage() {
         setError(null)
 
         const response = await axios.get(`${API_BASE_URL}/api/users/${userId}/followers`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
+          
         })
 
         setFollowers(response.data.content || [])
@@ -69,9 +67,7 @@ export default function FollowersPage() {
         })
       } else {
         await axios.post(`${API_BASE_URL}/api/users/${followerId}/follow`, {}, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
+         
         })
       }
 

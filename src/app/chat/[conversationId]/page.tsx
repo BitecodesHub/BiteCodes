@@ -85,11 +85,7 @@ export default function ChatConversationPage() {
         // Fetch messages
         const messagesResponse = await axios.get(
           `${API_BASE_URL}/api/chat/conversations/${conversationId}/messages`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`
-            }
-          }
+         
         )
 
         setMessages(messagesResponse.data.content || [])
@@ -98,11 +94,8 @@ export default function ChatConversationPage() {
         await axios.post(
           `${API_BASE_URL}/api/chat/conversations/${conversationId}/read`,
           {},
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`
-            }
-          }
+          
+          
         )
       } catch (err: any) {
         console.error('Error fetching conversation:', err)
@@ -137,11 +130,7 @@ export default function ChatConversationPage() {
           messageType: 'TEXT',
           mediaUrl: null
         },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
-        }
+        
       )
 
       setMessages(prev => [...prev, response.data])

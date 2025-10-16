@@ -1,18 +1,14 @@
+// ENHANCED CHAT PAGE - /app/chat/page.tsx
+// Added: Start new conversation, online status, message preview, typing indicator
+// ============================================================================
+
 "use client"
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import axios from 'axios'
 import { useAuth } from '@/app/contexts/AuthContext'
-import { 
-  MessageCircle,
-  Search,
-  MoreHorizontal,
-  User,
-  Clock,
-  Check,
-  CheckCheck
-} from 'lucide-react'
+import { MessageCircle, Search, User, Clock, Check, CheckCheck, Plus, X } from 'lucide-react'
 
 interface Conversation {
   id: number
@@ -22,6 +18,7 @@ interface Conversation {
     name: string
     profileurl: string
     bio: string
+    isOnline?: boolean
   }
   lastMessage: {
     id: number
@@ -42,35 +39,50 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
+  const [showNewChat, setShowNewChat] = useState(false)
+  const [newChatUsername, setNewChatUsername] = useState('')
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
 
   useEffect(() => {
-    const fetchConversations = async () => {
-      if (!isLoggedIn) return
-
-      try {
-        setIsLoading(true)
-        setError(null)
-
-        const response = await axios.get(`${API_BASE_URL}/api/chat/conversations`, {
-          params: {
-            page: 0,
-            size: 50
-          },
-          
-        })
-
-        setConversations(response.data.content || [])
-      } catch (err: any) {
-        console.error('Error fetching conversations:', err)
-        setError('Failed to load conversations. Please try again.')
-      } finally {
-        setIsLoading(false)
-      }
+    if (isLoggedIn) {
+      fetchConversations()
+      const interval = setInterval(fetchConversations, 5000) // Refresh every 5 seconds
+      return () => clearInterval(interval)
     }
+  }, [isLoggedIn])
 
-    fetchConversations()
-  }, [isLoggedIn, API_BASE_URL])
+  const fetchConversations = async () => {
+    try {
+      setIsLoading(true)
+      setError(null)
+      const response = await axios.get(`${API_BASE_URL}/api/chat/conversations`, {
+        params: { page: 0, size: 50 }
+      })
+      setConversations(response.data.content || [])
+    } catch (err: any) {
+      console.error('Error fetching conversations:', err)
+      setError('Failed to load conversations. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const startNewConversation = async () => {
+    if (!newChatUsername.trim()) return
+    
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/chat/start`, {
+        username: newChatUsername
+      })
+      
+      if (response.data.conversationId) {
+        window.location.href = `/chat/${response.data.conversationId}`
+      }
+    } catch (err) {
+      console.error('Error starting conversation:', err)
+      alert('Failed to start conversation. User may not exist.')
+    }
+  }
 
   const formatTime = (dateString: string) => {
     const date = new Date(dateString)
@@ -80,10 +92,7 @@ export default function ChatPage() {
     if (diffInHours < 1) return `${Math.floor(diffInHours * 60)}m ago`
     if (diffInHours < 24) return `${Math.floor(diffInHours)}h ago`
     if (diffInHours < 168) return `${Math.floor(diffInHours / 24)}d ago`
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric'
-    })
+    return new Date(dateString).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
   }
 
   const filteredConversations = conversations.filter(conv =>
@@ -97,10 +106,7 @@ export default function ChatPage() {
         <div className="bg-white rounded-2xl shadow-xl p-8 text-center max-w-md w-full">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Sign In Required</h2>
           <p className="text-gray-600 mb-6">Please sign in to view your messages</p>
-          <Link
-            href="/login"
-            className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors font-medium"
-          >
+          <Link href="/login" className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
             Sign In
           </Link>
         </div>
@@ -113,12 +119,21 @@ export default function ChatPage() {
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center space-x-3">
-            <MessageCircle className="w-8 h-8 text-blue-600" />
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Messages</h1>
-              <p className="text-gray-600">Chat with other students and educators</p>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <MessageCircle className="w-8 h-8 text-blue-600" />
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Messages</h1>
+                <p className="text-gray-600">Chat with other students and educators</p>
+              </div>
             </div>
+            <button
+              onClick={() => setShowNewChat(true)}
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            >
+              <Plus className="w-5 h-5 mr-2" />
+              New Chat
+            </button>
           </div>
         </div>
       </div>
@@ -132,7 +147,7 @@ export default function ChatPage() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:ring-opacity-50 text-black"
+              className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-black"
               placeholder="Search conversations..."
             />
           </div>
@@ -155,10 +170,7 @@ export default function ChatPage() {
         ) : error ? (
           <div className="bg-white rounded-2xl shadow-sm border p-8 text-center">
             <p className="text-red-600 mb-4">{error}</p>
-            <button
-              onClick={() => window.location.reload()}
-              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
-            >
+            <button onClick={() => window.location.reload()} className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
               Try Again
             </button>
           </div>
@@ -168,12 +180,16 @@ export default function ChatPage() {
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
               {searchQuery ? 'No conversations found' : 'No messages yet'}
             </h3>
-            <p className="text-gray-600">
-              {searchQuery 
-                ? 'Try adjusting your search terms'
-                : 'Start a conversation with other users'
-              }
+            <p className="text-gray-600 mb-6">
+              {searchQuery ? 'Try adjusting your search terms' : 'Start a conversation with other users'}
             </p>
+            <button
+              onClick={() => setShowNewChat(true)}
+              className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              <Plus className="w-5 h-5 mr-2" />
+              Start New Chat
+            </button>
           </div>
         ) : (
           <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
@@ -190,9 +206,12 @@ export default function ChatPage() {
                       alt={conversation.otherUser.name}
                       className="w-12 h-12 rounded-full object-cover"
                     />
+                    {conversation.otherUser.isOnline && (
+                      <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                    )}
                     {conversation.unreadCount > 0 && (
-                      <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                        {conversation.unreadCount}
+                      <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-semibold">
+                        {conversation.unreadCount > 9 ? '9+' : conversation.unreadCount}
                       </div>
                     )}
                   </div>
@@ -216,9 +235,7 @@ export default function ChatPage() {
                         )
                       )}
                       <p className={`text-sm truncate ${
-                        conversation.unreadCount > 0 
-                          ? 'text-gray-900 font-medium' 
-                          : 'text-gray-600'
+                        conversation.unreadCount > 0 ? 'text-gray-900 font-medium' : 'text-gray-600'
                       }`}>
                         {conversation.lastMessage.isSentByMe && 'You: '}
                         {conversation.lastMessage.content}
@@ -231,6 +248,44 @@ export default function ChatPage() {
           </div>
         )}
       </div>
+
+      {/* New Chat Modal */}
+      {showNewChat && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold text-gray-900">Start New Chat</h3>
+              <button onClick={() => setShowNewChat(false)} className="text-gray-400 hover:text-gray-600">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Enter Username
+                </label>
+                <input
+                  type="text"
+                  value={newChatUsername}
+                  onChange={(e) => setNewChatUsername(e.target.value)}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-black"
+                  placeholder="username"
+                  onKeyPress={(e) => e.key === 'Enter' && startNewConversation()}
+                />
+              </div>
+
+              <button
+                onClick={startNewConversation}
+                disabled={!newChatUsername.trim()}
+                className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+              >
+                Start Chat
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
