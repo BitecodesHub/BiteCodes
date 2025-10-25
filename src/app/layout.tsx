@@ -4,12 +4,11 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ProtectedRoutes from '@/components/ProtectedRoute';
 import AIChatbot from '@/components/Chatbot';
 import 'leaflet/dist/leaflet.css';
-import DisableInspectWrapper from '@/components/DisableInspectWrapper';
-import Script from 'next/script'; // Next.js Script component
+import Script from 'next/script';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -52,30 +51,42 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+// This inner component can use hooks
+function LayoutContent({ children }: { children: React.ReactNode }) {
+  const { isPremiumUser } = useAuth();
+
   return (
-    <html lang="en">
-      <head>
-        {/* Google AdSense script for Auto Ads */}
+    <>
+      {/* Only load AdSense script if user is NOT premium */}
+      {!isPremiumUser() && (
         <Script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9833740511867029"
           crossOrigin="anonymous"
         />
-        {/* Razorpay Checkout script (if still needed) */}
-        <Script src="https://checkout.razorpay.com/v1/checkout.js" />
-      </head>
+      )}
+
+      {/* Razorpay script stays loaded for everyone */}
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" />
+
+      {/* Main site layout */}
+      <Header />
+      <AIChatbot />
+      <ProtectedRoutes>
+        <main>{children}</main>
+      </ProtectedRoutes>
+      <Footer />
+    </>
+  );
+}
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
       <body className={inter.className}>
-        {/* <DisableInspectWrapper> */}
         <AuthProvider>
-          <Header />
-          <AIChatbot />
-          <ProtectedRoutes>
-            <main>{children}</main>
-          </ProtectedRoutes>
-          <Footer />
+          <LayoutContent>{children}</LayoutContent>
         </AuthProvider>
-        {/* </DisableInspectWrapper> */}
       </body>
     </html>
   );
