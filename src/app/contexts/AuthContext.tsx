@@ -28,12 +28,14 @@ export interface User {
 
 interface AuthContextType {
   user: User | null;
+  token: string | null; // Added token field
   isLoggedIn: boolean;
   loading: boolean;
   login: (response: any) => Promise<void>;
   logout: () => void;
   updatePremiumStatus: (premiumStatus: PremiumStatus) => Promise<void>;
   isPremiumUser: () => boolean;
+  getToken: () => string | null; // Optional: Method to access token
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -46,16 +48,24 @@ const getSecret = () => {
   return process.env.NEXT_PUBLIC_ENCRYPT_KEY;
 };
 
-const encrypt = async (data: object) => {
+const encrypt = async (data: object | string) => {
   const SECRET = getSecret();
-  return CryptoJS.AES.encrypt(JSON.stringify(data), SECRET).toString();
+  return CryptoJS.AES.encrypt(
+    typeof data === "string" ? data : JSON.stringify(data),
+    SECRET
+  ).toString();
 };
 
 const decrypt = async (ciphertext: string) => {
   try {
     const SECRET = getSecret();
     const bytes = CryptoJS.AES.decrypt(ciphertext, SECRET);
-    return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+    const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+    try {
+      return JSON.parse(decrypted); // Try parsing as JSON
+    } catch {
+      return decrypted; // Return as string if not JSON
+    }
   } catch (error) {
     console.error("❌ Decryption failed:", error);
     return null;
@@ -69,52 +79,72 @@ const normalizePremiumStatus = (premiumData: any): PremiumStatus => {
       isPremium: false,
       plan: null,
       expiresAt: null,
-      features: []
+      features: [],
     };
   }
 
-  // Handle both frontend and backend formats
   const isPremium = premiumData.isPremium || premiumData.hasPremium || false;
   const plan = premiumData.plan || premiumData.subscriptionType || null;
   const expiresAt = premiumData.expiresAt || premiumData.endDate || null;
-  
-  const features = isPremium ? [
-    "Unlimited Mock Tests",
-    "Advanced Analytics", 
-    "Priority Support",
-    "Exclusive Content",
-    "Download PDFs",
-    "No Ads"
-  ] : [];
+
+  const features = isPremium
+    ? [
+        "Unlimited Mock Tests",
+        "Advanced Analytics",
+        "Priority Support",
+        "Exclusive Content",
+        "Download PDFs",
+        "No Ads",
+      ]
+    : [];
 
   return {
     isPremium,
     plan,
     expiresAt,
-    features
+    features,
   };
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null); // Added token state
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // 🔁 Restore user from localStorage
-  const restoreUser = async (): Promise<User | null> => {
+  // 🔁 Restore user and token from localStorage
+  const restoreUserAndToken = async (): Promise<{ user: User | null; token: string | null }> => {
     try {
       const storedUser = localStorage.getItem("user");
-      if (!storedUser) return null;
+      const storedToken = localStorage.getItem("auth_token");
 
-      const parsed = await decrypt(storedUser);
-      if (!parsed?.userid) return null;
+      let decryptedUser: User | null = null;
+      let decryptedToken: string | null = null;
 
-      console.log("🔄 Restored user from localStorage:", parsed);
-      return parsed as User;
+      if (storedUser) {
+        decryptedUser = await decrypt(storedUser);
+        if (!decryptedUser?.userid) {
+          decryptedUser = null;
+        } else {
+          console.log("🔄 Restored user from localStorage:", decryptedUser);
+        }
+      }
+
+      if (storedToken) {
+        decryptedToken = await decrypt(storedToken);
+        if (typeof decryptedToken !== "string") {
+          decryptedToken = null;
+        } else {
+          console.log("🔄 Restored token from localStorage");
+        }
+      }
+
+      return { user: decryptedUser, token: decryptedToken };
     } catch (error) {
-      console.error("❌ Failed to restore user:", error);
+      console.error("❌ Failed to restore user or token:", error);
       localStorage.removeItem("user");
-      return null;
+      localStorage.removeItem("auth_token");
+      return { user: null, token: null };
     }
   };
 
@@ -122,20 +152,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     (async () => {
       try {
         console.log("🚀 AuthContext initializing...");
-        const restored = await restoreUser();
-        
-        if (restored) {
-          console.log("✅ User restored successfully:", restored.username);
-          setUser(restored);
+        const { user: restoredUser, token: restoredToken } = await restoreUserAndToken();
+
+        if (restoredUser && restoredToken) {
+          console.log("✅ User and token restored successfully:", restoredUser.username);
+          setUser(restoredUser);
+          setToken(restoredToken);
           setIsLoggedIn(true);
         } else {
-          console.log("ℹ️ No valid user found in localStorage");
+          console.log("ℹ️ No valid user or token found in localStorage");
           setUser(null);
+          setToken(null);
           setIsLoggedIn(false);
         }
       } catch (error) {
         console.error("❌ Auth initialization error:", error);
         setUser(null);
+        setToken(null);
         setIsLoggedIn(false);
       } finally {
         setLoading(false);
@@ -149,13 +182,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       console.log("🔍 Login function received response:", response);
 
-      // Extract user data - handle both direct response and nested structures
+      // Extract user data and token - handle both direct response and nested structures
       const userData = response.data || response;
       const userId = userData.userid || userData.id;
+      const authToken = userData.token || response.token; // Adjust based on response structure
 
       if (!userId) {
         console.error("❌ No user ID found in response:", userData);
         throw new Error("Invalid response structure - missing user ID");
+      }
+
+      if (!authToken) {
+        console.error("❌ No token found in response:", userData);
+        throw new Error("Invalid response structure - missing token");
       }
 
       // Normalize premium status from backend response
@@ -164,28 +203,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Create normalized user object
       const normalizedUser: User = {
         userid: userId,
-        username: userData.username || '',
-        email: userData.email || '',
-        name: userData.name || '',
-        profileurl: userData.profileurl || '',
-        role: userData.role || 'USER',
-        phonenum: userData.phonenum || '',
-        state: userData.state || '',
-        premiumStatus
+        username: userData.username || "",
+        email: userData.email || "",
+        name: userData.name || "",
+        profileurl: userData.profileurl || "",
+        role: userData.role || "USER",
+        phonenum: userData.phonenum || "",
+        state: userData.state || "",
+        premiumStatus,
       };
 
       console.log("✅ Normalized user object:", normalizedUser);
 
-      // Encrypt and store user data
-      const ciphertext = await encrypt(normalizedUser);
-      localStorage.setItem("user", ciphertext);
-      
+      // Encrypt and store user data and token
+      const userCiphertext = await encrypt(normalizedUser);
+      const tokenCiphertext = await encrypt(authToken);
+      localStorage.setItem("user", userCiphertext);
+      localStorage.setItem("auth_token", tokenCiphertext);
+
       // Update state
       setUser(normalizedUser);
+      setToken(authToken);
       setIsLoggedIn(true);
 
       console.log("🎉 Login successful for user:", normalizedUser.username);
-
     } catch (error) {
       console.error("❌ Login error:", error);
       logout();
@@ -197,7 +238,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = () => {
     console.log("🚪 Logging out user...");
     localStorage.removeItem("user");
+    localStorage.removeItem("auth_token"); // Remove token
     setUser(null);
+    setToken(null); // Clear token state
     setIsLoggedIn(false);
     console.log("✅ Logout complete");
   };
@@ -210,17 +253,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
-      const updatedUser: User = { 
-        ...user, 
-        premiumStatus: normalizePremiumStatus(premiumStatus) 
+      const updatedUser: User = {
+        ...user,
+        premiumStatus: normalizePremiumStatus(premiumStatus),
       };
-      
+
       setUser(updatedUser);
-      
+
       // Update localStorage
       const ciphertext = await encrypt(updatedUser);
       localStorage.setItem("user", ciphertext);
-      
+
       console.log("✅ Premium status updated:", updatedUser.premiumStatus);
     } catch (error) {
       console.error("❌ Failed to update premium status:", error);
@@ -234,7 +277,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     const { isPremium, expiresAt } = user.premiumStatus;
-    
+
     if (!isPremium) {
       return false;
     }
@@ -249,47 +292,53 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (isExpired) {
       console.log("⚠️ Premium subscription has expired");
     }
-    
+
     return !isExpired;
   };
 
-  // Auto-logout if premium expired (optional - you might not want this)
+  // 🔑 Get token (optional, for components to access token)
+  const getToken = (): string | null => {
+    return token;
+  };
+
+  // Auto-logout if premium expired (optional)
   useEffect(() => {
     if (!user?.premiumStatus?.expiresAt) return;
-    
+
     const expiry = new Date(user.premiumStatus.expiresAt).getTime();
     const now = Date.now();
-    
+
     if (expiry < now) {
       console.log("⚠️ Premium expired, but keeping user logged in");
-      // Note: Not auto-logging out, just premium features will be disabled
     }
   }, [user]);
 
   // Debug logging for development
   useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development") {
       console.log("🔍 AuthContext State:", {
         isLoggedIn,
         hasUser: !!user,
         username: user?.username,
         isPremium: isPremiumUser(),
-        loading
+        hasToken: !!token,
+        loading,
       });
     }
-  }, [user, isLoggedIn, loading]);
+  }, [user, token, isLoggedIn, loading]);
 
   return (
     <AuthContext.Provider
-      value={{ 
-        user, 
-        isLoggedIn, 
-        loading, 
-        login, 
-        
-        logout, 
-        updatePremiumStatus, 
+      value={{
+        user,
+        token, // Expose token
+        isLoggedIn,
+        loading,
+        login,
+        logout,
+        updatePremiumStatus,
         isPremiumUser,
+        getToken, // Expose getToken method
       }}
     >
       {children}
