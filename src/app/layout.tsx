@@ -50,21 +50,21 @@ export const metadata: Metadata = {
     icon: '/favicon.ico',
   },
 };
-
+// const { isPremiumUser } = useAuth();
 // This inner component can use hooks
 function LayoutContent({ children }: { children: React.ReactNode }) {
-  const { isPremiumUser } = useAuth();
+  
 
   return (
     <>
       {/* Only load AdSense script if user is NOT premium */}
-      {!isPremiumUser() && (
+      {/* {!isPremiumUser() && ( */}
         <Script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9833740511867029"
           crossOrigin="anonymous"
         />
-      )}
+      {/* )} */}
 
       {/* Razorpay script stays loaded for everyone */}
       <Script src="https://checkout.razorpay.com/v1/checkout.js" />
