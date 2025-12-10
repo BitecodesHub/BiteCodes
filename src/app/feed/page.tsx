@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation"; // Import useRouter for redirects
 import axios from "axios";
-import { useAuth } from "@/app/contexts/AuthContext";
+import { useAuth } from "../contexts/AuthContext";
 import {
   MessageCircle,
   Heart,

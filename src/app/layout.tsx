@@ -2,13 +2,14 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
-import ProtectedRoutes from '@/components/ProtectedRoute';
-import AIChatbot from '@/components/Chatbot';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import ProtectedRoutes from '../components/ProtectedRoute';
+import AIChatbot from '../components/Chatbot';
 import 'leaflet/dist/leaflet.css';
 import Script from 'next/script';
+import { AuthProvider } from './contexts/AuthContext';
+
 
 const inter = Inter({ subsets: ['latin'] });
 

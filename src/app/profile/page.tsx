@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import axios from 'axios'
 import { toast } from 'react-hot-toast'
-import { useAuth } from '@/app/contexts/AuthContext' // Import useAuth
+import { useAuth } from '../contexts/AuthContext' // Import useAuth
 import { 
   User, 
   Loader2, 

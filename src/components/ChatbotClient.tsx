@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, MessageCircle, X, Minimize2, Maximize2, Bot, User, Sparkles, Trash2, Crown, Loader2 } from 'lucide-react';
-import { useAuth } from '@/app/contexts/AuthContext';
+import { useAuth } from '../app/contexts/AuthContext';
 import Link from 'next/link';
 
 interface Message {

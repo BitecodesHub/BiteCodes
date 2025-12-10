@@ -11,7 +11,7 @@ import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google'
 import axios from 'axios'
 import { toast } from 'react-hot-toast'
 import { jwtDecode } from 'jwt-decode'
-import { useAuth } from '@/app/contexts/AuthContext';
+import { useAuth } from '../app/contexts/AuthContext';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)

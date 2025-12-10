@@ -1,9 +1,9 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/app/contexts/AuthContext';
-import ProtectedRoutes from '@/components/ProtectedRoute';
+import { useAuth } from "../../contexts/AuthContext";
+import ProtectedRoutes from '../../../components/ProtectedRoute';
 import { Crown, Calendar, CreditCard, Download, Users, Star, AlertCircle, CheckCircle, Clock, RefreshCw, ArrowLeft } from 'lucide-react';
-import { PremiumAPI, usePremiumStatus, Purchase, Premium } from '@/app/utils/premiumApi';
+import { PremiumAPI, usePremiumStatus, Purchase, Premium } from '../../utils/premiumApi';
 import { toast } from 'react-hot-toast';
 import Link from 'next/link';
 

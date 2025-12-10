@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { useAuth } from "@/app/contexts/AuthContext";
+import { useAuth } from "../contexts/AuthContext";
 import { MessageCircle, Search, User, Clock, Check, CheckCheck, X } from "lucide-react";
 
 interface Conversation {

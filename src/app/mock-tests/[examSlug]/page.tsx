@@ -10,7 +10,7 @@ import axios from 'axios';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Confetti from 'react-confetti';
 import { toast, Toaster } from 'react-hot-toast';
-import { useAuth } from '@/app/contexts/AuthContext';
+import { useAuth } from "../../contexts/AuthContext";
 
 // Types
 interface ExamQuestion {

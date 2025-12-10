@@ -1,10 +1,10 @@
 "use client";
 import React, { useState, useEffect, useCallback } from 'react';
 import Head from 'next/head';
-import { useAuth } from '@/app/contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { Check, Star, Crown, Zap, Shield, Clock, Gift, AlertCircle, Loader2, X } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { PremiumAPI, PremiumPricing, CouponValidationResponse, CreateOrderResponse, PaymentVerificationResponse } from '@/app/utils/premiumApi';
+import { PremiumAPI, PremiumPricing, CouponValidationResponse, CreateOrderResponse, PaymentVerificationResponse } from '../utils/premiumApi';
 
 interface SubscriptionPlan {
   type: string;

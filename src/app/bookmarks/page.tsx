@@ -8,7 +8,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import axios from 'axios'
-import { useAuth } from '@/app/contexts/AuthContext'
+import { useAuth } from '../contexts/AuthContext'
 import { Bookmark, Heart, MessageCircle, Eye, Search, Filter, Download, Trash2, X } from 'lucide-react'
 
 interface Post {

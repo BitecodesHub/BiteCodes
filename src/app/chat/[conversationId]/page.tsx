@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
-import { useAuth } from "@/app/contexts/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
 import { ArrowLeft, Send, Paperclip, MoreHorizontal, User } from "lucide-react";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";

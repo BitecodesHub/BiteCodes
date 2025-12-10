@@ -13,12 +13,11 @@ import {
   Loader2,
   Navigation,
 } from "lucide-react"
-import BuyButton from "@/components/BuyButton"
 import dynamic from "next/dynamic"
-import { useAuth } from "@/app/contexts/AuthContext"
+import { useAuth } from "../../contexts/AuthContext"
 
 // Dynamically import the map component to avoid SSR issues
-const MapComponent = dynamic(() => import("@/components/MapComponent"), {
+const MapComponent = dynamic(() => import("../../../components/MapComponent"), {
   ssr: false,
   loading: () => (
     <div className="h-64 bg-gray-200 rounded-lg flex items-center justify-center">

@@ -11,7 +11,7 @@ import axios from "axios";
 import dynamic from "next/dynamic";
 import { useAuth } from "../contexts/AuthContext";
 
-const UniversitiesMap = dynamic(() => import("@/components/UniversitiesMap"), {
+const UniversitiesMap = dynamic(() => import("../../components/UniversitiesMap"), {
   ssr: false,
   loading: () => (
     <div className="h-[700px] bg-gradient-to-br from-blue-50 to-slate-100 rounded-2xl flex items-center justify-center shadow-md">

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { useAuth } from "@/app/contexts/AuthContext";
+import { useAuth } from "../contexts/AuthContext";
 import {
   ArrowLeft,
   Send,

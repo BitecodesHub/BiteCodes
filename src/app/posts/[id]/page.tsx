@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import axios from 'axios'
-import { useAuth } from '@/app/contexts/AuthContext'
+import { useAuth } from "../../contexts/AuthContext";
 import {
   ArrowLeft,
   Heart,

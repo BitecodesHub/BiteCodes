@@ -1,6 +1,6 @@
 // src/app/page.tsx (Server Component)
 import { Metadata } from 'next';
-import HomeClient from '@/components/HomeClient';
+import HomeClient from '../components/HomeClient';
 
 export const metadata: Metadata = {
   title: 'Bitecodes Academy | Entrance Exams, Universities, Preparation Guides & Mock Tests',

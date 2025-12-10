@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useCallback } from 'react';
 import Head from 'next/head';
-import { useAuth } from '@/app/contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { 
   CreditCard, 
   Calendar, 

@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { useAuth } from "@/app/contexts/AuthContext";
+import { useAuth } from "../app/contexts/AuthContext";
 import { Loader2 } from "lucide-react";
 
 const authProtectedPaths: string[] = [

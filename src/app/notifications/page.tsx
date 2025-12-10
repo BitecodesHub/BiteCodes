@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import axios from 'axios'
-import { useAuth } from '@/app/contexts/AuthContext'
+import { useAuth } from '../contexts/AuthContext'
 import { 
   Bell,
   Heart,
