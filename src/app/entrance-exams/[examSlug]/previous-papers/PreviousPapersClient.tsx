@@ -608,48 +608,19 @@ export default function PreviousPapersClient({ examSlug, papers = [] }: Props) {
     {
       id: '1',
       examSlug: examSlug,
-      year: 2023,
-      pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+      year: 2025,
+      pdfUrl: 'https://drive.google.com/file/d/1PHnlDYnfo9jaOyIMF_qeveevPvAmU7bQ/view?usp=sharing',
       difficulty: 'medium',
-      notes: 'Important topics: Data Structures, Algorithms, Database Management',
+      notes: '2025 Sample paper',
       attemptedBy: 1250,
       topScore: 95,
       totalQuestions: 100,
       duration: '3 hours',
       maxMarks: 100,
       tags: ['Data Structures', 'Algorithms', 'DBMS'],
-      fileSize: '2.4 MB'
+      fileSize: '903 kb'
     },
-    {
-      id: '2',
-      examSlug: examSlug,
-      year: 2022,
-      pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-      difficulty: 'hard',
-      notes: 'Focus on advanced topics and problem-solving',
-      attemptedBy: 980,
-      topScore: 88,
-      totalQuestions: 90,
-      duration: '3 hours',
-      maxMarks: 90,
-      tags: ['Advanced Programming', 'System Design'],
-      fileSize: '3.1 MB'
-    },
-    {
-      id: '3',
-      examSlug: examSlug,
-      year: 2021,
-      pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-      difficulty: 'easy',
-      notes: 'Good for beginners, covers basic concepts',
-      attemptedBy: 1500,
-      topScore: 98,
-      totalQuestions: 80,
-      duration: '2.5 hours',
-      maxMarks: 80,
-      tags: ['Basics', 'Fundamentals'],
-      fileSize: '1.8 MB'
-    }
+    
   ]
 
   const filteredPapers = samplePapers
