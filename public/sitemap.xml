@@ -9,9 +9,8 @@
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
-  <!-- Premium page -->
 <url>
-    <loc>https://bitecodes.com/premium</loc>
+    <loc>https://bitecodes.com/donate</loc>
     <lastmod>2025-09-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
@@ -89,19 +88,19 @@
     <loc>https://bitecodes.com/mock-tests</loc>
     <lastmod>2025-08-23</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.9</priority>
   </url>
   <url>
     <loc>https://bitecodes.com/mock-tests/DAU</loc>
     <lastmod>2025-08-23</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.9</priority>
   </url>
   <url>
     <loc>https://bitecodes.com/mock-tests/NIRMA</loc>
     <lastmod>2025-08-23</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.9</priority>
   </url>
   <url>
     <loc>https://bitecodes.com/mock-tests/NFSU</loc>

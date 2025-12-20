@@ -6,14 +6,17 @@ import { useAuth } from "../app/contexts/AuthContext";
 import { Loader2 } from "lucide-react";
 
 const authProtectedPaths: string[] = [
+  "/donations",
+  "/donate",
   "/profile",
   "/mock-attempts",
+   "/mock-tests",
+  "/previous-year-papers",
+  "/study-material",
 ];
 
 const premiumProtectedPaths: string[] = [
-  "/mock-tests",
-  "/previous-year-papers",
-  "/study-material",
+ 
 ];
 
 export default function ProtectedRoutes({ children }: { children: React.ReactNode }) {
@@ -33,10 +36,11 @@ export default function ProtectedRoutes({ children }: { children: React.ReactNod
     } else if (needsPremium && !isLoggedIn) {
       console.log(`🔒 Redirecting to /login from ${pathname} (not authenticated, premium route)`);
       router.push("/login");
-    } else if (needsPremium && !isPremiumUser()) {
-      console.log(`💎 Redirecting to /premium from ${pathname} (not premium)`);
-      router.push("/premium");
-    }
+    } 
+    // else if (needsPremium && !isPremiumUser()) {
+    //   console.log(`💎 Redirecting to /premium from ${pathname} (not premium)`);
+    //   router.push("/premium");
+    // }
   }, [pathname, isLoggedIn, isPremiumUser, loading, router]);
 
   if (loading) {

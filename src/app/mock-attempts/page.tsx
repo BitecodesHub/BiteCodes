@@ -1166,7 +1166,7 @@ export default function EnhancedMockAttemptsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 py-8 sm:py-12 px-4 sm:px-6">
       <div className="max-w-7xl mx-auto">
-        {user.premiumStatus?.isPremium && (
+        {/* {user.premiumStatus?.isPremium && (
           <div className="mb-6 text-center">
             <p className="text-sm sm:text-base text-purple-600 font-semibold">
               Premium User: {user.premiumStatus.plan} (Expires:{" "}
@@ -1176,7 +1176,7 @@ export default function EnhancedMockAttemptsPage() {
               )
             </p>
           </div>
-        )}
+        )} */}
 
         {analytics && <UserAnalyticsSection analytics={analytics} />}
 

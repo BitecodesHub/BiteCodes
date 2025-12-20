@@ -2,8 +2,8 @@
 # Optimized for SEO & Crawl Efficiency
 
 User-agent: *
-# ✅ Always allow Premium page (priority content)
-Allow: /premium
+# ✅ Always allow Donate page (priority content)
+Allow: /donate
 
 # ❌ Block irrelevant or low-value sections
 Disallow: /profile

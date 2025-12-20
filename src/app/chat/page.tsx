@@ -87,6 +87,7 @@ export default function ChatPage() {
     try {
       await axios.delete(`${API_BASE_URL}/api/chat/conversations/${conversationId}`, {
         headers: { Authorization: `Bearer ${token}` },
+        
       });
       setConversations((prev) => prev.filter((conv) => conv.id !== conversationId));
       alert("Conversation deleted successfully!");

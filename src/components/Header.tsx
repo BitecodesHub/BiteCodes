@@ -79,6 +79,7 @@ export default function Header() {
       } else {
         toast.error(response.data.message || 'Google login failed');
       }
+      
 
     } catch (error) {
       toast.error('Google login failed: ' + (error instanceof Error ? error.message : 'Unknown error'))
@@ -121,20 +122,21 @@ export default function Header() {
       description: 'Free practice tests'
     },
     {
-      name: 'Search',
-      href: '/search',
-      icon: Search,
-      description: 'Find posts and discussions'
+      name: 'Donate',
+      href: '/donate',
+      icon: Heart,
+      description: 'Donate for a good cause'
     },
   ]
 
   const userMenuItems = [
     { name: 'My Profile', href: '/profile', icon: User },
-    { name: 'Bookmarks', href: '/bookmarks', icon: Bookmark },
-    { name: 'Notifications', href: '/notifications', icon: Bell, badge: unreadCount },
-    { name: 'Messages', href: '/chat', icon: MessageCircle },
+    // { name: 'Bookmarks', href: '/bookmarks', icon: Bookmark },
+    // { name: 'Notifications', href: '/notifications', icon: Bell, badge: unreadCount },
+    // { name: 'Messages', href: '/chat', icon: MessageCircle },
     { name: 'Mock Attempts', href: '/mock-attempts', icon: BookOpen },
-    { name: 'Billing', href: '/billing', icon: CreditCard },
+     { name: 'My Donations', href: '/donations', icon: Heart },
+    // { name: 'Billing', href: '/billing', icon: CreditCard },
     { name: 'Help Center', href: '/help', icon: HelpCircle },
   ]
 
@@ -180,7 +182,7 @@ export default function Header() {
             <div className="flex items-center space-x-4">
 
               {/* Premium/Upgrade Button */}
-              {isLoggedIn && user ? (
+              {/* {isLoggedIn && user ? (
                 isPremiumUser() ? (
                   <div className="hidden md:flex items-center space-x-2 bg-gradient-to-r from-amber-50 to-orange-50 px-3 py-2 rounded-full border border-amber-200">
                     <Crown className="w-4 h-4 text-amber-600" />
@@ -195,9 +197,9 @@ export default function Header() {
                     <span>Upgrade</span>
                   </Link>
                 )
-              ) : null}
+              ) : null} */}
 
-              {/* Notifications Bell */}
+              {/* Notifications Bell
               {isLoggedIn && user && (
                 <Link
                   href="/notifications"
@@ -210,7 +212,7 @@ export default function Header() {
                     </span>
                   )}
                 </Link>
-              )}
+              )} */}
 
               {/* User Profile / Login */}
               <div className="relative" ref={dropdownRef}>
@@ -245,12 +247,12 @@ export default function Header() {
                         <div className="px-4 py-3 border-b border-gray-100">
                           <p className="text-sm font-medium text-gray-900">{user.name}</p>
                           <p className="text-sm text-gray-500 truncate">{user.email}</p>
-                          {isPremiumUser() && (
+                          {/* {isPremiumUser() && (
                             <div className="mt-2 flex items-center space-x-1">
                               <Crown className="w-3 h-3 text-amber-600" />
                               <span className="text-xs text-amber-600 font-medium">Premium Member</span>
                             </div>
-                          )}
+                          )} */}
                         </div>
 
                         {/* Quick Actions */}
@@ -299,7 +301,7 @@ export default function Header() {
                             </Link>
                           ))}
                           
-                          {isPremiumUser() && (
+                          {/* {isPremiumUser() && (
                             <Link
                               href="/premium/manage"
                               className="flex items-center space-x-3 px-4 py-2 text-sm text-amber-700 hover:bg-amber-50 transition-colors"
@@ -308,7 +310,7 @@ export default function Header() {
                               <Crown className="w-4 h-4" />
                               <span>Manage Premium</span>
                             </Link>
-                          )}
+                          )} */}
                         </div>
 
                         {/* Logout */}
@@ -409,16 +411,16 @@ export default function Header() {
                     <div className="ml-3">
                       <div className="text-base font-medium text-gray-800">{user.name}</div>
                       <div className="text-sm text-gray-500">{user.email}</div>
-                      {isPremiumUser() && (
+                      {/* {isPremiumUser() && (
                         <div className="flex items-center space-x-1 mt-1">
                           <Crown className="w-3 h-3 text-amber-600" />
                           <span className="text-xs text-amber-600 font-medium">Premium Member</span>
                         </div>
-                      )}
+                      )} */}
                     </div>
                   </div>
 
-                  {!isPremiumUser() && (
+                  {/* {!isPremiumUser() && (
                     <Link
                       href="/premium"
                       className="mx-3 mb-3 flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 font-medium"
@@ -427,7 +429,7 @@ export default function Header() {
                       <Star className="w-4 h-4" />
                       <span>Upgrade to Premium</span>
                     </Link>
-                  )}
+                  )} */}
 
                   <div className="space-y-1">
                     {userMenuItems.map((item) => (
@@ -449,7 +451,7 @@ export default function Header() {
                       </Link>
                     ))}
 
-                    {isPremiumUser() && (
+                    {/* {isPremiumUser() && (
                       <Link
                         href="/premium/manage"
                         className="flex items-center space-x-3 px-3 py-2 text-base font-medium text-amber-700 hover:text-amber-900 hover:bg-amber-50 rounded-md"
@@ -458,7 +460,7 @@ export default function Header() {
                         <Crown className="w-5 h-5" />
                         <span>Manage Premium</span>
                       </Link>
-                    )}
+                    )} */}
 
                     <button
                       onClick={handleLogout}
