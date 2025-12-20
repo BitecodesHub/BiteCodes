@@ -293,11 +293,11 @@ export default function Header() {
                                 <item.icon className="w-4 h-4" />
                                 <span>{item.name}</span>
                               </div>
-                              {item.badge && item.badge > 0 && (
+                              {/* {item.badge && item.badge > 0 && (
                                 <span className="bg-red-500 text-white text-xs rounded-full px-2 py-1 min-w-5 text-center">
                                   {item.badge > 9 ? '9+' : item.badge}
                                 </span>
-                              )}
+                              )} */}
                             </Link>
                           ))}
                           
@@ -443,11 +443,11 @@ export default function Header() {
                           <item.icon className="w-5 h-5" />
                           <span>{item.name}</span>
                         </div>
-                        {item.badge && item.badge > 0 && (
+                        {/* {item.badge && item.badge > 0 && (
                           <span className="bg-red-500 text-white text-xs rounded-full px-2 py-1 min-w-5 text-center">
                             {item.badge > 9 ? '9+' : item.badge}
                           </span>
-                        )}
+                        )} */}
                       </Link>
                     ))}
 
