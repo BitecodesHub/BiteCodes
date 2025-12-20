@@ -396,7 +396,6 @@ export default function EnhancedContactForm() {
                       <select name="inquiryType" value={formData.inquiryType} onChange={handleInputChange} required disabled={status === "sending"} className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-gray-900 bg-white/80 transition-all appearance-none">
                         <option value="">Select Inquiry Type</option>
                         <option value="Mock Tests">AI Mock Tests</option>
-                        <option value="Premium Plans">Premium Subscription</option>
                         <option value="Enterprise">Enterprise Solutions</option>
                         <option value="Mentorship">Mentorship Programs</option>
                         <option value="Technical Support">Technical Support</option>
@@ -468,7 +467,7 @@ export default function EnhancedContactForm() {
                   <div className="flex items-center justify-center space-x-6 text-sm text-gray-600">
                     <div className="flex items-center"><Shield className="w-4 h-4 mr-2 text-green-500" /><span>SSL Secured</span></div>
                     <div className="flex items-center"><Clock className="w-4 h-4 mr-2 text-blue-500" /><span>24hr Response</span></div>
-                    <div className="flex items-center"><Star className="w-4 h-4 mr-2 text-yellow-500" /><span>Premium Support</span></div>
+                    <div className="flex items-center"><Star className="w-4 h-4 mr-2 text-yellow-500" /><span>Best Support</span></div>
                   </div>
                 </div>
               </div>
