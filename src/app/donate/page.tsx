@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Loader2, Heart, Sparkles, Users, BookOpen, Upload, Camera, TrendingUp, Award, Clock } from "lucide-react";
+import { Loader2, Heart, Sparkles, Users, BookOpen, Upload, Camera, TrendingUp, Award, Clock, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -42,9 +42,12 @@ export default function DonatePage() {
     message: "",
   });
 
+  const [showThankYouModal, setShowThankYouModal] = useState(false);
+  const [donationId, setDonationId] = useState<string | null>(null);
+
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
-    const { user, getToken } = useAuth();
+  const { user, getToken } = useAuth();
 
   useEffect(() => {
     setMounted(true);
@@ -178,29 +181,27 @@ export default function DonatePage() {
 
             const verifyData = await verifyRes.json();
 
-            alert("❤️ Thank you for your generous donation! Your support helps us keep education free for everyone.");
-            
-            if (verifyData.donationId) {
-              const downloadReceipt = confirm("Would you like to download your receipt?");
-              if (downloadReceipt) {
-                window.open(`${API_BASE_URL}/api/donations/receipt/${verifyData.donationId}`, '_blank');
-              }
-            }
-            
+            // show prettier modal instead of simple alert
+            setDonationId(verifyData.donationId || null);
+            setShowThankYouModal(true);
+
             setForm({ name: "", email: "", amount: "", message: "" });
             setPhotoFile(null);
             setPhotoPreview(null);
-            
+
             fetchStats();
             fetchRecentDonors();
             fetchTopDonors();
-            
+
             if (token) {
+              // small delay to allow modal to show; do not rely on background tasks
               setTimeout(() => router.push('/donations'), 2000);
             }
           } catch (error) {
             console.error("Verification error:", error);
             alert("Payment successful but verification failed. Please contact support.");
+          } finally {
+            setLoading(false);
           }
         },
         prefill: { name: form.name, email: form.email },
@@ -214,10 +215,10 @@ export default function DonatePage() {
 
       const rzp = new window.Razorpay(options);
       rzp.on('payment.failed', function (response: any) {
-        alert("Payment failed: " + response.error.description);
+        alert("Payment failed: " + (response?.error?.description || "Unknown error"));
         setLoading(false);
       });
-      
+
       rzp.open();
     } catch (err: any) {
       console.error("Donation error:", err);
@@ -238,7 +239,7 @@ export default function DonatePage() {
     const date = new Date(dateString);
     const now = new Date();
     const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
-    
+
     if (diffInHours < 1) return `${Math.floor(diffInHours * 60)}m ago`;
     if (diffInHours < 24) return `${Math.floor(diffInHours)}h ago`;
     if (diffInHours < 168) return `${Math.floor(diffInHours / 24)}d ago`;
@@ -253,14 +254,14 @@ export default function DonatePage() {
         {/* Header */}
         <div className="text-center mb-12">
           <div className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full mb-6 animate-pulse">
-              <Heart className="text-white w-12 h-12 fill-current" />
+            <div className="inline-flex items-center justify-center w-28 h-28 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full mb-6 shadow-2xl">
+              <Heart className="text-white w-14 h-14 fill-current" />
             </div>
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent mb-4">
+            <h1 className="text-5xl font-extrabold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent mb-4">
               Support Our Mission
             </h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Help us provide quality education completely free of charge
+            <p className="text-xl text-gray-700 max-w-2xl mx-auto">
+              Help us provide high-quality education — accessible to everyone.
             </p>
           </div>
         </div>
@@ -278,7 +279,7 @@ export default function DonatePage() {
               <p className="text-3xl font-bold text-gray-900">{formatCurrency(stats.totalAmount)}</p>
               <p className="text-sm text-gray-600 mt-1">Raised so far</p>
             </div>
-            
+
             <div className="bg-white rounded-2xl shadow-lg p-6 border-t-4 border-green-600">
               <div className="flex items-center justify-between mb-2">
                 <Heart className="w-8 h-8 text-green-600" />
@@ -287,7 +288,7 @@ export default function DonatePage() {
               <p className="text-3xl font-bold text-gray-900">{stats.totalDonations}</p>
               <p className="text-sm text-gray-600 mt-1">Contributions</p>
             </div>
-            
+
             <div className="bg-white rounded-2xl shadow-lg p-6 border-t-4 border-purple-600">
               <div className="flex items-center justify-between mb-2">
                 <Users className="w-8 h-8 text-purple-600" />
@@ -296,7 +297,7 @@ export default function DonatePage() {
               <p className="text-3xl font-bold text-gray-900">{stats.totalDonors}</p>
               <p className="text-sm text-gray-600 mt-1">Supporters</p>
             </div>
-            
+
             <div className="bg-white rounded-2xl shadow-lg p-6 border-t-4 border-orange-600">
               <div className="flex items-center justify-between mb-2">
                 <Award className="w-8 h-8 text-orange-600" />
@@ -320,8 +321,7 @@ export default function DonatePage() {
                   <div>
                     <h3 className="font-semibold text-blue-900 mb-2">Free Education for All</h3>
                     <p className="text-blue-800 text-sm leading-relaxed">
-                      We provide quality education and resources completely free of charge. 
-                      Your generous donation helps us keep our platform accessible to everyone.
+                      We provide education and resources free of charge — your donation keeps us running.
                     </p>
                   </div>
                 </div>
@@ -330,34 +330,34 @@ export default function DonatePage() {
               <div className="space-y-5">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-black mb-2">
                       Your Name <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
-                      placeholder="John Doe"
+                      placeholder="Your Name"
                       value={form.name}
                       onChange={(e) => setForm({ ...form, name: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none transition-all duration-300"
+                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none transition-all duration-300 text-black placeholder-gray-500"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-black mb-2">
                       Email Address <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="email"
-                      placeholder="john@example.com"
+                      placeholder="Your email"
                       value={form.email}
                       onChange={(e) => setForm({ ...form, email: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none transition-all duration-300"
+                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none transition-all duration-300 text-black placeholder-gray-500"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-black mb-2">
                     Photo (Optional)
                   </label>
                   <div className="flex items-center gap-4">
@@ -387,7 +387,7 @@ export default function DonatePage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-black mb-2">
                     Donation Amount (₹) <span className="text-red-500">*</span>
                   </label>
                   <div className="grid grid-cols-4 gap-2 mb-3">
@@ -411,12 +411,12 @@ export default function DonatePage() {
                     placeholder="Enter custom amount"
                     value={form.amount}
                     onChange={(e) => setForm({ ...form, amount: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none transition-all duration-300"
+                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none transition-all duration-300 text-black placeholder-gray-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-black mb-2">
                     Message (Optional)
                   </label>
                   <textarea
@@ -424,7 +424,7 @@ export default function DonatePage() {
                     value={form.message}
                     onChange={(e) => setForm({ ...form, message: e.target.value })}
                     rows={3}
-                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none transition-all duration-300 resize-none"
+                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none transition-all duration-300 resize-none text-black placeholder-gray-500"
                   />
                 </div>
 
@@ -453,7 +453,7 @@ export default function DonatePage() {
             </div>
           </div>
 
-          {/* Donors Section */}
+          {/* Donors & Thank You Section */}
           <div className={`space-y-6 transition-all duration-700 delay-300 ${
             mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}>
@@ -515,18 +515,91 @@ export default function DonatePage() {
               </div>
             )}
 
-            {/* Thank You Message */}
-            <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-xl p-6 text-white">
-              <Sparkles className="w-8 h-8 mb-3" />
-              <h3 className="text-xl font-bold mb-2">Thank You!</h3>
-              <p className="text-blue-100 text-sm leading-relaxed">
-                Every donation, big or small, makes a huge difference. 
-                Together, we're making quality education accessible to everyone, everywhere.
+            {/* Improved Thank You Banner */}
+            <div className="bg-gradient-to-br from-indigo-600 to-blue-600 rounded-2xl shadow-2xl p-6 text-white relative overflow-hidden">
+              <Sparkles className="w-10 h-10 mb-3 text-white" />
+              <h3 className="text-2xl font-extrabold mb-2">Thank You for Supporting Education</h3>
+              <p className="text-sm text-indigo-100 mb-4 leading-relaxed">
+                Your generosity helps learners everywhere access resources and courses for free.
               </p>
+            
+
+              {/* decorative circles */}
+              <div className="absolute -right-16 -top-16 w-48 h-48 rounded-full bg-white/6 blur-3xl pointer-events-none"></div>
+              <div className="absolute -left-16 -bottom-16 w-36 h-36 rounded-full bg-white/4 blur-xl pointer-events-none"></div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Thank You Modal */}
+      {showThankYouModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          aria-modal="true"
+          role="dialog"
+        >
+          <div
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowThankYouModal(false)}
+            aria-hidden="true"
+          />
+
+          <div className="relative z-10 max-w-xl mx-auto bg-white rounded-2xl shadow-2xl p-6 transform transition-all">
+            <button
+              onClick={() => setShowThankYouModal(false)}
+              className="absolute -top-3 -right-3 bg-white rounded-full p-2 shadow"
+              aria-label="Close"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-3xl font-bold shadow-md">
+                ❤
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Thank you — your contribution matters!</h2>
+                <p className="text-sm text-gray-600 mt-1">
+                  We appreciate your support. A confirmation has been sent to your email (if provided).
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 grid grid-cols-1 gap-3">
+              <button
+                onClick={() => {
+                  if (donationId) {
+                    window.open(`${API_BASE_URL}/api/donations/receipt/${donationId}`, "_blank");
+                  } else {
+                    alert("Receipt will be available after a successful donation.");
+                  }
+                }}
+                className="w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-3 rounded-xl font-semibold shadow"
+              >
+                Download Receipt
+              </button>
+
+              <button
+                onClick={() => {
+                  navigator.clipboard?.writeText(window.location.href);
+                  alert("Page link copied to clipboard — share with friends!");
+                }}
+                className="w-full inline-flex items-center justify-center gap-2 border border-gray-200 px-4 py-3 rounded-xl font-medium hover:shadow"
+              >
+                Share this page
+              </button>
+
+              <button
+                onClick={() => setShowThankYouModal(false)}
+                className="w-full inline-flex items-center justify-center gap-2 text-sm text-gray-600 px-4 py-3 rounded-xl hover:bg-gray-50"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
