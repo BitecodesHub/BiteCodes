@@ -1,0 +1,3 @@
+Contact: mailto:security@bitecodes.com
+Expires: 2026-12-31
+Preferred-Languages: en

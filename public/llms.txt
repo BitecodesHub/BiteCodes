@@ -1,0 +1,15 @@
+# Bitecodes Academy
+# Free entrance exam preparation platform
+
+User-agent: *
+Allow: /
+
+Primary Topics:
+- CMAT preparation
+- NFSU entrance exams
+- DAU admissions
+- MSCIT syllabus
+- Free mock tests
+
+Content-Type: Educational
+Website: https://bitecodes.com
