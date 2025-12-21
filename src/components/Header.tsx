@@ -16,33 +16,12 @@ import { useAuth } from '../app/contexts/AuthContext';
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false)
-  const [unreadCount, setUnreadCount] = useState(0)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
   
   // Use auth context
   const { user, isLoggedIn, login, logout, isPremiumUser } = useAuth();
 
-  // Fetch unread notifications count
-  useEffect(() => {
-    const fetchUnreadCount = async () => {
-      if (!isLoggedIn) return;
-
-      try {
-        const response = await axios.get(`${API_BASE_URL}/api/notifications/unread-count`, {
-          
-        });
-        setUnreadCount(response.data.unreadCount || 0);
-      } catch (error) {
-        console.error('Error fetching unread count:', error);
-      }
-    };
-
-    fetchUnreadCount();
-    // Refresh every 30 seconds
-    const interval = setInterval(fetchUnreadCount, 30000);
-    return () => clearInterval(interval);
-  }, [isLoggedIn, API_BASE_URL]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -132,7 +111,6 @@ export default function Header() {
   const userMenuItems = [
     { name: 'My Profile', href: '/profile', icon: User },
     // { name: 'Bookmarks', href: '/bookmarks', icon: Bookmark },
-    // { name: 'Notifications', href: '/notifications', icon: Bell, badge: unreadCount },
     // { name: 'Messages', href: '/chat', icon: MessageCircle },
     { name: 'Mock Attempts', href: '/mock-attempts', icon: BookOpen },
      { name: 'My Donations', href: '/donations', icon: Heart },
@@ -199,20 +177,7 @@ export default function Header() {
                 )
               ) : null} */}
 
-              {/* Notifications Bell
-              {isLoggedIn && user && (
-                <Link
-                  href="/notifications"
-                  className="relative p-2 text-gray-600 hover:text-blue-600 transition-colors"
-                >
-                  <Bell className="w-5 h-5" />
-                  {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                      {unreadCount > 9 ? '9+' : unreadCount}
-                    </span>
-                  )}
-                </Link>
-              )} */}
+              
 
               {/* User Profile / Login */}
               <div className="relative" ref={dropdownRef}>
