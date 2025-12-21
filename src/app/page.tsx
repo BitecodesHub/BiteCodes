@@ -3,26 +3,32 @@ import { Metadata } from 'next';
 import HomeClient from '../components/HomeClient';
 
 export const metadata: Metadata = {
-  title: 'Bitecodes Academy | Entrance Exams, Universities, Preparation Guides & Mock Tests',
+  title:
+    'Bitecodes Academy — Free CMAT, NFSU, DAU, MSCIT Preparation | Mock Tests & Notes',
   description:
-    'Bitecodes Academy is your ultimate platform for entrance exam preparation. Access top university details, expert preparation guides, previous year papers, and AI-powered free mock tests. Unlock your academic success today!',
+    'Bitecodes Academy offers 100% free entrance exam preparation for CMAT, NFSU, DAU, MSCIT and other competitive exams. Access free mock tests, previous year papers, syllabus, PDFs, and university-wise admission & seat information to boost your success.',
   keywords:
-    'Bitecodes Academy, entrance exams, DAU, NFSU, NIRMA, university info, mock tests, preparation guides, previous year papers, online tests, NFSU, DAIICT, competitive exams, career preparation',
-  authors: [{ name: 'Bitecodes Team', url: 'https://bitecodes.com' }],
+    'free entrance exam preparation, CMAT free mock tests, NFSU preparation, DAU entrance exam, MSCIT syllabus, previous year papers, online mock tests, free study material, Bitecodes Academy, competitive exams India',
+  authors: [{ name: 'Bitecodes Team', url: 'https://www.bitecodes.com' }],
   creator: 'Bitecodes Academy',
-  metadataBase: new URL('https://bitecodes.com'),
+  publisher: 'Bitecodes Academy',
+  metadataBase: new URL('https://www.bitecodes.com'),
+  alternates: {
+    canonical: 'https://www.bitecodes.com',
+  },
   openGraph: {
-    title: 'Bitecodes Academy | Free Mock Tests & Entrance Exam Preparation',
+    title:
+      'Bitecodes Academy — Free CMAT, NFSU, DAU, MSCIT Entrance Exam Prep',
     description:
-      'Join thousands of students using Bitecodes Academy to prepare for DAU, NIRMA, NFSU and more. Get university-wise info, expert-curated materials, and full-length mock tests.',
-    url: 'https://bitecodes.com',
+      'Prepare smarter with free mock tests, PDFs, syllabus, and university-wise info for CMAT, NFSU, DAU, MSCIT and more. Trusted by students across India.',
+    url: 'https://www.bitecodes.com',
     siteName: 'Bitecodes Academy',
     images: [
       {
-        url: 'https://bitecodes.com/og-image.jpg',
+        url: 'https://www.bitecodes.com/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'Bitecodes Academy - Your Gateway to Success',
+        alt: 'Bitecodes Academy — Free Entrance Exam Preparation Platform',
       },
     ],
     type: 'website',
@@ -32,10 +38,22 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     site: '@bitecodes',
     creator: '@bitecodes',
-    title: 'Bitecodes Academy | Entrance Exam Hub',
+    title:
+      'Bitecodes Academy — Free Entrance Exam Mock Tests & Notes',
     description:
-      'Free mock tests, university data, and preparation material for exams like DAU, NIRMA, NFSU. Start your journey to success today with Bitecodes Academy!',
-    images: ['https://bitecodes.com/og-image.jpg'],
+      'Free CMAT, NFSU, DAU, MSCIT mock tests, syllabus and preparation material. Start your free exam prep with Bitecodes Academy today.',
+    images: ['https://www.bitecodes.com/og-image.jpg'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+      'max-video-preview': -1,
+    },
   },
   icons: {
     icon: '/favicon.ico',
