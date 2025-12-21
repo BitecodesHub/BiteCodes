@@ -1,18 +1,46 @@
-# Robots.txt for Bitecodes.com
-# Optimized for SEO & Crawl Efficiency
+# =====================================================
+# Robots.txt — Bitecodes Academy
+# Optimized for SEO, Crawl Budget & Indexing
+# =====================================================
 
 User-agent: *
-# ✅ Always allow Donate page (priority content)
-Allow: /donate
-
-# ❌ Block irrelevant or low-value sections
-Disallow: /profile
-Disallow: /tmp/
-Disallow: /cgi-bin/
-Disallow: /private/
-
-# ✅ Allow everything else
+# -------------------------
+# HIGH-VALUE PAGES (ALLOW)
+# -------------------------
 Allow: /
+Allow: /donate
+Allow: /entrance-exams
+Allow: /mock-tests
+Allow: /universities
+Allow: /docs
 
-# 🗺️ Sitemap for fast indexing
+# -------------------------
+# LOW-VALUE / PRIVATE PAGES
+# -------------------------
+Disallow: /profile
+Disallow: /login
+Disallow: /signup
+Disallow: /reset-password
+Disallow: /api/
+Disallow: /_next/
+Disallow: /tmp/
+Disallow: /private/
+Disallow: /cgi-bin/
+
+# -------------------------
+# ASSETS (ALLOW FOR SEO)
+# -------------------------
+Allow: /*.css$
+Allow: /*.js$
+Allow: /*.png$
+Allow: /*.jpg$
+Allow: /*.jpeg$
+Allow: /*.svg$
+Allow: /*.webp$
+Allow: /*.woff$
+Allow: /*.woff2$
+
+# -------------------------
+# SITEMAPS
+# -------------------------
 Sitemap: https://bitecodes.com/sitemap.xml
