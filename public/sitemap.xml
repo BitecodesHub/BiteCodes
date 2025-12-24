@@ -34,35 +34,28 @@
 
   <!-- ================= INDIVIDUAL EXAMS ================= -->
   <url>
-    <loc>https://bitecodes.com/entrance-exams/CMAT</loc>
+    <loc>https://bitecodes.com/entrance-exams/cmat</loc>
     <lastmod>2025-08-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
-    <loc>https://bitecodes.com/entrance-exams/NFSU</loc>
+    <loc>https://www.bitecodes.com/universities/nfsu</loc>
     <lastmod>2025-08-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
-    <loc>https://bitecodes.com/entrance-exams/DAU</loc>
+    <loc>https://www.bitecodes.com/universities/daiict</loc>
     <lastmod>2025-08-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>
 
   <url>
-    <loc>https://bitecodes.com/entrance-exams/NIRMA</loc>
-    <lastmod>2025-08-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-
-  <url>
-    <loc>https://bitecodes.com/entrance-exams/MSCIT</loc>
+    <loc>https://www.bitecodes.com/universities/nirma</loc>
     <lastmod>2025-08-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
@@ -70,28 +63,28 @@
 
   <!-- ================= SYLLABUS & STUDY MATERIAL ================= -->
   <url>
-    <loc>https://bitecodes.com/entrance-exams/CMAT/syllabus</loc>
+    <loc>https://bitecodes.com/entrance-exams/cmat/syllabus</loc>
     <lastmod>2025-08-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
-  <url>
-    <loc>https://bitecodes.com/entrance-exams/NFSU/syllabus</loc>
+  <!-- <url>
+    <loc>https://bitecodes.com/entrance-exams/nfsu/syllabus</loc>
     <lastmod>2025-08-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
-  </url>
+  </url> -->
 
   <url>
-    <loc>https://bitecodes.com/entrance-exams/DAU/syllabus</loc>
+    <loc>https://bitecodes.com/entrance-exams/daiict-mscit/syllabus</loc>
     <lastmod>2025-08-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.75</priority>
   </url>
 
   <url>
-    <loc>https://bitecodes.com/entrance-exams/CMAT/previous-papers</loc>
+    <loc>https://bitecodes.com/entrance-exams/cmat/previous-papers</loc>
     <lastmod>2025-08-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -106,21 +99,21 @@
   </url>
 
   <url>
-    <loc>https://bitecodes.com/mock-tests/CMAT</loc>
+    <loc>https://bitecodes.com/mock-tests/cmat</loc>
     <lastmod>2025-08-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>
   </url>
 
-  <url>
+  <!-- <url>
     <loc>https://bitecodes.com/mock-tests/NFSU</loc>
     <lastmod>2025-08-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
-  </url>
+  </url> -->
 
   <url>
-    <loc>https://bitecodes.com/mock-tests/DAU</loc>
+    <loc>https://www.bitecodes.com/mock-tests/daiict-mscit</loc>
     <lastmod>2025-08-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
@@ -135,7 +128,7 @@
   </url>
 
   <url>
-    <loc>https://bitecodes.com/universities/NFSU</loc>
+    <loc>https://bitecodes.com/universities/nfsu</loc>
     <lastmod>2025-08-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.75</priority>
